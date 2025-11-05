@@ -1,5 +1,12 @@
+-- drop tables in reverse order
+drop table if exists connection;
+drop table if exists submission;
+drop table if exists pg;
+drop table if exists person;
+drop table if exists group;
+
 CREATE TABLE `person` (
-  `pid` int PRIMARY KEY,
+  `pid` int,
   `name` varchar(50),
   `birthday` date,
   `lc_username` varchar(50),
@@ -8,17 +15,26 @@ CREATE TABLE `person` (
   `total_problems` int,
   `num_coins` int,
   `personal_goal` int,
-  `gid` int
+  primary key (pid)
 );
+ENGINE = InnoDB;
 
 CREATE TABLE `connection` (
-  `cid` int PRIMARY KEY,
   `p1` int,
-  `p2` int
+  `p2` int,
+  primary key (p1,p2), 
 );
+ENGINE = InnoDB;
+
+CREATE TABLE pg (
+  `pid` int,
+  `gid` int,
+  primary key (pid, gid)
+);
+ENGINE = InnoDB;
 
 CREATE TABLE `group` (
-  `gid` int PRIMARY KEY,
+  `gid` int,
   `group_goal` int,
   `longest_streak_id` int,
   `longest_streak` int,
@@ -26,8 +42,12 @@ CREATE TABLE `group` (
   `current_streak` int,
   `comp_start` date,
   `comp_end` date,
-  `last_winner` int
+  `last_winner` int,
+  primary key(gid)
 );
+ENGINE = InnoDB;
+
+
 
 CREATE TABLE `submission` (
   `sid` int PRIMARY KEY,
@@ -37,17 +57,4 @@ CREATE TABLE `submission` (
   `difficulty` ENUM ('easy', 'medium', 'hard'),
   `coins` int
 );
-
-ALTER TABLE `person` ADD FOREIGN KEY (`gid`) REFERENCES `group` (`gid`);
-
-ALTER TABLE `connection` ADD FOREIGN KEY (`p1`) REFERENCES `person` (`pid`);
-
-ALTER TABLE `connection` ADD FOREIGN KEY (`p2`) REFERENCES `person` (`pid`);
-
-ALTER TABLE `group` ADD FOREIGN KEY (`last_winner`) REFERENCES `person` (`pid`);
-
-ALTER TABLE `group` ADD FOREIGN KEY (`longest_streak_id`) REFERENCES `person` (`pid`);
-
-ALTER TABLE `group` ADD FOREIGN KEY (`current_streak_id`) REFERENCES `person` (`pid`);
-
-ALTER TABLE `submission` ADD FOREIGN KEY (`pid`) REFERENCES `person` (`pid`);
+ENGINE = InnoDB;
