@@ -1,11 +1,11 @@
 -- drop tables in reverse order
-drop table if exists connection;
+drop table if exists `connection`;
 drop table if exists submission;
 drop table if exists pg;
 drop table if exists person;
 drop table if exists group;
 
-CREATE TABLE `person` (
+CREATE TABLE person (
   `pid` int,
   `name` varchar(50),
   `birthday` date,
@@ -33,7 +33,7 @@ CREATE TABLE pg (
 );
 ENGINE = InnoDB;
 
-CREATE TABLE `group` (
+CREATE TABLE group (
   `gid` int,
   `group_goal` int,
   `longest_streak_id` int,
@@ -47,9 +47,7 @@ CREATE TABLE `group` (
 );
 ENGINE = InnoDB;
 
-
-
-CREATE TABLE `submission` (
+CREATE TABLE submission (
   `sid` int PRIMARY KEY,
   `pid` int,
   `lc_problem` int,
