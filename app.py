@@ -29,6 +29,10 @@ def about():
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
+@app.route('/profile/<username>')
+def get_user_profile(username):
+    return
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:
