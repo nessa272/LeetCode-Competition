@@ -1,58 +1,76 @@
--- drop tables in reverse order
-drop table if exists `connection`;
-drop table if exists submission;
-drop table if exists pg;
-drop table if exists person;
-drop table if exists group;
+-- Drop in dependency order
+DROP TABLE IF EXISTS submission;
+DROP TABLE IF EXISTS connection;
+DROP TABLE IF EXISTS person;
+DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS problem;
 
+
+-- Problem metadata: one row per LeetCode problem
+CREATE TABLE problem (
+  lc_problem  INT PRIMARY KEY,                    -- LeetCode frontend ID (1,2,3,...)
+  title_slug  VARCHAR(255) UNIQUE NOT NULL,       -- 'two-sum'
+  title       VARCHAR(255) NOT NULL,              -- 'Two Sum'
+  difficulty  ENUM('easy', 'medium', 'hard')
+) ENGINE=InnoDB;
+
+
+-- Groups
+CREATE TABLE groups (
+  gid               INT AUTO_INCREMENT PRIMARY KEY,
+  group_goal        INT,
+  comp_start        DATE,
+  comp_end          DATE,
+) ENGINE=InnoDB;
+
+
+-- Person: LeetCode users / players
+-- Each person may belong to at most one group via gid
 CREATE TABLE person (
-  `pid` int,
-  `name` varchar(50),
-  `birthday` date,
-  `lc_username` varchar(50),
-  `current_streak` int,
-  `longest_streak` int,
-  `total_problems` int,
-  `num_coins` int,
-  `personal_goal` int,
-  primary key (pid)
-);
-ENGINE = InnoDB;
+  pid            INT AUTO_INCREMENT PRIMARY KEY,
+  name           VARCHAR(50),
+  birthday       DATE,
+  lc_username    VARCHAR(50),
+  current_streak INT,
+  longest_streak INT,
+  total_problems INT,
+  num_coins      INT,
+  personal_goal  INT,
+  gid            INT,                  -- current group membership (nullable)
+  FOREIGN KEY (gid) REFERENCES groups(gid)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
-CREATE TABLE `connection` (
-  `p1` int,
-  `p2` int,
-  primary key (p1,p2), 
-);
-ENGINE = InnoDB;
 
-CREATE TABLE pg (
-  `pid` int,
-  `gid` int,
-  primary key (pid, gid)
-);
-ENGINE = InnoDB;
+-- Connections between people (e.g., friends)
+CREATE TABLE connection (
+  p1 INT NOT NULL,
+  p2 INT NOT NULL,
+  PRIMARY KEY (p1, p2),
+  FOREIGN KEY (p1) REFERENCES person(pid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  FOREIGN KEY (p2) REFERENCES person(pid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
-CREATE TABLE group (
-  `gid` int,
-  `group_goal` int,
-  `longest_streak_id` int,
-  `longest_streak` int,
-  `current_streak_id` int,
-  `current_streak` int,
-  `comp_start` date,
-  `comp_end` date,
-  `last_winner` int,
-  primary key(gid)
-);
-ENGINE = InnoDB;
 
+-- Submissions / solved problems: one row per (person, problem)
 CREATE TABLE submission (
-  `sid` int PRIMARY KEY,
-  `pid` int,
-  `lc_problem` int,
-  `submission_date` date,
-  `difficulty` ENUM ('easy', 'medium', 'hard'),
-  `coins` int
-);
-ENGINE = InnoDB;
+  sid             INT AUTO_INCREMENT PRIMARY KEY,
+  pid             INT NOT NULL,          -- FK to person
+  lc_problem      INT NOT NULL,          -- FK to problem
+  submission_date DATE NOT NULL,
+  coins           INT DEFAULT 0,
+
+  UNIQUE KEY uniq_user_problem (pid, lc_problem),
+
+  FOREIGN KEY (pid) REFERENCES person(pid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  FOREIGN KEY (lc_problem) REFERENCES problem(lc_problem)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
