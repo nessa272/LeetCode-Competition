@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
+import db_search
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -31,7 +32,10 @@ def about():
 
 @app.route('/profile/<username>')
 def get_user_profile(username):
-    return
+    '''loads a user's profile'''
+    conn=dbi.connect()
+    profile = db_search.get_profile(conn, username)
+    return render_template('profile.html', profile)
 
 if __name__ == '__main__':
     import sys, os
