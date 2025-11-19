@@ -28,6 +28,7 @@ CREATE TABLE groups (
 -- Each person may belong to at most one group via gid
 CREATE TABLE person (
   pid            INT AUTO_INCREMENT PRIMARY KEY,
+  username       VARCHAR(50),
   name           VARCHAR(50),
   birthday       DATE,
   lc_username    VARCHAR(50),
