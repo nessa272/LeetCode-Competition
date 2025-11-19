@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Login</h1>
+
+<form method="POST" action="/signup">
+  <label>Username</label>
+  <input type="text" name="username" required>
+
+  <label>Password</label>
+  <input type="password" name="password1" required>
+
+  <label>LeetCode Username</label>
+  <input type="text" name="lc_username" required>
+
+  <button type="submit">Create Account</button>
+</form>
+
+
+{% endblock %}

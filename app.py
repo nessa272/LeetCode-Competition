@@ -29,6 +29,11 @@ def about():
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
+@app.route('/login/')
+def login():
+    flash('this is a flashed message')
+    return render_template('login.html', page_title='Login')
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:
