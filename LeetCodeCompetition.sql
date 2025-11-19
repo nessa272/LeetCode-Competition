@@ -20,7 +20,7 @@ CREATE TABLE groups (
   gid               INT AUTO_INCREMENT PRIMARY KEY,
   group_goal        INT,
   comp_start        DATE,
-  comp_end          DATE,
+  comp_end          DATE
 ) ENGINE=InnoDB;
 
 
