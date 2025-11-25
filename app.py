@@ -31,12 +31,13 @@ def about():
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
-@app.route('/profile/<username>')
-def get_user_profile(username):
+@app.route('/profile/<pid>')
+def get_user_profile(pid):
     '''loads a user's profile'''
     conn=dbi.connect()
-    profile = db_search.get_profile(conn, username)
-    return render_template('profile.html', profile)
+    profile = db_search.get_profile(conn, pid)
+    print(profile)
+    return render_template('profile.html', profile=profile)
 
 
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
