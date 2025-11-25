@@ -75,3 +75,16 @@ CREATE TABLE submission (
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+CREATE TABLE userpass (
+    uid        INT AUTO_INCREMENT,
+    username   VARCHAR(50) NOT NULL,   -- website login username
+    hashed     CHAR(60),               -- bcrypt hash
+    person_id  INT,                    -- FK to person
+    UNIQUE(username),
+    INDEX(username),
+    PRIMARY KEY (uid),
+    FOREIGN KEY (person_id) REFERENCES person(pid)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;

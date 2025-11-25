@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Sign Up</h1>
+
+<h2>Create Account</h2>
+
+  <form action="/signup" method="POST">
+    <fieldset>
+      <legend>Sign Up</legend>
+
+      <label for="username">Username</label><br>
+      <input type="text" id="username" name="username" required><br><br>
+
+      <label for="password1">Password</label><br>
+      <input type="password" id="password1" name="password1" required><br><br>
+
+      <label for="lc_username">LeetCode Username</label><br>
+      <input type="text" id="lc_username" name="lc_username" required><br><br>
+
+      <button type="submit">Create Account</button>
+    </fieldset>
+  </form>
+
+  <p>Already have an account? <a href="/login">Log in here</a></p>
+
+
+{% endblock %}
