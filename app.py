@@ -21,7 +21,6 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/')
 def index():
     if "pid" in session:
-    if "pid" in session:
         return render_template('main.html', page_title='Main Page')
     return render_template("login.html") #prompt to login
     
