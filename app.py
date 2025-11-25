@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
-import db_search
+import db
 import bcrypt_utils as bc
 
 # we need a secret_key to use flash() and sessions
