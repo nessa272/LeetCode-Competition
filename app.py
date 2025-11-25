@@ -150,6 +150,22 @@ def refresh_profile(pid: int, username: str):
     conn = dbi.connect()
     refresh_user_submissions(conn, pid, username)
 
+@app.route('/find_friends/<pid>', methods=['GET', 'POST'])
+def find_friends(pid):
+    conn = dbi.connect()
+    username = db_search.get_username(conn, pid)
+    if request.method == 'GET':
+        friends = db_search.find_friends(conn, pid)
+        return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
+    else:
+        pid2 = request.form.get('connect_friend')
+        friend_name = db_search.get_username(conn, pid2)
+        flash('connecting with %s' % (friend_name['lc_username']))
+        db_search.connect(conn, pid, pid2)
+        friends = db_search.find_friends(conn, pid)
+        return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
+        
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:
