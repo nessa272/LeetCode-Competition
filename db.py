@@ -3,11 +3,11 @@
 import cs304dbi as dbi
 print(dbi.conf('leetcode_db'))
 
-def get_profile(conn, username):
+def get_profile(conn, pid):
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select * from person
-    where username = %s";
+    where pid = %s;
     ''', 
-    [username])
+    [pid])
     return curs.fetchone()
