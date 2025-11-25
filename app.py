@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
-import db_search
+import db
 import bcrypt_utils as bc
 from leetcode_client import refresh_user_submissions
 from leetcode_client import refresh_user_submissions
