@@ -128,6 +128,23 @@ def logout():
     flash("Logged out.")
     return redirect(url_for('login'))
 
+@app.route('/profile')
+def profile():
+    if 'pid' not in session:
+        return redirect(url_for('login'))
+
+    conn = dbi.connect()
+    curs = dbi.dict_cursor(conn)
+
+    curs.execute("SELECT * FROM person WHERE pid=%s", [session['pid']])
+    person = curs.fetchone()
+
+    curs.close()
+    conn.close()
+
+    return render_template("profile.html", person=person)
+
+
 if __name__ == '__main__':
     import sys, os
     if len(sys.argv) > 1:
