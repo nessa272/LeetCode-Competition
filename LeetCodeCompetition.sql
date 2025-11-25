@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS userpass;
 DROP TABLE IF EXISTS person;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS problem;
+DROP TABLE IF EXISTS userpass;
 
 
 -- Problem metadata: one row per LeetCode problem
@@ -66,6 +67,8 @@ CREATE TABLE submission (
   lc_problem      INT NOT NULL,          -- FK to problem
   submission_date DATE NOT NULL,
   coins           INT DEFAULT 0,
+  latest_submission DATE,
+
   UNIQUE KEY uniq_user_problem (pid, lc_problem),
 
   FOREIGN KEY (pid) REFERENCES person(pid)
