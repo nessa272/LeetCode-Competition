@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<h1> Hi {{ username }}! </h1>
+<p> Look for friends!</p>
+
+{% if friends|length < 1 %}
+    <p>No more users to friend!</p>
+{% endif %}
+<ul>
+
+{% for friend in friends %}
+    <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+        {{ friend['lc_username'] }}
+        <form method="POST" action="{{ url_for('find_friends', pid=pid) }}">
+            <input type="hidden" name="connect_friend" value="{{ friend['pid'] }}">
+            <input type="submit" value="Connect">
+        </form>
+    </li>
+{% endfor %}
+</ul>
+
+{% endblock %}
