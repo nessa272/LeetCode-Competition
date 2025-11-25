@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
-import db_search
+import db
 import bcrypt_utils as bc
 from leetcode_client import refresh_user_submissions
 
@@ -21,6 +21,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/')
 def index():
     if "pid" in session:
+    if "pid" in session:
         return render_template('main.html', page_title='Main Page')
     return render_template("login.html") #prompt to login
     
@@ -30,12 +31,13 @@ def about():
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
-@app.route('/profile/<username>')
-def get_user_profile(username):
+@app.route('/profile/<pid>')
+def get_user_profile(pid):
     '''loads a user's profile'''
     conn=dbi.connect()
-    profile = db_search.get_profile(conn, username)
-    return render_template('profile.html', profile)
+    profile = db_search.get_profile(conn, pid)
+    print(profile)
+    return render_template('profile.html', profile=profile)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -99,6 +101,7 @@ def login():
     curs = dbi.dict_cursor(conn)
 
     curs.execute('''
+        SELECT username, hashed, person_id
         SELECT username, hashed, person_id
         FROM userpass
         WHERE username = %s
