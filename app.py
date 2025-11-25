@@ -36,6 +36,8 @@ def get_user_profile(username):
     profile = db_search.get_profile(conn, username)
     return render_template('profile.html', profile)
 
+
+# --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
