@@ -7,6 +7,7 @@ import secrets
 import cs304dbi as dbi
 import db_search
 import bcrypt_utils as bc
+from leetcode_client import refresh_user_submissions
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -143,6 +144,9 @@ def profile():
 
     return render_template("profile.html", person=person)
 
+def refresh_profile(pid: int, username: str):
+    conn = dbi.connect()
+    refresh_user_submissions(conn, pid, username)
 
 if __name__ == '__main__':
     import sys, os
