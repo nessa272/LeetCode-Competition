@@ -1,10 +1,13 @@
-{% extends base.html %}
+{% extends "base.html" %}
 
-{% block main_content %}
+{% block content %}
+<h2>Your Profile</h2>
 
-<h1> Hi {{ profile['username'] }}! </h1>
-<p> Your Profile: </p>
-<li> Current Streak: </li>
-<li> Longest Streak: </li>
+<p>Name: {{ person.name }}</p>
+<p>Username: {{ person.username }}</p>
 
+<img src="{{ person.pfp_url or '/static/default_pfp.png' }}"
+     style="width:150px;height:150px;border-radius:50%;object-fit:cover;">
+
+<a href="{{ url_for('logout') }}">Log Out</a>
 {% endblock %}

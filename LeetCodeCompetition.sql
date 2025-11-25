@@ -1,6 +1,7 @@
 -- Drop in dependency order
 DROP TABLE IF EXISTS submission;
 DROP TABLE IF EXISTS connection;
+DROP TABLE IF EXISTS userpass;
 DROP TABLE IF EXISTS person;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS problem;
@@ -39,6 +40,7 @@ CREATE TABLE person (
   num_coins      INT,
   personal_goal  INT,
   gid            INT,                  -- current group membership (nullable)
+  latest_submission DATE,
   FOREIGN KEY (gid) REFERENCES groups(gid)
     ON DELETE SET NULL
     ON UPDATE CASCADE
