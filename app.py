@@ -8,6 +8,7 @@ import cs304dbi as dbi
 import db_search
 import bcrypt_utils as bc
 from leetcode_client import refresh_user_submissions
+from leetcode_client import refresh_user_submissions
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
