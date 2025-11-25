@@ -3,12 +3,7 @@
 import cs304dbi as dbi
 print(dbi.conf('leetcode_db'))
 
-<<<<<<< HEAD:db.py
 def get_profile(conn, pid):
-=======
-def get_profile(conn, username):
-    '''get a person's profile'''
->>>>>>> 851f744 (finished find_friends page):db_search.py
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select * from person

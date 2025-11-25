@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
-import db
+import db_queries
 import bcrypt_utils as bc
 from leetcode_client import refresh_user_submissions
 
@@ -153,16 +153,16 @@ def refresh_profile(pid: int, username: str):
 @app.route('/find_friends/<pid>', methods=['GET', 'POST'])
 def find_friends(pid):
     conn = dbi.connect()
-    username = db_search.get_username(conn, pid)
+    username = db_queries.get_username(conn, pid)
     if request.method == 'GET':
-        friends = db_search.find_friends(conn, pid)
+        friends = db_queries.find_friends(conn, pid)
         return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
     else:
         pid2 = request.form.get('connect_friend')
-        friend_name = db_search.get_username(conn, pid2)
+        friend_name = db_queries.get_username(conn, pid2)
         flash('connecting with %s' % (friend_name['lc_username']))
-        db_search.connect(conn, pid, pid2)
-        friends = db_search.find_friends(conn, pid)
+        db_queries.connect(conn, pid, pid2)
+        friends = db_queries.find_friends(conn, pid)
         return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
         
 
