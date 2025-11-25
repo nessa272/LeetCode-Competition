@@ -1,6 +1,7 @@
 -- Drop in dependency order
 DROP TABLE IF EXISTS submission;
 DROP TABLE IF EXISTS connection;
+DROP TABLE IF EXISTS userpass;
 DROP TABLE IF EXISTS person;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS problem;
@@ -20,7 +21,7 @@ CREATE TABLE groups (
   gid               INT AUTO_INCREMENT PRIMARY KEY,
   group_goal        INT,
   comp_start        DATE,
-  comp_end          DATE,
+  comp_end          DATE
 ) ENGINE=InnoDB;
 
 
@@ -37,6 +38,7 @@ CREATE TABLE person (
   num_coins      INT,
   personal_goal  INT,
   gid            INT,                  -- current group membership (nullable)
+  latest_submission DATE,
   FOREIGN KEY (gid) REFERENCES groups(gid)
     ON DELETE SET NULL
     ON UPDATE CASCADE
@@ -64,7 +66,6 @@ CREATE TABLE submission (
   lc_problem      INT NOT NULL,          -- FK to problem
   submission_date DATE NOT NULL,
   coins           INT DEFAULT 0,
-
   UNIQUE KEY uniq_user_problem (pid, lc_problem),
 
   FOREIGN KEY (pid) REFERENCES person(pid)
@@ -76,13 +77,9 @@ CREATE TABLE submission (
 ) ENGINE=InnoDB;
 
 CREATE TABLE userpass (
-    uid        INT AUTO_INCREMENT,
-    username   VARCHAR(50) NOT NULL,   -- website login username
-    hashed     CHAR(60),               -- bcrypt hash
-    person_id  INT,                    -- FK to person
-    UNIQUE(username),
-    INDEX(username),
-    PRIMARY KEY (uid),
+    person_id  INT PRIMARY KEY,          -- PK and FK to person
+    username   VARCHAR(50) NOT NULL UNIQUE,
+    hashed     CHAR(60) NOT NULL,
     FOREIGN KEY (person_id) REFERENCES person(pid)
         ON DELETE CASCADE
         ON UPDATE CASCADE
