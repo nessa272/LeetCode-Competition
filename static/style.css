@@ -34,55 +34,73 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
     font-size: 200%;
 }
-    
 
-/* for a simple navbar. Talk to Scott if you want drop-downs. */
-nav > ul {
+.navbar {
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f9f9f9;
 }
 
-nav ul {
-    list-style-type: none;
-    margin: 0px;
-    padding: 0px;
+.nav-left {
+    list-style: none;
+    display: flex;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
 }
 
-nav > ul > li {
-    flex: 0 0 auto;
-    width: 15em; 
-}
-
-nav button, nav a {
-    display: block;
-    box-sizing: border-box; /* easier to make button and A the same size */
-    width: 100%;
-    height: 40px;
-    padding: 0px;
-    padding-bottom: 5px;
-    background-color: var(--color-header);
-    color: var(--color-nav-fg);
-    border: 2px solid black;
-    border-radius: 5px;
-    cursor: pointer;
-    /* Firefox uses font -apple-system unless I repeat the font spec here. */
-    font-family: var(--font-family);
+.nav-left li a {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #cfe2ff; 
+    border: 2px solid #6ea8fe;
+    border-radius: 6px;
+    color: black;
     font-weight: bold;
-    font-size: 1.4rem;
+    text-decoration: none;
+    transition: 0.2s ease-in-out;
 }
 
-/* Only the top-level buttons are centered; lower ones are left-aligned. */
-nav > ul > li > button , nav > ul > li > a {
-    text-align: center;
+.nav-left li a:hover {
+    background-color: #9ec5fe;
+    border-color: #3d8bfd;
 }
 
-/* because of the margin trick, this can only be used for the last element */
-
-nav li.right {
-    margin-left: auto;
+.nav-right {
+    display: flex;
+    align-items: center;
 }
 
-nav button:hover, button:focus, nav a:hover, nav a:focus {
-    background-color: var(--color-focus);
+.profile-pic {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid #6ea8fe;
+    transition: 0.2s ease-in-out;
 }
 
+.profile-pic:hover {
+    border-color: #3d8bfd;
+}
+
+.login-link {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #cfe2ff;
+    border: 2px solid #6ea8fe;
+    border-radius: 6px;
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.2s ease-in-out;
+}
+
+.login-link:hover {
+    background-color: #9ec5fe;
+    border-color: #3d8bfd;
+}

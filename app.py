@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
+import db_search
 import bcrypt_utils as bc
 
 # we need a secret_key to use flash() and sessions
@@ -18,7 +19,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
-    if "uid" in session:
+    if "pid" in session:
         return render_template('main.html', page_title='Main Page')
     return render_template("login.html") #prompt to login
     
@@ -28,8 +29,13 @@ def about():
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
+@app.route('/profile/<username>')
+def get_user_profile(username):
+    '''loads a user's profile'''
+    conn=dbi.connect()
+    profile = db_search.get_profile(conn, username)
+    return render_template('profile.html', profile)
 
-# --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
@@ -73,7 +79,6 @@ def signup():
         return redirect(url_for('signup'))
 
     # successfully added, sign them in and bring back to main page
-    session['uid'] = curs.lastrowid
     session['pid'] = person_id
     session['username'] = username
 
@@ -93,7 +98,7 @@ def login():
     curs = dbi.dict_cursor(conn)
 
     curs.execute('''
-        SELECT uid, username, hashed, person_id
+        SELECT username, hashed, person_id
         FROM userpass
         WHERE username = %s
     ''', [username])
@@ -110,7 +115,6 @@ def login():
         return redirect(url_for('login'))
 
     # login success
-    session['uid'] = row['uid']
     session['pid'] = row['person_id']
     session['username'] = row['username']
 
@@ -122,6 +126,23 @@ def logout():
     session.clear()
     flash("Logged out.")
     return redirect(url_for('login'))
+
+@app.route('/profile')
+def profile():
+    if 'pid' not in session:
+        return redirect(url_for('login'))
+
+    conn = dbi.connect()
+    curs = dbi.dict_cursor(conn)
+
+    curs.execute("SELECT * FROM person WHERE pid=%s", [session['pid']])
+    person = curs.fetchone()
+
+    curs.close()
+    conn.close()
+
+    return render_template("profile.html", person=person)
+
 
 
 # --------------------GROUP ROUTES------------------
