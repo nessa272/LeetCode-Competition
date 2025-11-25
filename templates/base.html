@@ -12,11 +12,23 @@
 <body>
 
 {% block nav %}
-<nav>
-  <ul>
+<nav class="navbar">
+  <ul class="nav-left">
     <li><a href="{{url_for('index')}}">Home</a></li>
     <li><a href="{{url_for('about')}}">About</a></li>
   </ul>
+
+  <div class="nav-right">
+    {% if session.get('pid') %}
+      <a href="{{ url_for('profile') }}">
+        <!-- CURRENTLY NOT YET IMPLEMENTED NEED TO ADD PFP PHOTO INTO DDL OF PERSON TABLE -->
+        <img src="{{ session.get('pfp_url', '/static/default_pfp.png') }}" 
+             class="profile-pic">
+      </a>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="login-link">Log In</a>
+    {% endif %}
+  </div>
 </nav>
 {% endblock %}
 
