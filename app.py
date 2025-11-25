@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 import secrets
 import cs304dbi as dbi
+import db_search
 import bcrypt_utils as bc
 
 # we need a secret_key to use flash() and sessions
@@ -27,6 +28,13 @@ def index():
 def about():
     flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
+
+@app.route('/profile/<username>')
+def get_user_profile(username):
+    '''loads a user's profile'''
+    conn=dbi.connect()
+    profile = db_search.get_profile(conn, username)
+    return render_template('profile.html', profile)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
