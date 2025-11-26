@@ -273,18 +273,6 @@ def remove_member(gid):
 
     return redirect(url_for("view_group", gid=gid))
 
-
-
-# --------------------GROUP ROUTES------------------
-@app.route("/create_group", methods=["GET", "POST"])
-def create_group():
-    if 'pid' not in session:
-        flash("You must be logged in to create a group")
-        return redirect(url_for("login"))
-
-    conn = dbi.connect()
-    refresh_user_submissions(conn, pid, username)
-
 @app.route('/find_friends/<pid>', methods=['GET', 'POST'])
 def find_friends(pid):
     conn = dbi.connect()
