@@ -10,7 +10,9 @@ def get_profile(conn, pid):
     where pid = %s;
     ''', 
     [pid])
-    return curs.fetchone()
+    result = curs.fetchone()
+    curs.close()
+    return result
 
 def get_username(conn, pid):
     curs = dbi.dict_cursor(conn)
@@ -19,7 +21,9 @@ def get_username(conn, pid):
     where pid = %s;
     ''', 
     [pid])
-    return curs.fetchone()
+    result = curs.fetchone()
+    curs.close()
+    return result
 
 def find_friends(conn, pid):
     '''find ppl who you aren't connected to '''
@@ -33,7 +37,9 @@ def find_friends(conn, pid):
     )
     limit 10;
     ''', [pid, pid, pid])
-    return curs.fetchall()
+    result = curs.fetchall()
+    curs.close()
+    return result
 
 def connect(conn, pid1, pid2):
     curs = dbi.dict_cursor(conn)
@@ -42,6 +48,7 @@ def connect(conn, pid1, pid2):
     values (%s, %s)
     ''', [pid1, pid2])
     conn.commit()
+    curs.close()
 
 if __name__ == '__main__':
     dbi.conf("wmdb")
