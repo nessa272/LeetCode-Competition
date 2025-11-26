@@ -48,7 +48,21 @@ def profile(pid):
 
 def refresh_profile(pid: int, username: str):
     conn = dbi.connect()
-    refresh_user_submissions(conn, pid, username)
+    num_submissions = refresh_user_submissions(conn, pid, username)
+    print(f"{num_submissions} submissions added to database for username {username}")
+    conn.close()
+
+def refresh_all():
+    conn = dbi.connect()
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 SELECT pid, lc_username
+                 FROM person
+                 ''')
+    people = curs.fetchall()
+    for person in people:
+        refresh_profile(person['pid'], person['lc_username'])
+    conn.close()
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -175,5 +189,5 @@ if __name__ == '__main__':
     else:
         port = os.getuid()
     app.debug = True
-    app.run('0.0.0.0',port)
+    app.run('0.0.0.0',port)    
 
