@@ -27,7 +27,7 @@ def index():
 
 @app.route('/about/')
 def about():
-    flash('this is a flashed message')
+    #flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
 @app.route('/profile/<pid>')
@@ -158,7 +158,7 @@ def find_friends():
     if 'pid' not in session:
         return redirect(url_for('login'))
     pid = session['pid']
-    
+
     username = db_queries.get_username(conn, pid)
     if request.method == 'GET':
         friends = db_queries.find_friends(conn, pid)

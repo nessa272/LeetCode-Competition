@@ -104,3 +104,7 @@ h1 {
     background-color: #9ec5fe;
     border-color: #3d8bfd;
 }
+
+.about-container {
+    padding: 20px 40px 20px 50px;
+}
