@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Groups</h1>
+
+<h2>Create a New Group</h2>
+
+<form method="POST" action="{{ url_for('create_group') }}">
+    <fieldset>
+        <legend>Group Details</legend>
+
+        <label>Group Goal (number of problems)</label>
+        <input type="number" name="group_goal" required>
+
+        <label>Start Date</label>
+        <input type="date" name="comp_start" required>
+
+        <label>End Date</label>
+        <input type="date" name="comp_end" required>
+    </fieldset>
+
+    <fieldset>
+        <legend>Invite Friends</legend>
+        {% if connections %}
+            {% for user in connections %}
+                {% if user.in_group %}
+                    <label style="color:gray;">
+                        {{ user.name }} (User in group)
+                    </label><br>
+                {% else %}
+                    <input type="checkbox" name="invitees" value="{{ user.pid }}">
+                    <label>{{ user.name }}</label><br>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p>You have no connections to invite.</p>
+        {% endif %}
+    </fieldset>
+
+    <button type="submit">Create Group & Send Invites</button>
+</form>
+
+
+
+{% endblock %}

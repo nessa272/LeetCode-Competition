@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<div class="container mt-4">
+    {% if group %}
+        <h1>My Group</h1>
+
+        <h2>Group Details</h2>
+        <p><strong>Goal:</strong> {{ group.group_goal }} problems</p>
+        <p><strong>Start:</strong> {{ group.comp_start }}</p>
+        <p><strong>End:</strong> {{ group.comp_end }}</p>
+
+        <hr>
+
+        <h3>Current Members</h3>
+        <ul>
+            {% for member in members %}
+                <li>
+                    {{ member.name }}
+                    {% if member.pid != session['pid'] %}
+                    <form style="display:inline" method="POST" action="{{ url_for('remove_member', gid=group.gid) }}">
+                        <input type="hidden" name="pid" value="{{ member.pid }}">
+                        <button type="submit">Remove</button>
+                    </form>
+                    {% else %}
+                        (You)
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <hr>
+
+        <h3>Invite Connections</h3>
+        <form method="POST" action="{{ url_for('add_member', gid=group.gid) }}">
+            {% if connections %}
+                {% for user in connections %}
+                    {% if user.gid %}
+                        <label style="color:gray;">{{ user.name }} (Already in a group)</label><br>
+                    {% else %}
+                        <input type="checkbox" name="pid" value="{{ user.pid }}">
+                        <label>{{ user.name }}</label><br>
+                    {% endif %}
+                {% endfor %}
+                <button type="submit">Add Selected Members</button>
+            {% else %}
+                <p>No connections available to invite.</p>
+            {% endif %}
+        </form>
+
+    {% else %}
+        <h2>You are not in a group yet.</h2>
+        <p>Want to create one?</p>
+        <a href="{{ url_for('create_group') }}" class="btn btn-primary mt-3">Create Group</a>
+    {% endif %}
+</div>
+{% endblock %}
