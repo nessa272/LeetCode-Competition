@@ -1,0 +1,6 @@
+## `requirements.txt`
+
+```text
+Flask
+requests
+bcrypt
