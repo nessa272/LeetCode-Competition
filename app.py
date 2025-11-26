@@ -41,6 +41,8 @@ def get_user_profile(pid):
 
 
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
+
+# --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
