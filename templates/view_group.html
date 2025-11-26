@@ -16,7 +16,7 @@
         <ul>
             {% for member in members %}
                 <li>
-                    {{ member.name }}
+                    {{ member.lc_username }}
                     {% if member.pid != session['pid'] %}
                     <form style="display:inline" method="POST" action="{{ url_for('remove_member', gid=group.gid) }}">
                         <input type="hidden" name="pid" value="{{ member.pid }}">
@@ -36,10 +36,10 @@
             {% if connections %}
                 {% for user in connections %}
                     {% if user.gid %}
-                        <label style="color:gray;">{{ user.name }} (Already in a group)</label><br>
+                        <label style="color:gray;">{{ user.lc_username }} (Already in a group)</label><br>
                     {% else %}
                         <input type="checkbox" name="pid" value="{{ user.pid }}">
-                        <label>{{ user.name }}</label><br>
+                        <label>{{ user.lc_username }}</label><br>
                     {% endif %}
                 {% endfor %}
                 <button type="submit">Add Selected Members</button>

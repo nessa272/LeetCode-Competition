@@ -25,7 +25,7 @@
             {% for user in connections %}
                 {% if user.in_group %}
                     <label style="color:gray;">
-                        {{ user.name }} (User in group)
+                        {{ user.lc_username }} (User in group)
                     </label><br>
                 {% else %}
                     <input type="checkbox" name="invitees" value="{{ user.pid }}">

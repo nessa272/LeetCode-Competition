@@ -5,7 +5,6 @@ DROP TABLE IF EXISTS userpass;
 DROP TABLE IF EXISTS person;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS problem;
-DROP TABLE IF EXISTS userpass;
 
 
 -- Problem metadata: one row per LeetCode problem
