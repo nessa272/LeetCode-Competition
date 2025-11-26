@@ -24,7 +24,7 @@
      </div>
 
      <div class="profile-buttons">
-          <a>Update Profile</a>
+          <a href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">Refresh Leetcode Stats</a>
           <a href="{{ url_for('logout') }}">Log Out</a>
      </div>
 </div>

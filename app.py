@@ -49,11 +49,13 @@ def profile(pid):
     # show profile
     return render_template('profile.html', profile=profile, friends=friends)
 
-def refresh_profile(pid: int, username: str):
+@app.route('/refresh-profile/<pid>/<lc_username>')
+def refresh_profile(pid: int, lc_username: str):
     conn = dbi.connect()
-    num_submissions = refresh_user_submissions(conn, pid, username)
-    print(f"{num_submissions} submissions added to database for username {username}")
+    num_submissions = refresh_user_submissions(conn, pid, lc_username)
+    print(f"{num_submissions} submissions added to database for username {lc_username}")
     conn.close()
+    return redirect(url_for('profile', pid=pid))
 
 def refresh_all():
     conn = dbi.connect()
