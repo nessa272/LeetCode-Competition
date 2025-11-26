@@ -142,9 +142,6 @@ def profile():
     curs.execute("SELECT * FROM person WHERE pid=%s", [session['pid']])
     person = curs.fetchone()
 
-    curs.close()
-    conn.close()
-
     return render_template("profile.html", person=person)
 
 def refresh_profile(pid: int, username: str):
@@ -204,12 +201,6 @@ def create_group():
         except Exception as e:
             conn.rollback()
             flash(f"Error creating group: {e}")
-        finally:
-            curs.close()
-            conn.close()
-
-    curs.close()
-    conn.close()
     return render_template("create_group.html", connections=connections)
 
 
@@ -238,9 +229,6 @@ def view_group(gid):
     ''', [session['pid'], session['pid'], session['pid']])
     connections = curs.fetchall()
 
-    curs.close()
-    conn.close()
-
     return render_template("view_group.html",
                            group=group,
                            members=members,
@@ -264,9 +252,6 @@ def remove_member(gid):
     except Exception as e:
         conn.rollback()
         flash(f"Error: {e}")
-    finally:
-        curs.close()
-        conn.close()
 
     return redirect(url_for("view_group", gid=gid))
 
