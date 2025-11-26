@@ -1,9 +1,12 @@
 # By Sophie Lin, Ashley Yang, Nessa Tong, Jessica Dai
-
+# SQL queries to search the database
 import cs304dbi as dbi
 print(dbi.conf('leetcode_db'))
 
 def get_profile(conn, pid):
+    '''
+    Retrieve all information from a user's profile based on pid
+    '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select * from person
@@ -14,19 +17,11 @@ def get_profile(conn, pid):
     curs.close()
     return result
 
-def get_username(conn, pid):
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-    select lc_username from person
-    where pid = %s;
-    ''', 
-    [pid])
-    result = curs.fetchone()
-    curs.close()
-    return result
 
 def get_friends(conn, pid):
-    ''' Get current friends '''
+    '''
+    Get the friends of the personw ith the pid
+    '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select p.pid, p.name, p.lc_username from person p
@@ -40,7 +35,9 @@ def get_friends(conn, pid):
     return result
 
 def find_friends(conn, pid):
-    '''find ppl who you aren't connected to '''
+    '''
+    Find people who the user (pid) is NOT connected to
+    '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select p.pid, p.name, p.lc_username  from person p where p.pid <> %s
@@ -56,6 +53,9 @@ def find_friends(conn, pid):
     return result
 
 def connect(conn, pid1, pid2):
+    '''
+    Add a connection between two users
+    '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     insert into connection (p1, p2)
