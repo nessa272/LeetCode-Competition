@@ -39,9 +39,6 @@ def get_user_profile(pid):
     print(profile)
     return render_template('profile.html', profile=profile)
 
-
-# --------------------LOGIN/AUTHENTICATION ROUTES------------------
-
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
