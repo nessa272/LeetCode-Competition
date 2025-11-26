@@ -25,6 +25,20 @@ def get_username(conn, pid):
     curs.close()
     return result
 
+def get_friends(conn, pid):
+    ''' Get current friends '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    select p.pid, p.name, p.lc_username from person p
+    inner join connection c 
+        on p.pid = c.p1 or p.pid = c.p2
+    where %s in (c.p1, c.p2)
+        and p.pid <> %s;
+    ''', [pid, pid])
+    result = curs.fetchall()
+    curs.close()
+    return result
+
 def find_friends(conn, pid):
     '''find ppl who you aren't connected to '''
     curs = dbi.dict_cursor(conn)
