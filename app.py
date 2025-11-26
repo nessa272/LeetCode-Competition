@@ -1,3 +1,4 @@
+# Written by Jessica Dai, Sophie Lin, Nessa Tong, Ashley Yang (Olin)
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug.utils import secure_filename
@@ -20,6 +21,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
+    '''Main page of the website'''
     if "pid" in session:
         conn=dbi.connect()
         pid = session['pid']
@@ -30,6 +32,7 @@ def index():
 
 @app.route('/about/')
 def about():
+    '''our about page'''
     #flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
@@ -50,12 +53,29 @@ def profile(pid):
     return render_template('profile.html', profile=profile, friends=friends)
 
 def refresh_profile(pid: int, username: str):
+    """
+    Fetch a user's recent accepted submissions from LeetCode and insert
+    new (pid, lc_problem) rows into 'submission'.
+
+    Also updates the person's:
+      - current_streak
+      - longest_streak
+      - total_problems
+      - last_submission
+
+    All of this happens in a single transaction:
+      - If anything fails, everything is rolled back.
+      - If it succeeds, everything is committed together.
+
+    Returns: number of NEW rows inserted into submission.
+"""
     conn = dbi.connect()
     num_submissions = refresh_user_submissions(conn, pid, username)
     print(f"{num_submissions} submissions added to database for username {username}")
     conn.close()
 
 def refresh_all():
+    '''Refresh all profiles to updated info'''
     conn = dbi.connect()
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -69,6 +89,7 @@ def refresh_all():
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    '''Loads signup page (create new account for new members)'''
     if request.method == 'GET':
         return render_template('signup.html')
 
@@ -109,6 +130,7 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    '''Login page to login to existing account'''
     if request.method == 'GET':
         return render_template('login.html')
 
@@ -147,6 +169,7 @@ def logout():
 # --------------------GROUP ROUTES------------------
 @app.route("/create_group", methods=["GET", "POST"])
 def create_group():
+    '''Loads page for users to create friend groups'''
     if 'pid' not in session:
         flash("You must be logged in to create a group")
         return redirect(url_for("login"))
@@ -185,6 +208,7 @@ def create_group():
 
 @app.route("/group/<int:gid>")
 def view_group(gid):
+    '''Loads page to view existing group'''
     if 'pid' not in session:
         return redirect(url_for('login'))
 
@@ -206,6 +230,7 @@ def view_group(gid):
 
 @app.route("/group/<int:gid>/remove_member", methods=["POST"])
 def remove_member(gid):
+    '''Loads page to remove a member from a group'''
     if 'pid' not in session:
         return redirect(url_for('login'))
 
@@ -225,6 +250,7 @@ def remove_member(gid):
 
 @app.route("/group/<int:gid>/add_member", methods=["POST"])
 def add_member(gid):
+    '''Loads page to add a member from a group'''
     if 'pid' not in session:
         return redirect(url_for("login"))
 
@@ -241,6 +267,7 @@ def add_member(gid):
 
 @app.route("/my_group")
 def my_group():
+    '''Allows users to view current friend group'''
     if 'pid' not in session:
         flash("You must be logged in to view your group.")
         return redirect(url_for('login'))
@@ -269,6 +296,7 @@ def my_group():
 
 @app.route('/find_friends/', methods=['GET', 'POST'])
 def find_friends():
+    '''Loads page to find people (who are the user is not currently connected to) to friend'''
     conn = dbi.connect()
 
     if 'pid' not in session:

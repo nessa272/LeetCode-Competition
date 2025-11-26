@@ -1,3 +1,4 @@
+# Written by Jessica Dai, Sophie Lin, Nessa Tong, Ashley Yang (Olin)
 import requests
 from datetime import datetime, timezone, timedelta, date
 from typing import Any, Dict, List, Optional

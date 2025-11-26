@@ -1,3 +1,4 @@
+# Written by Jessica Dai, Sophie Lin, Nessa Tong, Ashley Yang (Olin)
 # bcrypt_utils.py
 import bcrypt
 

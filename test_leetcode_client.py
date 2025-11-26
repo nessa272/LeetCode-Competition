@@ -1,3 +1,4 @@
+# Written by Jessica Dai, Sophie Lin, Nessa Tong, Ashley Yang (Olin)
 import cs304dbi as dbi
 from leetcode_client import (
     fetch_recent_ac_submissions,
