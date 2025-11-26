@@ -7,11 +7,12 @@
      style="width:150px;height:150px;border-radius:50%;object-fit:cover;">
 
 <p>Name: {{ profile.name }}</p>
-<p>Username: {{ profile.username }}</p>
-<p>Username: {{ profile.username }}</p>
-
-
-
+<p>Leetcode Username: {{ profile.lc_username }}</p>
+<p>Current Streak: {{ profile.current_streak }}</p>
+<p>Longest Streak: {{ profile.longest_streak }}</p>
+<p>Total Problems: {{ profile.total_problems }}</p>
+<p>Coins: {{ profile.num_coins }}</p>
+<p>Personal Goal: {{ profile.personal_goal }}</p>
 
 <a href="{{ url_for('logout') }}">Log Out</a>
 {% endblock %}

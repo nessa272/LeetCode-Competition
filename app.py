@@ -33,13 +33,10 @@ def about():
 @app.route('/profile/<pid>')
 def profile(pid):
     '''
-    Loads a user's profile
+    Loads a user's profile based on input pid.
     '''
-    if 'pid' not in session:
-        return redirect(url_for('login'))
-    # else, if signed in already show info
     conn=dbi.connect()
-    profile = db_queries.get_profile(conn, session['pid']) # query
+    profile = db_queries.get_profile(conn, pid) # query
     print(profile)
     # curs.close()
     conn.close()
