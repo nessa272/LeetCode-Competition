@@ -20,10 +20,10 @@
 
   <div class="nav-right">
     {% if session.get('pid') %}
-      <a href="{{ url_for('profile') }}">
+      <a href="{{ url_for('profile', pid=session.get('pid')) }}"> Profile
         <!-- CURRENTLY NOT YET IMPLEMENTED NEED TO ADD PFP PHOTO INTO DDL OF PERSON TABLE -->
-        <img src="{{ session.get('pfp_url', '/static/default_pfp.png') }}" 
-             class="profile-pic">
+        <!-- <img src="{{ session.get('pfp_url', '/static/default_pfp.png') }}" 
+             class="profile-pic"> -->
       </a>
     {% else %}
       <a href="{{ url_for('login') }}" class="login-link">Log In</a>

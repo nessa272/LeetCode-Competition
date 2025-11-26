@@ -31,12 +31,24 @@ def about():
     return render_template('about.html', page_title='About Us')
 
 @app.route('/profile/<pid>')
-def get_user_profile(pid):
-    '''loads a user's profile'''
+def profile(pid):
+    '''
+    Loads a user's profile
+    '''
+    if 'pid' not in session:
+        return redirect(url_for('login'))
+    # else, if signed in already show info
     conn=dbi.connect()
-    profile = db_search.get_profile(conn, pid)
+    profile = db_queries.get_profile(conn, session['pid']) # query
     print(profile)
+    # curs.close()
+    conn.close()
+    # show profile
     return render_template('profile.html', profile=profile)
+
+def refresh_profile(pid: int, username: str):
+    conn = dbi.connect()
+    refresh_user_submissions(conn, pid, username)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -101,7 +113,6 @@ def login():
 
     curs.execute('''
         SELECT username, hashed, person_id
-        SELECT username, hashed, person_id
         FROM userpass
         WHERE username = %s
     ''', [username])
@@ -129,26 +140,6 @@ def logout():
     session.clear()
     flash("Logged out.")
     return redirect(url_for('login'))
-
-@app.route('/profile')
-def profile():
-    if 'pid' not in session:
-        return redirect(url_for('login'))
-
-    conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
-
-    curs.execute("SELECT * FROM person WHERE pid=%s", [session['pid']])
-    person = curs.fetchone()
-
-    curs.close()
-    conn.close()
-
-    return render_template("profile.html", person=person)
-
-def refresh_profile(pid: int, username: str):
-    conn = dbi.connect()
-    refresh_user_submissions(conn, pid, username)
 
 @app.route('/find_friends/<pid>', methods=['GET', 'POST'])
 def find_friends(pid):
