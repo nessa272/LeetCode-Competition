@@ -8,7 +8,6 @@ import cs304dbi as dbi
 import db_queries
 import bcrypt_utils as bc
 from leetcode_client import refresh_user_submissions
-from leetcode_client import refresh_user_submissions
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -59,12 +58,7 @@ def signup():
 
     # Create new person in database
     try:
-        curs.execute('''
-            INSERT INTO person (username, lc_username, current_streak, longest_streak,
-                                total_problems, num_coins)
-            VALUES (%s, %s, NULL, NULL, NULL, NULL)
-        ''', [username, lc_username])
-        person_id = curs.lastrowid
+        person_id = db_queries.create_person(conn, username, lc_username)
     except Exception as err:
         flash(f"Error creating person record: {err}")
         return redirect(url_for('signup'))
@@ -73,11 +67,7 @@ def signup():
 
     # Put in database
     try:
-        curs.execute('''
-            INSERT INTO userpass (username, hashed, person_id)
-            VALUES (%s, %s, %s)
-        ''', [username, hashed, person_id])
-        conn.commit()
+        db_queries.create_userpass(conn, username, hashed, person_id)
     except Exception as err:
         flash(f"Username already taken.")
         return redirect(url_for('signup'))
@@ -101,12 +91,7 @@ def login():
     conn = dbi.connect()
     curs = dbi.dict_cursor(conn)
 
-    curs.execute('''
-        SELECT username, hashed, person_id
-        FROM userpass
-        WHERE username = %s
-    ''', [username])
-    row = curs.fetchone()
+    row = db_queries.get_userpass_by_username(conn, username)
 
     if row is None:
         flash("Invalid username or password")
@@ -137,10 +122,7 @@ def profile():
         return redirect(url_for('login'))
 
     conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
-
-    curs.execute("SELECT * FROM person WHERE pid=%s", [session['pid']])
-    person = curs.fetchone()
+    person = db_queries.get_person_by_pid(conn, session['pid'])
 
     return render_template("profile.html", person=person)
 
@@ -157,16 +139,9 @@ def create_group():
         return redirect(url_for("login"))
 
     conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
 
     # Fetch connections
-    curs.execute('''
-        SELECT p.*, 
-               CASE WHEN p.gid IS NULL THEN 0 ELSE 1 END AS in_group
-        FROM person p
-        JOIN connection c ON (c.p1=%s AND c.p2=p.pid) OR (c.p2=%s AND c.p1=p.pid)
-    ''', [session['pid'], session['pid']])
-    connections = curs.fetchall()
+    connections = db_queries.get_connections_with_group_status(conn, session['pid'])
 
     if request.method == "POST":
         group_goal = request.form.get("group_goal")
@@ -176,28 +151,19 @@ def create_group():
 
         try:
             # Create group
-            curs.execute('''
-                INSERT INTO groups (group_goal, comp_start, comp_end)
-                VALUES (%s, %s, %s)
-            ''', [group_goal, comp_start, comp_end])
-            gid = curs.lastrowid
+            gid = db_queries.create_group(conn, group_goal, comp_start, comp_end)
 
             # Assign current user
-            curs.execute("UPDATE person SET gid=%s WHERE pid=%s", [gid, session['pid']])
+            db_queries.assign_user_to_group(conn, session['pid'], gid)
 
             # Assign invitees -- IN FUTURE, THIS WILL BE THEY NEED TO ACCEPT FIRST, NOT AUTOMATICALLY ASSIGN
             if invitees:
-                # Convert pid strings to integers
                 invitee_ids = [int(pid) for pid in invitees]
-                curs.execute(f'''
-                    UPDATE person
-                    SET gid=%s
-                    WHERE pid IN ({','.join(['%s']*len(invitee_ids))})
-                ''', [gid]+invitee_ids)
+                db_queries.assign_multiple_users_to_group(conn, gid, invitee_ids)
 
-            conn.commit()
             flash("Group created successfully!")
             return redirect(url_for("view_group", gid=gid))
+        
         except Exception as e:
             conn.rollback()
             flash(f"Error creating group: {e}")
@@ -210,29 +176,19 @@ def view_group(gid):
         return redirect(url_for('login'))
 
     conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
+    group = db_queries.get_group_info(conn, gid)
+    members = db_queries.get_group_members(conn, gid)
+    
+    # Connections for invite form (friends not in a group)
+    connections = db_queries.get_connections_with_group_status(conn, session['pid'])
 
-    # Get group info
-    curs.execute("SELECT * FROM groups WHERE gid=%s", [gid])
-    group = curs.fetchone()
+    return render_template(
+        "view_group.html", 
+        group=group,
+        members=members,
+        connections=connections
+    )
 
-    # Get current members
-    curs.execute("SELECT * FROM person WHERE gid=%s", [gid])
-    members = curs.fetchall()
-
-    # Get connections that are not in a group
-    curs.execute('''
-        SELECT p.*, CASE WHEN p.gid IS NULL THEN 0 ELSE 1 END AS in_group
-        FROM person p
-        JOIN connection c ON (c.p1=%s AND c.p2=p.pid) OR (c.p2=%s AND c.p1=p.pid)
-        WHERE p.pid != %s
-    ''', [session['pid'], session['pid'], session['pid']])
-    connections = curs.fetchall()
-
-    return render_template("view_group.html",
-                           group=group,
-                           members=members,
-                           connections=connections)
 
 
 @app.route("/group/<int:gid>/remove_member", methods=["POST"])
@@ -246,14 +202,57 @@ def remove_member(gid):
 
     try:
         # Remove member from group (set gid to NULL)
-        curs.execute("UPDATE person SET gid=NULL WHERE pid=%s AND gid=%s", [remove_pid, gid])
-        conn.commit()
+        db_queries.remove_user_from_group(conn, remove_pid, gid)
         flash("Member removed!")
     except Exception as e:
         conn.rollback()
         flash(f"Error: {e}")
 
     return redirect(url_for("view_group", gid=gid))
+
+@app.route("/group/<int:gid>/add_member", methods=["POST"])
+def add_member(gid):
+    if 'pid' not in session:
+        return redirect(url_for("login"))
+
+    new_pid = request.form.get("pid")
+    conn = dbi.connect()
+
+    try:
+        db_queries.assign_user_to_group(conn, new_pid, gid)
+        flash("Member added!")
+    except Exception as e:
+        flash(f"Error adding member: {e}")
+
+    return redirect(url_for("view_group", gid=gid))
+
+@app.route("/my_group")
+def my_group():
+    if 'pid' not in session:
+        flash("You must be logged in to view your group.")
+        return redirect(url_for('login'))
+
+    conn = dbi.connect()
+    person = db_queries.get_person_by_pid(conn, session['pid'])
+
+    if person['gid']:
+        # User in group
+        group = db_queries.get_group_info(conn, person['gid'])
+        members = db_queries.get_group_members(conn, person['gid'])
+        # Connections for invite form (friends not in a group)
+        connections = db_queries.get_connections_with_group_status(conn, session['pid'])
+    else:
+        # User not in  group
+        group = None
+        members = None
+        connections = None
+
+    return render_template(
+        "view_group.html",
+        group=group,
+        members=members,
+        connections=connections
+    )
 
 @app.route('/find_friends/<pid>', methods=['GET', 'POST'])
 def find_friends(pid):
