@@ -4,6 +4,10 @@
 
 <h1> Hi {{ username }}! </h1>
 <p> Look for friends!</p>
+<a href="{{ url_for('profile', pid=pid) }}">
+    <button type="button">Go Back To Profile</button>
+</a>
+
 
 {% if friends|length < 1 %}
     <p>No more users to friend!</p>
@@ -15,7 +19,7 @@
         {{ friend['lc_username'] }}
         <form method="POST" action="{{ url_for('find_friends', pid=pid) }}">
             <input type="hidden" name="connect_friend" value="{{ friend['pid'] }}">
-            <input type="submit" value="Connect">
+            <input type="submit" name = "action" value="Connect">
         </form>
     </li>
 {% endfor %}

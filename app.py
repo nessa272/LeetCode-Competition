@@ -149,13 +149,17 @@ def find_friends(pid):
         friends = db_queries.find_friends(conn, pid)
         return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
     else:
-        pid2 = request.form.get('connect_friend')
-        friend_name = db_queries.get_username(conn, pid2)
-        flash('connecting with %s' % (friend_name['lc_username']))
-        db_queries.connect(conn, pid, pid2)
-        friends = db_queries.find_friends(conn, pid)
-        return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
-        
+        action = request.form.get('action')
+        if action == "Go Back To Profile":
+            return redirect(url_for('profile', pid=pid))
+        elif action == "Connect":
+            pid2 = request.form.get('connect_friend')
+            friend_name = db_queries.get_username(conn, pid2)
+            flash('connecting with %s' % (friend_name['lc_username']))
+            db_queries.connect(conn, pid, pid2)
+            friends = db_queries.find_friends(conn, pid)
+            return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
+            
 
 if __name__ == '__main__':
     import sys, os
