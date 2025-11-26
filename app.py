@@ -39,11 +39,15 @@ def profile(pid):
     Loads a user's profile based on input pid.
     '''
     conn=dbi.connect()
-    profile = db_queries.get_profile(conn, pid) # query
-    print(profile)
+    # query profile info
+    profile = db_queries.get_profile(conn, pid) 
+    conn.close()
+    # get friends list
+    conn=dbi.connect()
+    friends = db_queries.get_friends(conn, pid)
     conn.close()
     # show profile
-    return render_template('profile.html', profile=profile)
+    return render_template('profile.html', profile=profile, friends=friends)
 
 def refresh_profile(pid: int, username: str):
     conn = dbi.connect()
@@ -161,8 +165,8 @@ def find_friends():
     if 'pid' not in session:
         return redirect(url_for('login'))
     pid = session['pid']
-
-    username = db_queries.get_username(conn, pid)
+    
+    username = db_queries.get_profile(conn, pid)
     if request.method == 'GET':
         friends = db_queries.find_friends(conn, pid)
         return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
@@ -172,7 +176,7 @@ def find_friends():
             return redirect(url_for('profile', pid=pid))
         elif action == "Connect":
             pid2 = request.form.get('connect_friend')
-            friend_name = db_queries.get_username(conn, pid2)
+            friend_name = db_queries.get_profile(conn, pid2)
             flash('connecting with %s' % (friend_name['lc_username']))
             db_queries.connect(conn, pid, pid2)
             friends = db_queries.find_friends(conn, pid)

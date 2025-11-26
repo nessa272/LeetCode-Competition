@@ -13,6 +13,15 @@
 <p>Total Problems: {{ profile.total_problems }}</p>
 <p>Coins: {{ profile.num_coins }}</p>
 <p>Personal Goal: {{ profile.personal_goal }}</p>
+<p> Number of Friends: </p>
+
+<div> 
+<p style="font-weight:bold;"> Friends: </p>
+{% for friend in friends %}
+<li style="margin: 3px;"> {{ friend.lc_username }} </li>
+{% endfor %}
+
+</div>
 
 <a href="{{ url_for('logout') }}">Log Out</a>
 {% endblock %}
