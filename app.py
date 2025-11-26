@@ -21,7 +21,10 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/')
 def index():
     if "pid" in session:
-        return render_template('main.html', page_title='Main Page')
+        conn=dbi.connect()
+        pid = session['pid']
+        username = db_queries.get_profile(conn, pid)
+        return render_template('main.html', page_title='Main Page', username = username['lc_username'])
     return render_template("login.html") #prompt to login
     
 
