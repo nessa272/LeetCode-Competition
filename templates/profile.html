@@ -3,25 +3,29 @@
 {% block main_content %}
 <h2>Your Profile</h2>
 
-<img src="{{ profile.pfp_url or '/static/default_pfp.png' }}"
-     style="width:150px;height:150px;border-radius:50%;object-fit:cover;">
+<div id="profile-info"> 
+     <img src="{{ profile.pfp_url or '/static/default_pfp.jpg' }}"
+          style="width:150px;height:150px;border-radius:50%;object-fit:cover;">
 
-<p>Name: {{ profile.name }}</p>
-<p>Leetcode Username: {{ profile.lc_username }}</p>
-<p>Current Streak: {{ profile.current_streak }}</p>
-<p>Longest Streak: {{ profile.longest_streak }}</p>
-<p>Total Problems: {{ profile.total_problems }}</p>
-<p>Coins: {{ profile.num_coins }}</p>
-<p>Personal Goal: {{ profile.personal_goal }}</p>
-<p> Number of Friends: </p>
+     <p>Name: {{ profile.name }}</p>
+     <p>Leetcode Username: {{ profile.lc_username }}</p>
+     <p>Current Streak: {{ profile.current_streak }}</p>
+     <p>Longest Streak: {{ profile.longest_streak }}</p>
+     <p>Total Problems: {{ profile.total_problems }}</p>
+     <p>Coins: {{ profile.num_coins }}</p>
+     <p>Personal Goal: {{ profile.personal_goal }}</p>
+     <p> Number of Friends: </p>
 
-<div> 
-<p style="font-weight:bold;"> Friends: </p>
-{% for friend in friends %}
-<li style="margin: 3px;"> {{ friend.lc_username }} </li>
-{% endfor %}
+     <div> 
+          <p style="font-weight:bold;"> Friends: </p>
+          {% for friend in friends %}
+          <li style="margin: 10px;"> {{ friend.lc_username }} </li>
+          {% endfor %}
+     </div>
 
+     <div class="profile-buttons">
+          <a>Update Profile</a>
+          <a href="{{ url_for('logout') }}">Log Out</a>
+     </div>
 </div>
-
-<a href="{{ url_for('logout') }}">Log Out</a>
 {% endblock %}
