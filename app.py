@@ -52,7 +52,8 @@ def profile(pid):
     # show profile
     return render_template('profile.html', profile=profile, friends=friends)
 
-def refresh_profile(pid: int, username: str):
+@app.route('/refresh-profile/<pid>/<lc_username>')
+def refresh_profile(pid: int, lc_username: str):
     """
     Fetch a user's recent accepted submissions from LeetCode and insert
     new (pid, lc_problem) rows into 'submission'.
@@ -70,9 +71,10 @@ def refresh_profile(pid: int, username: str):
     Returns: number of NEW rows inserted into submission.
 """
     conn = dbi.connect()
-    num_submissions = refresh_user_submissions(conn, pid, username)
-    print(f"{num_submissions} submissions added to database for username {username}")
+    num_submissions = refresh_user_submissions(conn, pid, lc_username)
+    print(f"{num_submissions} submissions added to database for username {lc_username}")
     conn.close()
+    return redirect(url_for('profile', pid=pid))
 
 def refresh_all():
     '''Refresh all profiles to updated info'''
