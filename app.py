@@ -141,9 +141,14 @@ def logout():
     flash("Logged out.")
     return redirect(url_for('login'))
 
-@app.route('/find_friends/<pid>', methods=['GET', 'POST'])
-def find_friends(pid):
+@app.route('/find_friends/', methods=['GET', 'POST'])
+def find_friends():
     conn = dbi.connect()
+
+    if 'pid' not in session:
+        return redirect(url_for('login'))
+    pid = session['pid']
+    
     username = db_queries.get_username(conn, pid)
     if request.method == 'GET':
         friends = db_queries.find_friends(conn, pid)
