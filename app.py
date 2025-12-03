@@ -105,11 +105,10 @@ def signup():
         return redirect(url_for('signup'))
 
     conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
 
     # Create new person in database
     try:
-        person_id = db_queries.create_person(conn, username, lc_username)
+        pid = db_queries.create_person(conn, username, lc_username)
     except Exception as err:
         flash(f"Error creating person record: {err}")
         return redirect(url_for('signup'))
@@ -118,13 +117,13 @@ def signup():
 
     # Put in database
     try:
-        db_queries.create_userpass(conn, username, hashed, person_id)
+        db_queries.create_userpass(conn, pid, hashed)
     except Exception as err:
         flash(f"Username already taken.")
         return redirect(url_for('signup'))
 
     # successfully added, sign them in and bring back to main page
-    session['pid'] = person_id
+    session['pid'] = pid
     session['username'] = username
 
     flash("Account created successfully!")
@@ -141,23 +140,22 @@ def login():
     password = request.form.get('password')
 
     conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
 
-    row = db_queries.get_userpass_by_username(conn, username)
+    user = db_queries.get_login_info(conn, username)
 
-    if row is None:
+    if user is None:
         flash("Invalid username or password")
         return redirect(url_for('login'))
 
-    stored_hash = row['hashed']
+    stored_hash = user['hashed']
 
     if not bc.verify_password(password, stored_hash):
         flash("Invalid username or password")
         return redirect(url_for('login'))
 
     # login success
-    session['pid'] = row['person_id']
-    session['username'] = row['username']
+    session['pid'] = user['pid']
+    session['username'] = user['username']
 
     flash("Logged in!")
     return redirect(url_for('index'))

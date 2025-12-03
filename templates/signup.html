@@ -5,7 +5,7 @@
 
 <h2>Create Account</h2>
 
-  <form action="/signup" method="POST">
+  <form action="{{ url_for('signup') }}" method="POST">
     <fieldset>
       <legend>Sign Up</legend>
 
@@ -22,7 +22,7 @@
     </fieldset>
   </form>
 
-  <p>Already have an account? <a href="/login">Log in here</a></p>
+  <p>Already have an account? <a href="{{ url_for('login') }}">Log in here</a></p>
 
 
 {% endblock %}

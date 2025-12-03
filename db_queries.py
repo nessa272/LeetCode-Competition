@@ -77,24 +77,23 @@ def create_person(conn, username, lc_username):
     conn.commit()
     return curs.lastrowid
 
-
-def create_userpass(conn, username, hashed, person_id):
+def create_userpass(conn, pid, hashed):
     """Insert into userpass table."""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        INSERT INTO userpass (username, hashed, person_id)
-        VALUES (%s, %s, %s)
-    ''', [username, hashed, person_id])
+        INSERT INTO userpass (pid, hashed)
+        VALUES (%s, %s)
+    ''', [pid, hashed])
     conn.commit()
 
-
-def get_userpass_by_username(conn, username):
-    """Return row from userpass for login."""
+def get_login_info(conn, username):
+    """Return person info + password hash for login."""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        SELECT username, hashed, person_id
-        FROM userpass
-        WHERE username = %s
+        SELECT p.*, u.hashed
+        FROM person AS p
+        JOIN userpass AS u ON p.pid = u.pid
+        WHERE p.username = %s
     ''', [username])
     return curs.fetchone()
 

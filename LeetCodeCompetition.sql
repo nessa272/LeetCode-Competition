@@ -29,7 +29,7 @@ CREATE TABLE groups (
 -- Each person may belong to at most one group via gid
 CREATE TABLE person (
   pid            INT AUTO_INCREMENT PRIMARY KEY,
-  username       VARCHAR(50),
+  username       VARCHAR(50) NOT NULL UNIQUE,
   name           VARCHAR(50),
   birthday       DATE,
   lc_username    VARCHAR(50),
@@ -80,10 +80,9 @@ CREATE TABLE submission (
 ) ENGINE=InnoDB;
 
 CREATE TABLE userpass (
-    person_id  INT PRIMARY KEY,          -- PK and FK to person
-    username   VARCHAR(50) NOT NULL UNIQUE,
+    pid  INT PRIMARY KEY,          -- PK and FK to person
     hashed     CHAR(60) NOT NULL,
-    FOREIGN KEY (person_id) REFERENCES person(pid)
+    FOREIGN KEY (pid) REFERENCES person(pid)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;

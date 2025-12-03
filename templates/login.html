@@ -5,7 +5,7 @@
 
 <h2>Login</h2>
 
-  <form action="/login" method="POST">
+ <form method="POST" action="{{ url_for('login') }}">
     <fieldset>
       <legend>Login</legend>
 
@@ -19,7 +19,7 @@
     </fieldset>
   </form>
 
-  <p>Don't have an account? <a href="/signup">Sign up</a></p>
+  <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
 
 
 {% endblock %}
