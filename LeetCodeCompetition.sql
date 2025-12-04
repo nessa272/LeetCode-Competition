@@ -2,8 +2,11 @@
 DROP TABLE IF EXISTS submission;
 DROP TABLE IF EXISTS connection;
 DROP TABLE IF EXISTS userpass;
+DROP TABLE IF EXISTS party_total_stats;
+DROP TABLE IF EXISTS individual_party_stats;
+DROP TABLE IF EXISTS party_membership;
+DROP TABLE IF EXISTS code_party;
 DROP TABLE IF EXISTS person;
-DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS problem;
 
 
@@ -13,15 +16,6 @@ CREATE TABLE problem (
   title_slug  VARCHAR(255) UNIQUE NOT NULL,       -- 'two-sum'
   title       VARCHAR(255) NOT NULL,              -- 'Two Sum'
   difficulty  ENUM('easy', 'medium', 'hard')
-) ENGINE=InnoDB;
-
-
--- Groups
-CREATE TABLE groups (
-  gid               INT AUTO_INCREMENT PRIMARY KEY,
-  group_goal        INT,
-  comp_start        DATE,
-  comp_end          DATE
 ) ENGINE=InnoDB;
 
 
@@ -37,14 +31,77 @@ CREATE TABLE person (
   longest_streak INT,
   total_problems INT,
   num_coins      INT,
-  personal_goal  INT,
-  gid            INT,                  -- current group membership (nullable)
-  latest_submission DATE,
-  FOREIGN KEY (gid) REFERENCES groups(gid)
+  personal_goal  INT,                -- current group membership (nullable)
+  latest_submission DATE
+) ENGINE=InnoDB;
+
+-- Code Parties! 
+-- This is the configuration stuff/logistics of party
+CREATE TABLE code_party (
+  cpid        INT AUTO_INCREMENT PRIMARY KEY,
+  party_goal  INT,
+  party_start DATE NOT NULL,
+  party_end   DATE NOT NULL,
+  status      ENUM('upcoming', 'in_progress', 'completed') DEFAULT 'upcoming',
+  winner      INT NULL,
+  FOREIGN KEY (winner) REFERENCES person(pid)
     ON DELETE SET NULL
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+
+-- One time membership/joining into the party
+CREATE TABLE party_membership (
+  pid   INT,
+  cpid  INT,
+  joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (pid, cpid),
+  FOREIGN KEY (pid) REFERENCES person(pid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  FOREIGN KEY (cpid) REFERENCES code_party(cpid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- This is per-user-per-party results from party
+-- could add a weighted score thing but little complicated rn to consider
+CREATE TABLE individual_party_stats (
+  pid   INT,
+  cpid  INT,
+
+  problems_solved INT DEFAULT 0,
+  -- Local party streaks: always start at 0
+  party_current_streak INT DEFAULT 0,
+  party_max_streak     INT DEFAULT 0,
+
+  rank  INT NULL,
+
+  PRIMARY KEY (pid, cpid),
+
+  FOREIGN KEY (pid) REFERENCES person(pid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+  FOREIGN KEY (cpid) REFERENCES code_party(cpid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- For the whole party general stats
+CREATE TABLE party_total_stats (
+  cpid                 INT PRIMARY KEY,
+
+  total_problems       INT DEFAULT 0,
+  total_participants   INT DEFAULT 0,
+  avg_problems         FLOAT DEFAULT 0,
+  max_daily_problems   INT DEFAULT 0,
+
+  party_duration_days  INT DEFAULT 0,
+
+  FOREIGN KEY (cpid) REFERENCES code_party(cpid)
+    ON DELETE CASCADE
+) ENGINE=InnoDB;
 
 -- Connections between people (e.g., friends)
 CREATE TABLE connection (
