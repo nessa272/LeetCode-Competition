@@ -75,5 +75,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 </script>
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+        <h2>Friends</h2>
+        <ul class="friend-list">
+            {% for friend in friends %}
+                <li>
+                    <a href="{{ url_for('profile', pid=friend.pid) }}">
+                         {{ friend.name }} ({{ friend.lc_username }})
+                    </a>
+               </li>
+            {% endfor %}
+        </ul>
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const refreshLink = document.querySelector("a.btn[href*='refresh_profile']");
+    if (refreshLink) {
+        refreshLink.addEventListener("click", () => {
+            document.body.style.cursor = "wait";
+        });
+    }
+});
+</script>
 </div>
 {% endblock %}
