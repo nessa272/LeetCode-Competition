@@ -1,6 +1,33 @@
 {% extends "base.html" %}
 
 {% block main_content %}
+<h1> {{ profile.name }} ({{ profile.username }})</h1>
+
+<div id="profile-columns">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+          <h2>Your Profile</h2>
+        <img src="{{ profile.pfp_url or '/static/default_pfp.jpg' }}" alt="Profile Picture">
+
+        <ul class="profile-list">
+            <li><strong>Name:</strong> {{ profile.name }}</li>
+            <li><strong>Username:</strong> {{ profile.username }}</li>
+            <li><strong>Leetcode Username:</strong> {{ profile.lc_username }}</li>
+            <li><strong>Latest Submission:</strong> {{ profile.latest_submission }}</li> 
+            <li><strong>Current Streak:</strong> {{ profile.current_streak }}</li>
+            <li><strong>Longest Streak:</strong> {{ profile.longest_streak }}</li>
+            <li><strong>Total Problems:</strong> {{ profile.total_problems }}</li>
+            <li><strong>Coins:</strong> {{ profile.num_coins }}</li>
+            <li><strong>Personal Goal:</strong> {{ profile.personal_goal }}</li>
+            <li><strong>Number of Friends:</strong> {{ friends | length }}</li>
+        </ul>
+
+          <a class="btn" href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">
+               Refresh Leetcode Stats
+          </a>
+          <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
+    </div>
 <h2>Your Profile</h2>
 
 <div id="profile-info"> 
