@@ -47,7 +47,7 @@ def profile(pid):
     conn.close()
     # get friends list
     conn=dbi.connect()
-    friends = db_queries.get_friends(conn, pid)
+    friends = db_queries.get_followers(conn, pid)
     conn.close()
     # show profile
     return render_template('profile.html', profile=profile, friends=friends)
@@ -318,11 +318,12 @@ def find_friends():
         action = request.form.get('action')
         if action == "Go Back To Profile":
             return redirect(url_for('profile', pid=pid))
-        elif action == "Connect":
-            pid2 = request.form.get('connect_friend')
+        elif action == "Follow":
+            pid2 = request.form.get('follow_friend')
             friend_name = db_queries.get_profile(conn, pid2)
-            flash('connecting with %s' % (friend_name['lc_username']))
-            db_queries.connect(conn, pid, pid2)
+            print(pid2)
+            flash('Following %s' % (friend_name['lc_username']))
+            db_queries.follow(conn, pid, pid2)
             friends = db_queries.find_friends(conn, pid)
             return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
                

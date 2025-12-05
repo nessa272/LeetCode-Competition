@@ -18,15 +18,31 @@ def get_profile(conn, pid):
     return result
 
 
-def get_friends(conn, pid):
+def get_follows(conn, pid):
     '''
-    Get the friends of the personw ith the pid
+    Get the users that the person follows with the pid
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select p.pid, p.name, p.lc_username from person p
     inner join connection c 
-        on p.pid = c.p1 or p.pid = c.p2
+        on p.pid = c.p2
+    where %s in (c.p1, c.p2)
+        and p.pid <> %s;
+    ''', [pid, pid])
+    result = curs.fetchall()
+    curs.close()
+    return result
+
+def get_followers(conn, pid):
+    '''
+    Get the users that follows the user with the pid
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    select p.pid, p.name, p.lc_username from person p
+    inner join connection c 
+        on p.pid = c.p1
     where %s in (c.p1, c.p2)
         and p.pid <> %s;
     ''', [pid, pid])
@@ -43,22 +59,20 @@ def find_friends(conn, pid):
     select p.pid, p.name, p.lc_username  from person p where p.pid <> %s
     and p.pid not in (
       select c.p2 from connection c where c.p1 = %s
-      union
-      select c.p1 from connection c where c.p2 = %s
     )
     limit 10;
-    ''', [pid, pid, pid])
+    ''', [pid, pid])
     result = curs.fetchall()
     curs.close()
     return result
 
-def connect(conn, pid1, pid2):
+def follow(conn, pid1, pid2):
     '''
-    Add a connection between two users
+    Create connection where user pid1 follows user pid2
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-    insert into connection (p1, p2)
+    insert into `connection` (p1, p2)
     values (%s, %s)
     ''', [pid1, pid2])
     conn.commit()
