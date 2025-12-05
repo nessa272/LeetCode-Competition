@@ -23,9 +23,28 @@
           {% endfor %}
      </div>
 
-     <div class="profile-buttons">
-          <a href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">Refresh Leetcode Stats</a>
-          <a href="{{ url_for('logout') }}">Log Out</a>
-     </div>
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+        <h2>Friends</h2>
+        <ul class="friend-list">
+            {% for friend in friends %}
+                <li>
+                    <a href="{{ url_for('profile', pid=friend.pid) }}">
+                         {{ friend.name }} ({{ friend.lc_username }})
+                    </a>
+               </li>
+            {% endfor %}
+        </ul>
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const refreshLink = document.querySelector("a.btn[href*='refresh_profile']");
+    if (refreshLink) {
+        refreshLink.addEventListener("click", () => {
+            document.body.style.cursor = "wait";
+        });
+    }
+});
+</script>
 </div>
 {% endblock %}
