@@ -2,20 +2,15 @@
 
 {% block main_content %}
 <h1>Login</h1>
-
-<h2>Login</h2>
-
  <form method="POST" action="{{ url_for('login') }}">
     <fieldset>
-      <legend>Login</legend>
-
       <label for="username">Username</label><br>
       <input type="text" id="username" name="username" required><br><br>
 
       <label for="password">Password</label><br>
       <input type="password" id="password" name="password" required><br><br>
 
-      <button type="submit">Login</button>
+      <button type="submit" class="btn">Login</button>
     </fieldset>
   </form>
 

@@ -14,16 +14,16 @@
 {% block nav %}
 <nav class="navbar">
   <ul class="nav-left">
-    <li><a href="{{ url_for('index') }}">Home</a></li>
-    <li><a href="{{ url_for('about') }}">About</a></li>
-    <li><a href="{{url_for('find_friends')}}">Find Friends</a></li>
+    <li><a href="{{ url_for('index') }}" class="btn">Home</a></li>
+    <li><a href="{{ url_for('about') }}" class="btn">About</a></li>
 
     {% if session.get('pid') %}
+    <li><a href="{{url_for('find_friends')}}" class="btn">Find Friends</a></li>
     <li class="dropdown">
-      <a href="#" class="dropbtn">Groups ▼</a>
+      <a href="#" class="btn">Groups ▼</a>
       <div class="dropdown-content">
-        <a href="{{ url_for('create_group') }}">Create Group</a>
-        <a href="{{ url_for('my_group') }}">My Group</a>
+        <a href="{{ url_for('create_group') }}" class="btn">Create Group</a>
+        <a href="{{ url_for('my_group') }}" class="btn">My Group</a>
       </div>
     </li>
     {% endif %}
@@ -37,13 +37,16 @@
              class="profile-pic">
       </a>
     {% else %}
-      <a href="{{ url_for('login') }}" class="login-link">Log In</a>
+      <a href="{{ url_for('login') }}" class="btn">Log In</a>
     {% endif %}
   </div>
 </nav>
 {% endblock %}
 
 
+
+            
+<div class="main-content">
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 <div id="messages">
@@ -53,7 +56,6 @@
 </div>
 {% endif %}
 {% endwith %}
-            
 {% block main_content %}
 <h1>Welcome!</h1>
 {% endblock %}
@@ -61,6 +63,7 @@
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   {% block end_scripts %}
   {% endblock %}
+</div>
   
 </body>
 </html>

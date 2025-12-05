@@ -11,12 +11,20 @@
 */
 
 HTML {
-    --color-header: #0073e6;  /* for H1-H6 and nav buttons. */
-    --color-focus: #5ba300;   /* for focussed elements and mouseover on nav */
-    --color-alert: #b51963;   /* for flashed messages and such. */
-    --color-nav-fg: white;    /* foreground color of nav text. */
-    --font-family: Verdana;
-    font-family: var(--font-family)
+    --font-family: Arial, Helvetica, sans-serif;
+    /* Colors */
+    --color-border: #445733;
+    --color-button: #c8d4b0;
+    --color-button-hover: var(--color-light);
+    --color-light: #fffbf1;
+    --color-text: #262a0f;
+    --color-text-light: #faf2db;
+    --color-alert: #a84a40;
+    --color-header: #5c6536;
+    --color-visited: #c56c61;
+    --color-link: #a84a40;
+    --color-hover: #e38f84;
+    --color-background:var(--color-light);
 }
 
 /* For flashed messages; make them stand out using reddish and italics */
@@ -35,13 +43,83 @@ h1 {
     font-size: 200%;
 }
 
+body {
+    font-family: var(--font-family);
+    font-size: 18px;
+    color: var(--color-text);
+    background-color: var(--color-background);
+}
+
+.main-content {
+    padding: 20px 40px 20px 50px;
+    line-height: 1.5;
+}
+/* Reset default margins/padding for main text elements */
+.main-content h1,
+.main-content h2,
+.main-content h3,
+.main-content h4,
+.main-content h5,
+.main-content h6,
+.main-content p,
+.main-content ul,
+.main-content ol {
+    margin: 0;
+    padding: 0;
+}
+
+/* Vertical rhythm for headings */
+.main-content h1 {
+    margin-bottom: 1.25rem;
+}
+
+.main-content h2,
+.main-content h3,
+.main-content h4,
+.main-content h5,
+.main-content h6 {
+    margin-bottom: 1rem;
+}
+
+/* Base spacing for paragraphs and lists */
+.main-content p,
+.main-content ul,
+.main-content ol {
+    margin-bottom: 0.75rem;
+}
+
+/* List indentation */
+.main-content ul,
+.main-content ol {
+    padding-left: 1.25rem;
+}
+
+/* Spacing between list items */
+.main-content li {
+    margin-bottom: 0.4rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: var(--color-button); 
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text);
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.2s ease-in-out;
+}
+
+.btn:hover {
+    background-color: var(--color-button-hover);
+}
+
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid #ddd;
-    background-color: #f9f9f9;
 }
 
 .nav-left {
@@ -52,31 +130,41 @@ h1 {
     margin: 0;
 }
 
-.nav-left li a {
-    display: inline-block;
-    padding: 10px 16px;
-    background-color: #cfe2ff; 
-    border: 2px solid #6ea8fe;
-    border-radius: 6px;
-    color: black;
-    font-weight: bold;
-    text-decoration: none;
-    transition: 0.2s ease-in-out;
-}
-
-.nav-left li a:hover {
-    background-color: #9ec5fe;
-    border-color: #3d8bfd;
-}
-
 .nav-right {
     display: flex;
     align-items: center;
 }
 
-#profile-info {
-    margin-left: 10px;
+#profile-columns {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
 }
+
+.left-col {
+    flex: 1;
+}
+
+.right-col {
+    flex: 1;
+}
+
+#profile-info img,
+.left-col img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    margin-bottom: 1rem;
+    border: 2px solid var(--color-border);
+}
+
+.friend-list {
+    list-style: disc;
+    padding-left: 1.25rem;
+}
+
 
 .profile-pic {
     width: 38px;
@@ -84,51 +172,17 @@ h1 {
     border-radius: 50%;
     object-fit: cover;
     cursor: pointer;
-    border: 2px solid #6ea8fe;
+    border: 2px solid var(--color-border);
     transition: 0.2s ease-in-out;
 }
 
-.profile-pic:hover {
-    border-color: #3d8bfd;
-}
-
-.login-link {
-    display: inline-block;
-    padding: 10px 16px;
-    background-color: #cfe2ff;
-    border: 2px solid #6ea8fe;
-    border-radius: 6px;
-    color: black;
-    font-weight: bold;
+a:not(.btn) {
+    color: var(--color-link);
     text-decoration: none;
-    transition: 0.2s ease-in-out;
 }
 
-.login-link:hover {
-    background-color: #9ec5fe;
-    border-color: #3d8bfd;
-}
-
-.profile-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.profile-buttons a {
-    display: inline-block;
-    padding: 10px 16px;
-    background-color: #cfe2ff; 
-    border: 2px solid #6ea8fe;
-    border-radius: 6px;
-    color: black;
-    font-weight: bold;
-    text-decoration: none;
-    transition: 0.2s ease-in-out;
-}
-
-
-.about-container {
-    padding: 20px 40px 20px 50px;
+a:not(.btn):hover {
+    text-decoration: underline;
 }
 
 /* Dropdown styling */
@@ -155,6 +209,9 @@ h1 {
     display: block;
 }
 
-.dropbtn {
-    cursor: pointer;
+fieldset {
+    margin: 2rem 0;
+    border: 2px solid var(--color-border);
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
 }

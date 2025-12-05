@@ -1,31 +1,56 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h2>Your Profile</h2>
+<h1> {{ profile.name }} ({{ profile.username }})</h1>
 
-<div id="profile-info"> 
-     <img src="{{ profile.pfp_url or '/static/default_pfp.jpg' }}"
-          style="width:150px;height:150px;border-radius:50%;object-fit:cover;">
+<div id="profile-columns">
 
-     <p>Name: {{ profile.name }}</p>
-     <p>Leetcode Username: {{ profile.lc_username }}</p>
-     <p>Current Streak: {{ profile.current_streak }}</p>
-     <p>Longest Streak: {{ profile.longest_streak }}</p>
-     <p>Total Problems: {{ profile.total_problems }}</p>
-     <p>Coins: {{ profile.num_coins }}</p>
-     <p>Personal Goal: {{ profile.personal_goal }}</p>
-     <p> Number of Friends: {{ friends | length }} </p>
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+          <h2>Your Profile</h2>
+        <img src="{{ profile.pfp_url or '/static/default_pfp.jpg' }}" alt="Profile Picture">
 
-     <div> 
-          <p style="font-weight:bold;"> Friends: </p>
-          {% for friend in friends %}
-          <li style="margin: 10px;"> {{ friend.lc_username }} </li>
-          {% endfor %}
-     </div>
+        <ul class="profile-list">
+            <li><strong>Name:</strong> {{ profile.name }}</li>
+            <li><strong>Username:</strong> {{ profile.username }}</li>
+            <li><strong>Leetcode Username:</strong> {{ profile.lc_username }}</li>
+            <li><strong>Latest Submission:</strong> {{ profile.latest_submission }}</li> 
+            <li><strong>Current Streak:</strong> {{ profile.current_streak }}</li>
+            <li><strong>Longest Streak:</strong> {{ profile.longest_streak }}</li>
+            <li><strong>Total Problems:</strong> {{ profile.total_problems }}</li>
+            <li><strong>Coins:</strong> {{ profile.num_coins }}</li>
+            <li><strong>Personal Goal:</strong> {{ profile.personal_goal }}</li>
+            <li><strong>Number of Friends:</strong> {{ friends | length }}</li>
+        </ul>
 
-     <div class="profile-buttons">
-          <a href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">Refresh Leetcode Stats</a>
-          <a href="{{ url_for('logout') }}">Log Out</a>
-     </div>
+          <a class="btn" href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">
+               Refresh Leetcode Stats
+          </a>
+          <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+        <h2>Friends</h2>
+        <ul class="friend-list">
+            {% for friend in friends %}
+                <li>
+                    <a href="{{ url_for('profile', pid=friend.pid) }}">
+                         {{ friend.name }} ({{ friend.lc_username }})
+                    </a>
+               </li>
+            {% endfor %}
+        </ul>
+    </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const refreshLink = document.querySelector("a.btn[href*='refresh_profile']");
+    if (refreshLink) {
+        refreshLink.addEventListener("click", () => {
+            document.body.style.cursor = "wait";
+        });
+    }
+});
+</script>
 </div>
 {% endblock %}

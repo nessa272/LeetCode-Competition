@@ -306,7 +306,7 @@ def find_friends():
     username = db_queries.get_profile(conn, pid)
     if request.method == 'GET':
         friends = db_queries.find_friends(conn, pid)
-        return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
+        return render_template('find_friends.html', pid= pid, username = username['username'], friends = friends)
     else:
         action = request.form.get('action')
         if action == "Go Back To Profile":
