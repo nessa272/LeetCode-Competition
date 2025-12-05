@@ -19,6 +19,7 @@ def get_profile(conn, pid):
 
 
 def get_follows(conn, pid):
+def get_follows(conn, pid):
     '''
     Get the users that the person follows with the pid
     '''
