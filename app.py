@@ -180,6 +180,7 @@ def create_party():
     connections = db_queries.get_party_invite_options(conn, session['pid'])
 
     if request.method == "POST":
+        party_name = request.form.get("party_name")
         party_goal = request.form.get("party_goal")
         party_start = request.form.get("party_start")
         party_end = request.form.get("party_end")
@@ -187,7 +188,7 @@ def create_party():
 
         try:
             # Create group
-            cpid = db_queries.create_code_party(conn, party_goal, party_start, party_end)
+            cpid = db_queries.create_code_party(conn, party_name, party_goal, party_start, party_end)
 
             # Add party creator to the party
             db_queries.assign_user_to_party(conn, session['pid'], cpid)
@@ -260,34 +261,36 @@ def add_member(cpid):
 
     return redirect(url_for("view_party", cpid=cpid))
 
-@app.route("/my_group")
-def my_group():
-    '''Allows users to view current friend group'''
+@app.route("/my_parties")
+def my_parties():
+    """Shows a list of all parties the user belongs to."""
     if 'pid' not in session:
-        flash("You must be logged in to view your group.")
+        flash("You must be logged in to view your parties.")
         return redirect(url_for('login'))
 
     conn = dbi.connect()
-    person = db_queries.get_person_by_pid(conn, session['pid'])
+    all_parties = db_queries.get_parties_for_user(conn, session['pid'])
 
-    if person['gid']:
-        # User in group
-        group = db_queries.get_group_info(conn, person['gid'])
-        members = db_queries.get_group_members(conn, person['gid'])
-        # Connections for invite form (friends not in a group)
-        connections = db_queries.get_connections_with_group_status(conn, session['pid'])
-    else:
-        # User not in  group
-        group = None
-        members = None
-        connections = None
+    current = [p for p in all_parties if p['status'] == 'in_progress']
+    upcoming = [p for p in all_parties if p['status'] == 'upcoming']
+    completed = [p for p in all_parties if p['status'] == 'completed']
+
+    #SORT differently depending on section
+    # Current parties: earliest competition end deadline
+    current.sort(key=lambda p: p['party_end'])
+    # Upcoming parties: soonest start date
+    upcoming.sort(key=lambda p: p['party_start'])
+    # Completed parties: most recently ended
+    completed.sort(key=lambda p: p['party_end'], reverse=True)
+
 
     return render_template(
-        "view_group.html",
-        group=group,
-        members=members,
-        connections=connections
+        "my_parties.html",
+        current_parties=current,
+        upcoming_parties=upcoming,
+        completed_parties=completed
     )
+
 
 @app.route('/find_friends/', methods=['GET', 'POST'])
 def find_friends():

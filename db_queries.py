@@ -139,13 +139,13 @@ def get_party_invite_options(conn, pid, cpid=None):
     return curs.fetchall()
  
 
-def create_code_party(conn, party_goal, party_start, party_end):
+def create_code_party(conn, party_name, party_goal, party_start, party_end):
     """Create a new code party and return its cpid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        INSERT INTO code_party (party_goal, party_start, party_end)
-        VALUES (%s, %s, %s)
-    ''', [party_goal, party_start, party_end])
+        INSERT INTO code_party (name, party_goal, party_start, party_end)
+        VALUES (%s, %s, %s, %s)
+    ''', [party_name, party_goal, party_start, party_end])
     conn.commit()
     return curs.lastrowid
 
@@ -211,7 +211,22 @@ def remove_user_from_party(conn, pid, cpid):
         WHERE pid=%s AND cpid=%s
     ''', [pid, cpid])
     conn.commit()
+
+def get_parties_for_user(conn, pid):
+    """
+    Returns all code parties (name + status) that a user is a member of.
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+        SELECT cp.cpid, cp.name, cp.status, cp.party_start, cp.party_end
+        FROM code_party cp
+        JOIN party_membership pm ON cp.cpid = pm.cpid
+        WHERE pm.pid = %s
+        ORDER BY cp.party_start DESC
+    ''', [pid])
+    return curs.fetchall()
+
     
 if __name__ == '__main__':
-    dbi.conf("wmdb")
+    dbi.conf("leetcode_db")
     conn=dbi.connect()
