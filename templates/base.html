@@ -20,10 +20,10 @@
     {% if session.get('pid') %}
     <li><a href="{{url_for('find_friends')}}" class="btn">Find Friends</a></li>
     <li class="dropdown">
-      <a href="#" class="btn">Groups ▼</a>
+      <a href="#" class="dropbtn">Code Parties! ▼</a>
       <div class="dropdown-content">
-        <a href="{{ url_for('create_group') }}" class="btn">Create Group</a>
-        <a href="{{ url_for('my_group') }}" class="btn">My Group</a>
+        <a href="{{ url_for('create_party') }}">Create Party</a>
+        <a href="{{ url_for('my_group') }}">My Group</a>
       </div>
     </li>
     {% endif %}

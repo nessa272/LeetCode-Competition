@@ -106,64 +106,79 @@ def get_person_by_pid(conn, pid):
 
 # Group queries
 
-def get_connections_with_group_status(conn, pid):
+def get_party_invite_options(conn, pid, cpid=None):
     """
-    Returns all friends of pid, including the group ID they belong to.
-    If gid is NULL, the friend is not in a group.
+    Returns all friends/followers/following of pid.
+    If cpid is provided, include whether they are already in that party.
     """
     curs = dbi.dict_cursor(conn)
-    curs.execute('''
-        SELECT p.pid, p.name, p.lc_username, p.gid
-        FROM person p
-        JOIN connection c
-          ON (c.p1=%s AND c.p2=p.pid)
-          OR (c.p2=%s AND c.p1=p.pid)
-    ''', [pid, pid])
-    return curs.fetchall()
+    
+    # This case is: fetching friend list(potential invitees) for a PRE EXISTING PARTY
+    if cpid:
+        # queries for friends pid, name, and in_party status (if they are already in this party or not)
+        # gets all the people who either followed this person or who this person followed
+        curs.execute('''
+            SELECT p.pid, p.name, p.lc_username,
+                   CASE WHEN pm.cpid IS NOT NULL THEN 1 ELSE 0 END AS in_party
+            FROM person p
+            JOIN connection c
+              ON (c.p1=%s AND c.p2=p.pid) OR (c.p2=%s AND c.p1=p.pid)
+            LEFT JOIN party_membership pm
+              ON pm.pid = p.pid AND pm.cpid = %s
+        ''', [pid, pid, cpid])
 
-def create_group(conn, group_goal, comp_start, comp_end):
-    """
-    Creates a new group and returns its gid.
-    """
+    # This case is: fetching friend list(potential invitees) for a NEW PARTY IN CREATION
+    else:
+        curs.execute('''
+            SELECT p.pid, p.name, p.lc_username
+            FROM person p
+            JOIN connection c
+              ON (c.p1=%s AND c.p2=p.pid) OR (c.p2=%s AND c.p1=p.pid)
+        ''', [pid, pid])
+    
+    return curs.fetchall()
+ 
+
+def create_code_party(conn, party_goal, party_start, party_end):
+    """Create a new code party and return its cpid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        INSERT INTO groups (group_goal, comp_start, comp_end)
+        INSERT INTO code_party (party_goal, party_start, party_end)
         VALUES (%s, %s, %s)
-    ''', [group_goal, comp_start, comp_end])
+    ''', [party_goal, party_start, party_end])
     conn.commit()
     return curs.lastrowid
 
-
-def assign_user_to_group(conn, pid, gid):
-    """
-    Assign a user to a group.
-    """
+def assign_user_to_party(conn, pid, cpid):
+    """Add a user to a party"""
     curs = dbi.dict_cursor(conn)
+    #look into how to handle an error of in case someone tries to insert a duplicate!! / read about insert ignore?
     curs.execute('''
-        UPDATE person
-        SET gid = %s
-        WHERE pid = %s
-    ''', [gid, pid])
+        INSERT INTO party_membership (pid, cpid)
+        VALUES (%s, %s)
+    ''', [pid, cpid])
     conn.commit()
 
 
-def assign_multiple_users_to_group(conn, gid, pid_list):
+def assign_invitees_to_party(conn, cpid, pid_list):
     """
-    Assigns multiple users to a given group.
+    Assigns multiple users(invitee list) to a party. 
+    Returns the cpid of the party.
     """
     if not pid_list:
-        return gid
+        return cpid
 
     curs = dbi.dict_cursor(conn)
-    placeholders = ",".join(["%s"] * len(pid_list))
-    query = f'''
-        UPDATE person
-        SET gid = %s
-        WHERE pid IN ({placeholders})
-    '''
-    curs.execute(query, [gid] + pid_list)
+    # setup prepared query for (pid, cpid) pairs to add to membership table
+    rows = [(pid, cpid) for pid in pid_list]
+    #executes a bunch of these inserts given our (pid, cpid) tuples
+    curs.executemany(
+        '''INSERT INTO party_membership (pid, cpid)
+           VALUES (%s, %s)''',
+        rows
+    )
     conn.commit()
-    return gid
+    return cpid
 
 
 def get_group_info(conn, gid):

@@ -166,44 +166,43 @@ def logout():
     flash("Logged out.")
     return redirect(url_for('login'))
 
-# --------------------GROUP ROUTES------------------
-@app.route("/create_group", methods=["GET", "POST"])
-def create_group():
-    '''Loads page for users to create friend groups'''
+# --------------------PARTY ROUTES------------------
+@app.route("/create_party", methods=["GET", "POST"])
+def create_party():
+    '''Loads page for users to create friend party'''
     if 'pid' not in session:
-        flash("You must be logged in to create a group")
+        flash("You must be logged in to create a party")
         return redirect(url_for("login"))
 
     conn = dbi.connect()
 
-    # Fetch connections
-    connections = db_queries.get_connections_with_group_status(conn, session['pid'])
+    # Fetch connections/potential people to invite
+    connections = db_queries.get_party_invite_options(conn, session['pid'])
 
     if request.method == "POST":
-        group_goal = request.form.get("group_goal")
-        comp_start = request.form.get("comp_start")
-        comp_end = request.form.get("comp_end")
+        party_goal = request.form.get("party_goal")
+        party_start = request.form.get("party_start")
+        party_end = request.form.get("party_end")
         invitees = request.form.getlist("invitees")  # array of pid as strings
 
         try:
             # Create group
-            gid = db_queries.create_group(conn, group_goal, comp_start, comp_end)
+            cpid = db_queries.create_code_party(conn, party_goal, party_start, party_end)
 
-            # Assign current user
-            db_queries.assign_user_to_group(conn, session['pid'], gid)
+            # Add party creator to the party
+            db_queries.assign_user_to_party(conn, session['pid'], cpid)
 
             # Assign invitees -- IN FUTURE, THIS WILL BE THEY NEED TO ACCEPT FIRST, NOT AUTOMATICALLY ASSIGN
             if invitees:
-                invitee_ids = [int(pid) for pid in invitees]
-                db_queries.assign_multiple_users_to_group(conn, gid, invitee_ids)
+                db_queries.assign_invitees_to_party(conn, cpid, invitees)
 
-            flash("Group created successfully!")
-            return redirect(url_for("view_group", gid=gid))
-        
+            flash("Party created successfully!")
+            return redirect(url_for("view_party", cpid=cpid))
         except Exception as e:
             conn.rollback()
-            flash(f"Error creating group: {e}")
-    return render_template("create_group.html", connections=connections)
+            flash(f"Error creating party: {e}")
+    return render_template("create_party.html", connections=connections)
+
 
 
 @app.route("/group/<int:gid>")
