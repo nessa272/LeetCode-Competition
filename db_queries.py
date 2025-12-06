@@ -283,15 +283,5 @@ def get_parties_for_user(conn, pid):
     
 if __name__ == '__main__':
     dbi.conf("leetcode_db")
+    dbi.conf("leetcode_db")
     conn=dbi.connect()
-    print("follow")
-    #follow(conn, 1, 3)
-    #print("follow2")
-    #follow(conn, 1, 4)
-    #print("follow3")
-    #follow(conn, 1, 5)
-    print_db(conn)
-    print(get_followers(conn, 2))
-    print(get_follows(conn, 2))
-
-
