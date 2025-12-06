@@ -2,13 +2,13 @@
 
 {% block main_content %}
 <div class="container mt-4">
-    {% if group %}
-        <h1>My Group</h1>
+    {% if party %}
+        <h1>Code Party</h1>
 
-        <h2>Group Details</h2>
-        <p><strong>Goal:</strong> {{ group.group_goal }} problems</p>
-        <p><strong>Start:</strong> {{ group.comp_start }}</p>
-        <p><strong>End:</strong> {{ group.comp_end }}</p>
+        <h2>Party Details</h2>
+        <p><strong>Goal:</strong> {{ party.party_goal }} problems</p>
+        <p><strong>Start:</strong> {{ party.party_start }}</p>
+        <p><strong>End:</strong> {{ party.party_end }}</p>
 
         <hr>
 
@@ -18,10 +18,10 @@
                 <li>
                     {{ member.lc_username }}
                     {% if member.pid != session['pid'] %}
-                    <form style="display:inline" method="POST" action="{{ url_for('remove_member', gid=group.gid) }}">
-                        <input type="hidden" name="pid" value="{{ member.pid }}">
-                        <button type="submit">Remove</button>
-                    </form>
+                        <form style="display:inline" method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
+                            <input type="hidden" name="pid" value="{{ member.pid }}">
+                            <button type="submit">Remove</button>
+                        </form>
                     {% else %}
                         (You)
                     {% endif %}
@@ -32,11 +32,11 @@
         <hr>
 
         <h3>Invite Connections</h3>
-        <form method="POST" action="{{ url_for('add_member', gid=group.gid) }}">
+        <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
             {% if connections %}
                 {% for user in connections %}
-                    {% if user.gid %}
-                        <label style="color:gray;">{{ user.lc_username }} (Already in a group)</label><br>
+                    {% if user.in_party %}
+                        <label style="color:gray;">{{ user.lc_username }} (Already in this party)</label><br>
                     {% else %}
                         <input type="checkbox" name="pid" value="{{ user.pid }}">
                         <label>{{ user.lc_username }}</label><br>
@@ -49,9 +49,8 @@
         </form>
 
     {% else %}
-        <h2>You are not in a group yet.</h2>
-        <p>Want to create one?</p>
-        <a href="{{ url_for('create_group') }}" class="btn btn-primary mt-3">Create Group</a>
+        <h2>You are not in any party yet.</h2>
+        <a href="{{ url_for('create_party') }}" class="btn btn-primary mt-3">Create a Party</a>
     {% endif %}
 </div>
 {% endblock %}

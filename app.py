@@ -205,64 +205,60 @@ def create_party():
 
 
 
-@app.route("/group/<int:gid>")
-def view_group(gid):
-    '''Loads page to view existing group'''
+@app.route("/party/<int:cpid>")
+def view_party(cpid):
+    """
+    Loads page to view existing code party
+    
+    :param cpid: the code party id
+    """
     if 'pid' not in session:
         return redirect(url_for('login'))
 
     conn = dbi.connect()
-    group = db_queries.get_group_info(conn, gid)
-    members = db_queries.get_group_members(conn, gid)
-    
-    # Connections for invite form (friends not in a group)
-    connections = db_queries.get_connections_with_group_status(conn, session['pid'])
+    party = db_queries.get_party_info(conn, cpid)
+    members = db_queries.get_party_members(conn, cpid)
+    connections = db_queries.get_party_invite_options(conn, session['pid'], cpid)
 
     return render_template(
-        "view_group.html", 
-        group=group,
+        "view_party.html",
+        party=party,
         members=members,
         connections=connections
     )
 
 
-
-@app.route("/group/<int:gid>/remove_member", methods=["POST"])
-def remove_member(gid):
-    '''Loads page to remove a member from a group'''
+@app.route("/party/<int:cpid>/remove_member", methods=["POST"])
+def remove_member(cpid):
+    '''Loads page to remove a member from a code party'''
     if 'pid' not in session:
         return redirect(url_for('login'))
 
     remove_pid = request.form.get("pid")
     conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
-
     try:
-        # Remove member from group (set gid to NULL)
-        db_queries.remove_user_from_group(conn, remove_pid, gid)
+        db_queries.remove_user_from_party(conn, remove_pid, cpid)
         flash("Member removed!")
     except Exception as e:
         conn.rollback()
         flash(f"Error: {e}")
 
-    return redirect(url_for("view_group", gid=gid))
+    return redirect(url_for("view_party", cpid=cpid))
 
-@app.route("/group/<int:gid>/add_member", methods=["POST"])
-def add_member(gid):
-    '''Loads page to add a member from a group'''
+@app.route("/party/<int:cpid>/add_member", methods=["POST"])
+def add_member(cpid):
     if 'pid' not in session:
-        return redirect(url_for("login"))
+        return redirect(url_for('login'))
 
     new_pid = request.form.get("pid")
     conn = dbi.connect()
-
     try:
-        db_queries.assign_user_to_group(conn, new_pid, gid)
+        db_queries.assign_user_to_party(conn, new_pid, cpid)
         flash("Member added!")
     except Exception as e:
         flash(f"Error adding member: {e}")
 
-    return redirect(url_for("view_group", gid=gid))
+    return redirect(url_for("view_party", cpid=cpid))
 
 @app.route("/my_group")
 def my_group():

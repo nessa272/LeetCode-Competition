@@ -181,31 +181,35 @@ def assign_invitees_to_party(conn, cpid, pid_list):
     return cpid
 
 
-def get_group_info(conn, gid):
+def get_party_info(conn, cpid):
     """
-    Returns data for a group.
+    Returns data for a code party.
     """
     curs = dbi.dict_cursor(conn)
-    curs.execute("SELECT * FROM groups WHERE gid=%s", [gid])
+    curs.execute("SELECT * FROM code_party WHERE cpid=%s", [cpid])
     return curs.fetchone()
 
 
-def get_group_members(conn, gid):
+def get_party_members(conn, cpid):
     """
-    Returns all users assigned to a given group.
+    Returns all users assigned to a given party.
     """
-    curs = dbi.dict_cursor(conn)
-    curs.execute("SELECT * FROM person WHERE gid=%s", [gid])
-    return curs.fetchall()
-
-def remove_user_from_group(conn, pid, gid):
-    """Remove a user from a group by clearing gid."""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        UPDATE person
-        SET gid=NULL
-        WHERE pid=%s AND gid=%s
-    ''', [pid, gid])
+        SELECT p.*
+        FROM person p
+        JOIN party_membership pm ON pm.pid = p.pid
+        WHERE pm.cpid = %s
+    ''', [cpid])
+    return curs.fetchall()
+
+def remove_user_from_party(conn, pid, cpid):
+    """Remove a user from a party"""
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+        DELETE FROM party_membership
+        WHERE pid=%s AND cpid=%s
+    ''', [pid, cpid])
     conn.commit()
     
 if __name__ == '__main__':
