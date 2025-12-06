@@ -20,9 +20,9 @@
 
     {% if session.get('pid') %}
     <li class="dropdown">
-      <a href="#" class="dropbtn">Groups ▼</a>
+      <a href="#" class="dropbtn">Code Parties! ▼</a>
       <div class="dropdown-content">
-        <a href="{{ url_for('create_group') }}">Create Group</a>
+        <a href="{{ url_for('create_party') }}">Create Party</a>
         <a href="{{ url_for('my_group') }}">My Group</a>
       </div>
     </li>
