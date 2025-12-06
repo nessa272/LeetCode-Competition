@@ -8,6 +8,9 @@
 <form method="POST" action="{{ url_for('create_party') }}">
     <fieldset>
         <legend>Party Details</legend>
+        <label>Party Name</label>
+        <input type="text" name="party_name">
+
         <label>Party Goal (number of problems)</label>
         <input type="number" name="party_goal" required>
 

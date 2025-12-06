@@ -39,6 +39,7 @@ CREATE TABLE person (
 -- This is the configuration stuff/logistics of party
 CREATE TABLE code_party (
   cpid        INT AUTO_INCREMENT PRIMARY KEY,
+  name        VARCHAR(200) NOT NULL DEFAULT 'Nameless Party',
   party_goal  INT,
   party_start DATE NOT NULL,
   party_end   DATE NOT NULL,
