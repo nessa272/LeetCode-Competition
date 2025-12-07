@@ -96,6 +96,7 @@ def signup():
         return render_template('signup.html')
 
     # else: POST request
+    name = request.form.get('name')
     username = request.form.get('username')
     password = request.form.get('password1')
     lc_username = request.form.get('lc_username')
@@ -105,10 +106,18 @@ def signup():
         return redirect(url_for('signup'))
 
     conn = dbi.connect()
+    #before we create person make sure their fields are valid, specifically username and lc_username
+    if db_queries.username_exists(conn, username):
+        flash("That username is already taken. Please log in instead.")
+        return redirect(url_for('signup'))
+
+    if db_queries.lc_username_exists(conn, lc_username):
+        flash("An account already exists with that LeetCode username. Please log in.")
+        return redirect(url_for('signup'))
 
     # Create new person in database
     try:
-        pid = db_queries.create_person(conn, username, lc_username)
+        pid = db_queries.create_person(conn, name, username, lc_username)
     except Exception as err:
         flash(f"Error creating person record: {err}")
         return redirect(url_for('signup'))

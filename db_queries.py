@@ -66,14 +66,24 @@ def connect(conn, pid1, pid2):
 
 # Login/auth queries
 
-def create_person(conn, username, lc_username):
+def username_exists(conn, username):
+    curs = dbi.dict_cursor(conn)
+    curs.execute('SELECT 1 FROM person WHERE username=%s', [username])
+    return curs.fetchone() is not None
+
+def lc_username_exists(conn, lc_username):
+    curs = dbi.dict_cursor(conn)
+    curs.execute('SELECT 1 FROM person WHERE lc_username=%s', [lc_username])
+    return curs.fetchone() is not None
+
+def create_person(conn, name, username, lc_username):
     """Create a new person and return the new pid."""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        INSERT INTO person (username, lc_username, current_streak, longest_streak,
+        INSERT INTO person (name, username, lc_username, current_streak, longest_streak,
                             total_problems, num_coins)
-        VALUES (%s, %s, NULL, NULL, NULL, NULL)
-    ''', [username, lc_username])
+        VALUES (%s, %s, %s, NULL, NULL, NULL, NULL)
+    ''', [name, username, lc_username])
     conn.commit()
     return curs.lastrowid
 

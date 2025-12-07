@@ -5,6 +5,9 @@
 
   <form action="{{ url_for('signup') }}" method="POST">
     <fieldset>
+      <label for="name">Name</label><br>
+      <input type="text" id="name" name="name" required><br><br>
+
       <label for="username">Username</label><br>
       <input type="text" id="username" name="username" required><br><br>
 

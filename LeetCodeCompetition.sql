@@ -26,7 +26,7 @@ CREATE TABLE person (
   username       VARCHAR(50) NOT NULL UNIQUE,
   name           VARCHAR(50),
   birthday       DATE,
-  lc_username    VARCHAR(50),
+  lc_username    VARCHAR(50) NOT NULL UNIQUE,
   current_streak INT,
   longest_streak INT,
   total_problems INT,
