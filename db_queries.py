@@ -17,8 +17,6 @@ def get_profile(conn, pid):
     curs.close()
     return result
 
-
-def get_follows(conn, pid):
 def get_follows(conn, pid):
     '''
     Get the users that the person follows with the pid
