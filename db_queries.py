@@ -23,11 +23,12 @@ def get_followers(conn, pid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-    select p.pid, p.name, p.lc_username from person p
-    inner join connection c 
-        on p.pid = c.p2
-    where %s in (c.p1, c.p2)
-        and p.pid <> %s;
+                SELECT p.pid, p.name, p.lc_username
+                FROM person p
+                JOIN connection c 
+                ON p.pid = c.p1   -- p1 are the people that follow you
+                WHERE c.p2 = %s -- you're p2
+                AND p.pid <> %s; -- exclude yourself
     ''', [pid, pid])
     result = curs.fetchall()
     curs.close()
@@ -39,11 +40,12 @@ def get_follows(conn, pid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-    select p.pid, p.name, p.lc_username from person p
-    inner join connection c 
-        on p.pid = c.p2
-    where %s in (c.p1, c.p2)
-        and p.pid <> %s;
+                SELECT p.pid, p.name, p.lc_username
+                FROM person p
+                JOIN connection c 
+                    ON p.pid = c.p2  -- p2 are the people you follow
+                WHERE c.p1 = %s -- p1 is you
+                 AND p.pid <> %s; -- exclude yourself
     ''', [pid, pid])
     result = curs.fetchall()
     curs.close()

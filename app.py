@@ -61,7 +61,7 @@ def profile(pid):
         follows = db_queries.get_follows(conn, pid)
 
         action = request.form.get('action')
-        print('pid' not in session)
+        #print('pid' not in session)
         if action == "Unfollow":
             pid2 = request.form.get('unfollow_friend')
             friend_name = db_queries.get_profile(conn, pid2)
@@ -342,7 +342,7 @@ def find_friends():
         elif action == "Follow":
             pid2 = request.form.get('follow_friend')
             friend_name = db_queries.get_profile(conn, pid2)
-            print(pid2)
+
             flash('Following %s' % (friend_name['lc_username']))
             db_queries.follow(conn, pid, pid2)
             friends = db_queries.find_friends(conn, pid)
