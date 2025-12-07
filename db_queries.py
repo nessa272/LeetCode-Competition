@@ -19,13 +19,13 @@ def get_profile(conn, pid):
 
 def get_followers(conn, pid):
     '''
-    Get the users that follows the user with the pid
+    Get the users that the user's (with the pid) follows 
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select p.pid, p.name, p.lc_username from person p
     inner join connection c 
-        on p.pid = c.p1
+        on p.pid = c.p2
     where %s in (c.p1, c.p2)
         and p.pid <> %s;
     ''', [pid, pid])
