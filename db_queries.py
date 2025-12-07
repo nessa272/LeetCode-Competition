@@ -50,6 +50,22 @@ def get_followers(conn, pid):
     curs.close()
     return result
 
+def get_follows(conn, pid):
+    '''
+    Get the users that the user's (with the pid) follows 
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    select p.pid, p.name, p.lc_username from person p
+    inner join connection c 
+        on p.pid = c.p2
+    where %s in (c.p1, c.p2)
+        and p.pid <> %s;
+    ''', [pid, pid])
+    result = curs.fetchall()
+    curs.close()
+    return result
+
 def find_friends(conn, pid):
     '''
     Find people who the user (pid) is NOT connected to
@@ -77,6 +93,7 @@ def follow(conn, pid1, pid2):
     ''', [pid1, pid2])
     conn.commit()
     curs.close()
+
 
 # Login/auth queries
 

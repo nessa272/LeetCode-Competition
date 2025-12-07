@@ -36,21 +36,42 @@ def about():
     #flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
-@app.route('/profile/<pid>')
+@app.route('/profile/<pid>', methods = ['GET', 'POST'])
 def profile(pid):
     '''
     Loads a user's profile based on input pid.
     '''
-    conn=dbi.connect()
-    # query profile info
-    profile = db_queries.get_profile(conn, pid) 
-    conn.close()
-    # get friends list
-    conn=dbi.connect()
-    friends = db_queries.get_followers(conn, pid)
-    conn.close()
-    # show profile
-    return render_template('profile.html', profile=profile, friends=friends)
+
+    if request.method == "GET":
+        conn=dbi.connect()
+        # query profile info
+        profile = db_queries.get_profile(conn, pid) 
+        conn.close()
+        # get friends list
+        conn=dbi.connect()
+        followers = db_queries.get_followers(conn, pid)
+        follows = db_queries.get_follows(conn, pid)
+        conn.close()
+        # show profile
+        return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+    elif request.method =="POST":
+        conn=dbi.connect()
+        profile = db_queries.get_profile(conn, pid) 
+        followers = db_queries.get_followers(conn, pid)
+        follows = db_queries.get_follows(conn, pid)
+
+        action = request.form.get('action')
+        print('pid' not in session)
+        if action == "Unfollow":
+            pid2 = request.form.get('unfollow_friend')
+            friend_name = db_queries.get_profile(conn, pid2)
+            print(pid2)
+            flash('Unfollowing %s' % (friend_name['lc_username']))
+            db_queries.unfollow(conn, pid, pid2)
+            return redirect(url_for('profile', pid=pid))
+            #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+               
+
 
 @app.route('/refresh-profile/<pid>/<lc_username>')
 def refresh_profile(pid: int, lc_username: str):
