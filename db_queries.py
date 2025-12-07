@@ -17,22 +17,6 @@ def get_profile(conn, pid):
     curs.close()
     return result
 
-def get_follows(conn, pid):
-    '''
-    Get the users that the person follows with the pid
-    '''
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-    select p.pid, p.name, p.lc_username from person p
-    inner join connection c 
-        on p.pid = c.p2
-    where %s in (c.p1, c.p2)
-        and p.pid <> %s;
-    ''', [pid, pid])
-    result = curs.fetchall()
-    curs.close()
-    return result
-
 def get_followers(conn, pid):
     '''
     Get the users that follows the user with the pid
