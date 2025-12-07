@@ -77,6 +77,17 @@ def follow(conn, pid1, pid2):
     conn.commit()
     curs.close()
 
+def unfollow(conn, pid1, pid2):
+    '''
+    Delete connection where user pid1 follows user pid2
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    delete from `connection` 
+    where p1 = %s and p2 = %s
+    ''', [pid1, pid2])
+    conn.commit()
+    curs.close()
 
 # Login/auth queries
 
