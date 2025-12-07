@@ -43,27 +43,6 @@
                </li>
             {% endfor %}
         </ul>
-        <h2>Following</h2>
-        <ul class="friend-list">
-            {% for followed_user in follows %}
-                <li>
-                    <!-- Profile link -->
-                    <a href="{{ url_for('profile', pid=followed_user.pid) }}">
-                        {{ followed_user.name }} ({{ followed_user.lc_username }})
-                    </a>
-
-                    <!-- Unfollow button -->
-                    {% if loggedin %}
-                    <form action="{{ url_for('profile', pid=profile.pid) }}" 
-                        method="POST" 
-                        style="display:inline;">
-                        <input type="hidden" name="unfollow_friend" value="{{ followed_user.pid }}">
-                        <button type="submit" name="action" value="Unfollow">Unfollow</button>
-                    </form>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
     </div>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
