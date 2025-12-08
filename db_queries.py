@@ -182,22 +182,28 @@ def get_person_by_pid(conn, pid):
 def get_party_invite_options(conn, pid, cpid=None):
     """
     Returns all friends/followers/following of pid.
-    If cpid is provided, include whether they are already in that party.
+    If cpid is provided, skip users who are already in the party.
     """
     curs = dbi.dict_cursor(conn)
     
     # This case is: fetching friend list(potential invitees) for a PRE EXISTING PARTY
     if cpid:
-        # queries for friends pid, name, and in_party status (if they are already in this party or not)
+        # queries for friends pid, name
         # gets all the people who either followed this person or who this person followed
+        # that are NOT in the party
         curs.execute('''
-            SELECT DISTINCT p.pid, p.name, p.lc_username,
-                   CASE WHEN pm.cpid IS NOT NULL THEN 1 ELSE 0 END AS in_party
+            SELECT DISTINCT
+                p.pid,
+                p.name,
+                p.lc_username
             FROM person p
             JOIN connection c
-              ON (c.p1=%s AND c.p2=p.pid) OR (c.p2=%s AND c.p1=p.pid)
+            ON (c.p1 = %s AND c.p2 = p.pid)
+            OR (c.p2 = %s AND c.p1 = p.pid)
             LEFT JOIN party_membership pm
-              ON pm.pid = p.pid AND pm.cpid = %s
+            ON pm.pid = p.pid
+            AND pm.cpid = %s
+            WHERE pm.cpid IS NULL;
         ''', [pid, pid, cpid])
 
     # This case is: fetching friend list(potential invitees) for a NEW PARTY IN CREATION

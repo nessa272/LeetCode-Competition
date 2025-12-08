@@ -41,21 +41,17 @@
         <hr>
 
         <h3>Invite Connections</h3>
-        <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
             {% if connections %}
                 {% for user in connections %}
-                    {% if user.in_party %}
-                        <label style="color:gray;">{{ user.lc_username }} (Already in this party)</label><br>
-                    {% else %}
-                        <input type="checkbox" name="pid" value="{{ user.pid }}">
-                        <label>{{ user.lc_username }}</label><br>
-                    {% endif %}
+                    <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
+                        <input type="hidden" name="pid" value="{{ user.pid }}">
+                        <label>{{ user.lc_username }}</label>
+                        <button type="submit">Add</button>
+                    </form>
                 {% endfor %}
-                <button type="submit">Add Selected Members</button>
             {% else %}
                 <p>No connections available to invite.</p>
             {% endif %}
-        </form>
 
     {% else %}
         <h2>You are not in any party yet.</h2>
