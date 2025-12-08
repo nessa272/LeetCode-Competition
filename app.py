@@ -72,6 +72,38 @@ def profile(pid):
             #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
                
 
+@app.route('/profile/edit/<pid>', methods = ['GET', 'POST'])
+def edit_profile(pid):
+    '''
+    Loads a user's profile based on input pid.
+    '''
+
+    if request.method == "GET":
+        conn=dbi.connect()
+
+        # query profile info
+        profile = db_queries.get_profile(conn, pid) 
+        conn.close()
+
+        # get friends list
+        conn=dbi.connect()
+        followers = db_queries.get_followers(conn, pid)
+        follows = db_queries.get_follows(conn, pid)
+        conn.close()
+
+        # show profile
+        return render_template('profile_edit.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+    elif request.method =="POST":
+
+        #get form info
+        name = request.form.get('name')
+        username = request.form.get('username')
+
+        conn=dbi.connect()
+        db_queries.edit_profile(conn, pid, name, username)
+        return redirect(url_for('profile', pid=pid))
+        #print('pid' not in session)
+
 
 @app.route('/refresh-profile/<pid>/<lc_username>')
 def refresh_profile(pid: int, lc_username: str):
@@ -341,8 +373,7 @@ def refresh_party(cpid):
 
     return redirect(url_for('view_party', cpid=cpid))
 
-
-# --------------------PARTY ROUTES------------------
+#------------ Find Friends ----------------
 @app.route('/find_friends/', methods=['GET', 'POST'])
 def find_friends():
     '''Loads page to find people (who are the user is not currently connected to) to friend'''
@@ -355,11 +386,15 @@ def find_friends():
     username = db_queries.get_profile(conn, pid)
     if request.method == 'GET':
         friends = db_queries.find_friends(conn, pid)
-        return render_template('find_friends.html', pid= pid, username = username['username'], friends = friends)
+        return render_template('find_friends.html', pid= pid, username = username['username'], friends = friends, search = False)
     else:
         action = request.form.get('action')
+
+        #back to profile
         if action == "Go Back To Profile":
             return redirect(url_for('profile', pid=pid))
+        
+        #user decides to follow someone
         elif action == "Follow":
             pid2 = request.form.get('follow_friend')
             friend_name = db_queries.get_profile(conn, pid2)
@@ -367,7 +402,14 @@ def find_friends():
             flash('Following %s' % (friend_name['lc_username']))
             db_queries.follow(conn, pid, pid2)
             friends = db_queries.find_friends(conn, pid)
-            return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends)
+            return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends, search = False)
+
+        elif action == 'Search':
+            search_term= request.form.get('search_query')
+            searched_friends = db_queries.search_friends(conn, pid, search_term)
+            print(searched_friends)
+            return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = searched_friends, search_term = search_term, search = True)
+
                
 
 if __name__ == '__main__':

@@ -61,8 +61,30 @@ def find_friends(conn, pid):
     and p.pid not in (
       select c.p2 from connection c where c.p1 = %s
     )
-    limit 10;
+    limit 30;
     ''', [pid, pid])
+    result = curs.fetchall()
+    curs.close()
+    return result
+
+def search_friends(conn, pid, search_term):
+    '''
+    Find people who the user (pid) is NOT connected to
+    '''
+    search_term = f"%{search_term.lower()}%"
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    select p.pid, p.name, p.lc_username 
+    from person p 
+    where p.pid <> %s
+    and p.pid not in (
+                 select c.p2 
+                 from connection c 
+                 where c.p1 = %s
+    )
+    AND (p.lc_username LIKE %s OR p.name LIKE %s)
+    limit 30;
+    ''', [pid, pid, search_term, search_term])
     result = curs.fetchall()
     curs.close()
     return result
@@ -90,6 +112,20 @@ def unfollow(conn, pid1, pid2):
     ''', [pid1, pid2])
     conn.commit()
     curs.close()
+
+def edit_profile(conn, pid, name, username):
+    '''
+    Delete connection where user pid1 follows user pid2
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    update person
+    set name = %s, username = %s
+    where pid = %s;
+    ''', [name, username, pid])
+    conn.commit()
+    curs.close()
+
 
 # Login/auth queries
 

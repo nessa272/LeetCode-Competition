@@ -7,12 +7,23 @@
 
     <!-- LEFT COLUMN -->
     <div class="left-col">
-        <h2>Profile</h2>
+          <h2>Your Profile</h2>
         <img src="{{ profile.pfp_url or '/static/default_pfp.jpg' }}" alt="Profile Picture">
 
+        <!-- change information -->
+        <form action="{{ url_for('edit_profile', pid = profile.pid) }}" method="POST">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" value="{{ profile.name }}">
+
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="{{ profile.username }}">
+
+                <button type="submit" class="btn">Update</button>
+
+          </form>
+
+
         <ul class="profile-list">
-            <li><strong>Name:</strong> {{ profile.name }}</li>
-            <li><strong>Username:</strong> {{ profile.username }}</li>
             <li><strong>Leetcode Username:</strong> {{ profile.lc_username }}</li>
             <li><strong>Latest Submission:</strong> {{ profile.latest_submission }}</li> 
             <li><strong>Current Streak:</strong> {{ profile.current_streak }}</li>
@@ -22,22 +33,8 @@
             <li><strong>Personal Goal:</strong> {{ profile.personal_goal }}</li>
             <li><strong>Number of Friends:</strong> {{ friends | length }}</li>
         </ul>
-        <a class="btn" name="action" value="edit_profile" href="{{ url_for('edit_profile', pid=profile.pid) }}">
-            Edit Profile
-       </a>
 
-        {% if loggedin %}
-        <a class="btn" href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">
-            Refresh Leetcode Stats
-        </a>
-        {% if profile.last_refreshed %}
-            <p><em>Last refreshed: {{ profile.last_refreshed.strftime("%b %d, %Y %H:%M") }}</em></p>
-        {% else %}
-            <p><em>Stats never fetched before.</em></p>
-        {% endif %}
-
-        <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
-        {% endif %}
+     
     </div>
 
     <!-- RIGHT COLUMN -->
@@ -48,11 +45,15 @@
                 <li>
                     <a href="{{ url_for('profile', pid=follower.pid) }}">
                          {{ follower.name }} ({{ follower.lc_username }})
+                         {% if loggedin: %}
+                        {% endif %}
                     </a>
                </li>
             {% endfor %}
         </ul>
     </div>
+<script>
+</script>
     <!-- RIGHT COLUMN -->
     <div class="right-col">
         <h2>Following</h2>
@@ -63,31 +64,12 @@
                     <a href="{{ url_for('profile', pid=followed_user.pid) }}">
                         {{ followed_user.name }} ({{ followed_user.lc_username }})
                     </a>
-
-                    <!-- Unfollow button -->
-                    {% if loggedin %}
-                    <form action="{{ url_for('profile', pid=profile.pid) }}" 
-                        method="POST" 
-                        style="display:inline;">
-                        <input type="hidden" name="unfollow_friend" value="{{ followed_user.pid }}">
-                        <button type="submit" name="action" value="Unfollow">Unfollow</button>
-                    </form>
-                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
     </div>
-    
 <script>
-    
-document.addEventListener("DOMContentLoaded", () => {
-    const refreshLink = document.querySelector("a.btn[href*='refresh_profile']");
-    if (refreshLink) {
-        refreshLink.addEventListener("click", () => {
-            document.body.style.cursor = "wait";
-        });
-    }
-});
+
 </script>
 </div>
 {% endblock %}
