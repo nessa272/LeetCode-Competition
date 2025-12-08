@@ -155,7 +155,7 @@ def get_party_invite_options(conn, pid, cpid=None):
         # queries for friends pid, name, and in_party status (if they are already in this party or not)
         # gets all the people who either followed this person or who this person followed
         curs.execute('''
-            SELECT p.pid, p.name, p.lc_username,
+            SELECT DISTINCT p.pid, p.name, p.lc_username,
                    CASE WHEN pm.cpid IS NOT NULL THEN 1 ELSE 0 END AS in_party
             FROM person p
             JOIN connection c
@@ -167,7 +167,7 @@ def get_party_invite_options(conn, pid, cpid=None):
     # This case is: fetching friend list(potential invitees) for a NEW PARTY IN CREATION
     else:
         curs.execute('''
-            SELECT p.pid, p.name, p.lc_username
+            SELECT DISTINCT p.pid, p.name, p.lc_username
             FROM person p
             JOIN connection c
               ON (c.p1=%s AND c.p2=p.pid) OR (c.p2=%s AND c.p1=p.pid)
