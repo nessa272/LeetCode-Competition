@@ -43,22 +43,35 @@ def profile(pid):
     '''
 
     if request.method == "GET":
-        conn=dbi.connect()
+
         # query profile info
+        conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
         conn.close()
+
         # get friends list
         conn=dbi.connect()
         followers = db_queries.get_followers(conn, pid)
+        conn.close()
+
+        conn=dbi.connect()
         follows = db_queries.get_follows(conn, pid)
         conn.close()
+
         # show profile
         return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session.get('pid'))))
     elif request.method =="POST":
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
+        conn.close()
+
+        conn=dbi.connect()
         followers = db_queries.get_followers(conn, pid)
+        conn.close()
+
+        conn=dbi.connect()
         follows = db_queries.get_follows(conn, pid)
+        conn.close()
 
         action = request.form.get('action')
         #print('pid' not in session)
@@ -82,15 +95,18 @@ def edit_profile(pid):
         if 'pid' not in session or str(pid) != str(session.get('pid')):
             return redirect(url_for('profile', pid = pid))
 
-        conn=dbi.connect()
 
         # query profile info
+        conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
         conn.close()
 
         # get friends list
         conn=dbi.connect()
         followers = db_queries.get_followers(conn, pid)
+        conn.close()
+
+        conn=dbi.connect()
         follows = db_queries.get_follows(conn, pid)
         conn.close()
 
@@ -104,6 +120,7 @@ def edit_profile(pid):
 
         conn=dbi.connect()
         db_queries.edit_profile(conn, pid, name, username)
+        conn.close()
         return redirect(url_for('profile', pid=pid))
         #print('pid' not in session)
 
@@ -131,7 +148,6 @@ def refresh_profile(pid: int, lc_username: str):
     print(f"{num_submissions} submissions added to database for username {lc_username}")
     #update when the user's leetcode stats were last updated
     db_queries.update_user_last_refreshed(conn, pid)
-
     conn.close()
     return redirect(url_for('profile', pid=pid))
 
@@ -169,7 +185,8 @@ def signup():
     if db_queries.username_exists(conn, username):
         flash("That username is already taken. Please log in instead.")
         return redirect(url_for('signup'))
-
+    conn.close()
+    conn = dbi.connect()
     if db_queries.lc_username_exists(conn, lc_username):
         flash("An account already exists with that LeetCode username. Please log in.")
         return redirect(url_for('signup'))
@@ -385,8 +402,11 @@ def find_friends():
     pid = session['pid']
     
     username = db_queries.get_profile(conn, pid)
+    conn.close()
     if request.method == 'GET':
+        conn = dbi.connect()
         friends = db_queries.find_friends(conn, pid)
+        conn.close()
         return render_template('find_friends.html', pid= pid, username = username['username'], friends = friends, search = False)
     else:
         action = request.form.get('action')
@@ -398,11 +418,22 @@ def find_friends():
         #user decides to follow someone
         elif action == "Follow":
             pid2 = request.form.get('follow_friend')
+
+            conn = dbi.connect()
             friend_name = db_queries.get_profile(conn, pid2)
+            conn.close()
 
             flash('Following %s' % (friend_name['lc_username']))
+
+            #make connection 
+            conn = dbi.connect()
             db_queries.follow(conn, pid, pid2)
+            conn.close()
+
+            #refresh friends list
+            conn = dbi.connect()
             friends = db_queries.find_friends(conn, pid)
+            conn.close()
             return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends, search = False)
 
         elif action == 'Search':
