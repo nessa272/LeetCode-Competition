@@ -7,7 +7,7 @@
 
     <!-- LEFT COLUMN -->
     <div class="left-col">
-          <h2>Your Profile</h2>
+        <h2>Profile</h2>
         <img src="{{ profile.pfp_url or '/static/default_pfp.jpg' }}" alt="Profile Picture">
 
         <ul class="profile-list">
@@ -23,6 +23,7 @@
             <li><strong>Number of Friends:</strong> {{ friends | length }}</li>
         </ul>
 
+        {% if loggedin %}
         <a class="btn" href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">
             Refresh Leetcode Stats
         </a>
@@ -32,7 +33,8 @@
             <p><em>Stats never fetched before.</em></p>
         {% endif %}
 
-          <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
+        <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
+        {% endif %}
     </div>
 
     <!-- RIGHT COLUMN -->
@@ -43,23 +45,11 @@
                 <li>
                     <a href="{{ url_for('profile', pid=follower.pid) }}">
                          {{ follower.name }} ({{ follower.lc_username }})
-                         {% if loggedin: %}
-                        {% endif %}
                     </a>
                </li>
             {% endfor %}
         </ul>
     </div>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const refreshLink = document.querySelector("a.btn[href*='refresh_profile']");
-    if (refreshLink) {
-        refreshLink.addEventListener("click", () => {
-            document.body.style.cursor = "wait";
-        });
-    }
-});
-</script>
     <!-- RIGHT COLUMN -->
     <div class="right-col">
         <h2>Following</h2>
