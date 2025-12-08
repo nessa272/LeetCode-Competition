@@ -79,6 +79,9 @@ def edit_profile(pid):
     '''
 
     if request.method == "GET":
+        if 'pid' not in session or str(pid) != str(session.get('pid')):
+            return redirect(url_for('profile', pid = pid))
+
         conn=dbi.connect()
 
         # query profile info
