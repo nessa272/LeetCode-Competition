@@ -298,6 +298,13 @@ def update_user_last_refreshed(conn, pid):
     curs.execute('UPDATE person SET last_refreshed = NOW() WHERE pid=%s', [pid])
     conn.commit()
 
+def update_party_last_refreshed(conn, cpid):
+    """Updates the timestamp that the whole party's leetcode database stats were last 
+    refreshed - it happens on button press on party page only
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('UPDATE code_party SET last_bulk_refresh = NOW() WHERE cpid=%s', [cpid])
+    conn.commit()
     
 if __name__ == '__main__':
     dbi.conf("leetcode_db")

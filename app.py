@@ -324,7 +324,25 @@ def my_parties():
         completed_parties=completed
     )
 
+@app.route('/party/<int:cpid>/refresh')
+def refresh_party(cpid):
+    """Refreshes the party stats, specifically refetching leetcode 
+    information for each party member"""
+    conn = dbi.connect()
+    curs = dbi.dict_cursor(conn)
 
+    members = db_queries.get_party_members(conn, cpid)
+
+    for m in members:
+        refresh_user_submissions(conn, m['pid'], m['lc_username'])
+
+    db_queries.update_party_last_refreshed(conn, cpid)
+    conn.close()
+
+    return redirect(url_for('view_party', cpid=cpid))
+
+
+# --------------------PARTY ROUTES------------------
 @app.route('/find_friends/', methods=['GET', 'POST'])
 def find_friends():
     '''Loads page to find people (who are the user is not currently connected to) to friend'''

@@ -28,6 +28,15 @@
                 </li>
             {% endfor %}
         </ul>
+        <a class="btn" href="{{ url_for('refresh_party', cpid=party.cpid) }}">
+            Refresh Full Party Stats
+        </a>
+        {% if party.last_bulk_refresh %}
+            <p>Last refreshed for this party: {{ party.last_bulk_refresh }}</p>
+        {% else %}
+            <p>No refresh yet.</p>
+        {% endif %}
+
 
         <hr>
 
