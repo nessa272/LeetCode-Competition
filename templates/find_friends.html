@@ -17,7 +17,9 @@
         <button type="submit">Back</button>
     </form>
 {% endif %}
+
 <br>
+
   <!--Search Query results (ONLY visible when used search) -->
 {% if search %}
     <h2>Searching for {{search_term}}</h2>
@@ -29,7 +31,7 @@
 <ul>
 <!-- Fallback results when no more users -->
 {% if friends|length < 1  and not search %}
-<p>No more users to follow!</p>
+    <p>No more users to follow!</p>
 {% endif %}
 
 {% for friend in friends %}

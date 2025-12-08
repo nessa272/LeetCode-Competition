@@ -21,7 +21,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
-    '''Main page of the website'''
+    """main page of the website"""
     if "pid" in session:
         conn=dbi.connect()
         pid = session['pid']
@@ -32,15 +32,13 @@ def index():
 
 @app.route('/about/')
 def about():
-    '''our about page'''
+    """ our about page """
     #flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
 @app.route('/profile/<pid>', methods = ['GET', 'POST'])
 def profile(pid):
-    '''
-    Loads a user's profile based on input pid.
-    '''
+    """Loads a user's profile based on input pid."""
 
     if request.method == "GET":
         conn=dbi.connect()
@@ -74,9 +72,7 @@ def profile(pid):
 
 @app.route('/profile/edit/<pid>', methods = ['GET', 'POST'])
 def edit_profile(pid):
-    '''
-    Loads a user's profile based on input pid.
-    '''
+    """ Loads a user's profile based on input pid."""
 
     if request.method == "GET":
         conn=dbi.connect()
@@ -376,7 +372,7 @@ def refresh_party(cpid):
 #------------ Find Friends ----------------
 @app.route('/find_friends/', methods=['GET', 'POST'])
 def find_friends():
-    '''Loads page to find people (who are the user is not currently connected to) to friend'''
+    """Loads page to find people (who are the user is not currently connected to) to friend"""
     conn = dbi.connect()
 
     if 'pid' not in session:
