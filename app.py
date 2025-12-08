@@ -94,6 +94,9 @@ def refresh_profile(pid: int, lc_username: str):
     conn = dbi.connect()
     num_submissions = refresh_user_submissions(conn, pid, lc_username)
     print(f"{num_submissions} submissions added to database for username {lc_username}")
+    #update when the user's leetcode stats were last updated
+    db_queries.update_user_last_refreshed(conn, pid)
+
     conn.close()
     return redirect(url_for('profile', pid=pid))
 

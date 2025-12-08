@@ -109,7 +109,7 @@ def create_person(conn, name, username, lc_username):
     curs.execute('''
         INSERT INTO person (name, username, lc_username, current_streak, longest_streak,
                             total_problems, num_coins)
-        VALUES (%s, %s, %s, NULL, NULL, NULL, NULL)
+        VALUES (%s, %s, %s, NULL, NULL, NULL, 0)
     ''', [name, username, lc_username])
     conn.commit()
     return curs.lastrowid
@@ -288,6 +288,15 @@ def get_parties_for_user(conn, pid):
         ORDER BY cp.party_start DESC
     ''', [pid])
     return curs.fetchall()
+
+# COINS db helpers
+def update_user_last_refreshed(conn, pid):
+    """Updates the timestamp that the user's leetcode database stats were last refreshed
+     - it happens on button press on profile page/party stats page
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('UPDATE person SET last_refreshed = NOW() WHERE pid=%s', [pid])
+    conn.commit()
 
     
 if __name__ == '__main__':

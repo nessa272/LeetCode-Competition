@@ -23,9 +23,15 @@
             <li><strong>Number of Friends:</strong> {{ friends | length }}</li>
         </ul>
 
-          <a class="btn" href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">
-               Refresh Leetcode Stats
-          </a>
+        <a class="btn" href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">
+            Refresh Leetcode Stats
+        </a>
+        {% if profile.last_refreshed %}
+            <p><em>Last refreshed: {{ profile.last_refreshed.strftime("%b %d, %Y %H:%M") }}</em></p>
+        {% else %}
+            <p><em>Stats never fetched before.</em></p>
+        {% endif %}
+
           <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
     </div>
 

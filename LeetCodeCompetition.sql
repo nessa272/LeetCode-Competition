@@ -30,7 +30,7 @@ CREATE TABLE person (
   current_streak INT,
   longest_streak INT,
   total_problems INT,
-  num_coins      INT,
+  num_coins      INT NOT NULL DEFAULT 0,
   personal_goal  INT,                -- current group membership (nullable)
   latest_submission DATE,
   last_refreshed DATETIME NULL
