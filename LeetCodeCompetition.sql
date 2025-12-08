@@ -43,7 +43,6 @@ CREATE TABLE code_party (
   party_goal  INT,
   party_start DATE NOT NULL,
   party_end   DATE NOT NULL,
-  status      ENUM('upcoming', 'in_progress', 'completed') DEFAULT 'upcoming',
   winner      INT NULL,
   FOREIGN KEY (winner) REFERENCES person(pid)
     ON DELETE SET NULL

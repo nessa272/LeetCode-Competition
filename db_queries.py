@@ -251,11 +251,17 @@ def remove_user_from_party(conn, pid, cpid):
 
 def get_parties_for_user(conn, pid):
     """
-    Returns all code parties (name + status) that a user is a member of.
+    Returns all code parties that a user is a member of 
+    AND dynamically computes the status.
     """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        SELECT cp.cpid, cp.name, cp.status, cp.party_start, cp.party_end
+        SELECT cp.cpid, cp.name, cp.party_start, cp.party_end,
+            CASE 
+                WHEN CURDATE() < cp.party_start then 'upcoming'
+                WHEN CURDATE() > cp.party_end then 'completed'
+                ELSE 'in_progress'
+            END AS status
         FROM code_party cp
         JOIN party_membership pm ON cp.cpid = pm.cpid
         WHERE pm.pid = %s
@@ -270,7 +276,12 @@ def get_parties_for_user(conn, pid):
     """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        SELECT cp.cpid, cp.name, cp.status, cp.party_start, cp.party_end
+        SELECT cp.cpid, cp.name, cp.party_start, cp.party_end,
+            CASE 
+                WHEN CURDATE() < cp.party_start then 'upcoming'
+                WHEN CURDATE() > cp.party_end then 'completed'
+                ELSE 'in_progress'
+            END AS status
         FROM code_party cp
         JOIN party_membership pm ON cp.cpid = pm.cpid
         WHERE pm.pid = %s
