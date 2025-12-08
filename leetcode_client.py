@@ -258,6 +258,9 @@ def refresh_user_submissions(
     Fetch a user's recent accepted submissions from LeetCode and insert
     new (pid, lc_problem) rows into 'submission'.
 
+    Also assigns coins based on difficulty:
+    easy=1, medium=2, hard=3.
+
     Then recompute the person's stats (current_streak, longest_streak,
     total_problems, latest_submission) *from the submission table*.
 
@@ -265,6 +268,7 @@ def refresh_user_submissions(
     """
     cursor = None
     new_count = 0
+    coins_earned = 0
 
     try:
         cursor = dbi.dict_cursor(conn)
@@ -289,20 +293,30 @@ def refresh_user_submissions(
 
             meta = get_problem_meta(cursor, title_slug)
             lc_problem = meta["lc_problem"]
+            difficulty = meta["difficulty"]
+
+            if difficulty == "easy":
+                coin_value = 1
+            elif difficulty == "medium":
+                coin_value = 2
+            else:
+                coin_value = 3
 
             cursor.execute(
                 """
                 INSERT IGNORE INTO submission (pid, lc_problem, submission_date, coins)
                 VALUES (%s, %s, %s, %s)
                 """,
-                (pid, lc_problem, submission_date, 0),
+                (pid, lc_problem, submission_date, coin_value),
             )
 
             if cursor.rowcount == 1:
                 new_count += 1
+                coins_earned += coin_value
 
-        # ⬇️ NEW: recompute stats from the truth in `submission`
+        # recompute stats from the truth in `submission`
         _recompute_person_stats(cursor, pid)
+        update_user_coins(cursor, pid, coins_earned)
 
         conn.commit()
         return new_count
@@ -314,3 +328,28 @@ def refresh_user_submissions(
     finally:
         if cursor is not None:
             cursor.close()
+
+def update_user_coins(cursor, pid: int, coins_earned: int) -> None:
+    """
+    Increment a user's coins by coins_earned (if >0) and update last_refreshed.
+    """
+    if coins_earned > 0:
+        cursor.execute(
+            """
+            UPDATE person
+            SET num_coins = num_coins + %s,
+                last_refreshed = NOW()
+            WHERE pid = %s
+            """,
+            (coins_earned, pid),
+        )
+    else:
+        cursor.execute(
+            """
+            UPDATE person
+            SET last_refreshed = NOW()
+            WHERE pid = %s
+            """,
+            (pid,),
+        )
+
