@@ -53,7 +53,7 @@ def profile(pid):
         follows = db_queries.get_follows(conn, pid)
         conn.close()
         # show profile
-        return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+        return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session.get('pid'))))
     elif request.method =="POST":
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
