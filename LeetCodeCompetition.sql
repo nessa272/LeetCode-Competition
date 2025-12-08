@@ -32,7 +32,8 @@ CREATE TABLE person (
   total_problems INT,
   num_coins      INT,
   personal_goal  INT,                -- current group membership (nullable)
-  latest_submission DATE
+  latest_submission DATE,
+  last_refreshed DATETIME NULL
 ) ENGINE=InnoDB;
 
 -- Code Parties! 
@@ -44,6 +45,7 @@ CREATE TABLE code_party (
   party_start DATE NOT NULL,
   party_end   DATE NOT NULL,
   winner      INT NULL,
+  last_bulk_refresh DATETIME NULL,
   FOREIGN KEY (winner) REFERENCES person(pid)
     ON DELETE SET NULL
     ON UPDATE CASCADE
