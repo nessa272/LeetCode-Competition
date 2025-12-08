@@ -5,6 +5,9 @@ from typing import Any, Dict, List, Optional
 import cs304dbi as dbi
 
 LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql"
+EASY_COIN_VALUE = 1
+MED_COIN_VALUE = 5
+HARD_COIN_VALUE = 7
 
 
 class LeetCodeClientError(Exception):
@@ -165,30 +168,19 @@ def get_problem_meta(cursor, title_slug: str) -> Dict[str, Any]:
 
 def _recompute_person_stats(cursor, pid: int) -> None:
     """
-    Recompute current_streak, longest_streak, total_problems, and latest_submission
-    for the given pid *purely from the submission table*.
+    Recompute current_streak, longest_streak, total_problems, latest_submission,
+    and num_coins for the given pid *purely from the submission + problem tables*.
 
     Assumes:
       - cursor is a dict-style cursor inside an open transaction.
       - submission has columns: pid, lc_problem, submission_date.
+      - problem has columns: lc_problem, difficulty ('easy'/'medium'/'hard').
     """
 
-    # 1) total_problems = number of distinct problems solved by this user
+    # 1) Get submission dates and distinct problems for this user
     cursor.execute(
         """
-        SELECT COUNT(DISTINCT lc_problem) AS total_problems
-        FROM submission
-        WHERE pid = %s
-        """,
-        (pid,),
-    )
-    row = cursor.fetchone()
-    total_problems = row["total_problems"] if row and row["total_problems"] is not None else 0
-
-    # 2) get all distinct submission dates in order for streak computation
-    cursor.execute(
-        """
-        SELECT DISTINCT submission_date
+        SELECT lc_problem, submission_date
         FROM submission
         WHERE pid = %s
         ORDER BY submission_date
@@ -199,10 +191,17 @@ def _recompute_person_stats(cursor, pid: int) -> None:
 
     if not rows:
         # No submissions at all: zero out stats
+        total_problems = 0
         current_streak = 0
         longest_streak = 0
         latest_submission = None
+        num_coins = 0
     else:
+        # Distinct problems solved
+        problems = {r["lc_problem"] for r in rows}
+        total_problems = len(problems)
+
+        # Streak + latest_submission
         dates = [r["submission_date"] for r in rows]
         latest_submission = dates[-1]
 
@@ -211,7 +210,6 @@ def _recompute_person_stats(cursor, pid: int) -> None:
         run = 0
         prev = None
 
-        # Scan forward to find longest streak; track run ending at latest date in `run`
         for d in dates:
             if prev is None or (d - prev).days > 1:
                 run = 1
@@ -223,20 +221,45 @@ def _recompute_person_stats(cursor, pid: int) -> None:
 
             prev = d
 
-        # `run` is the streak length ending at the last date we saw.
         if latest_submission == today:
             current_streak = run
         else:
             current_streak = 0
 
-    # 3) write back to person
+        # 2) Compute num_coins in Python from difficulty
+        #    (one row per submission; duplicates count as multiple coins)
+        cursor.execute(
+            """
+            SELECT p.difficulty
+            FROM submission s
+            JOIN problem p ON s.lc_problem = p.lc_problem
+            WHERE s.pid = %s
+            """,
+            (pid,),
+        )
+        diff_rows = cursor.fetchall()
+
+        num_coins = 0
+        for r in diff_rows:
+            diff = r["difficulty"]
+            if diff == "easy":
+                num_coins += EASY_COIN_VALUE
+            elif diff == "medium":
+                num_coins += MED_COIN_VALUE
+            elif diff == "hard":
+                num_coins += HARD_COIN_VALUE
+            # if difficulty is NULL/unknown, treat as 0 coins
+
+    # 3) write back to person, including num_coins and last_refreshed
     cursor.execute(
         """
         UPDATE person
-        SET current_streak   = %s,
-            longest_streak   = %s,
-            total_problems   = %s,
-            latest_submission = %s
+        SET current_streak    = %s,
+            longest_streak    = %s,
+            total_problems    = %s,
+            latest_submission = %s,
+            num_coins         = %s,
+            last_refreshed    = NOW()
         WHERE pid = %s
         """,
         (
@@ -244,6 +267,7 @@ def _recompute_person_stats(cursor, pid: int) -> None:
             longest_streak,
             total_problems,
             latest_submission,
+            num_coins,
             pid,
         ),
     )
@@ -256,19 +280,19 @@ def refresh_user_submissions(
 ) -> int:
     """
     Fetch a user's recent accepted submissions from LeetCode and insert
-    new (pid, lc_problem) rows into 'submission'.
+    new (pid, lc_problem, submission_date) rows into 'submission'.
 
-    Also assigns coins based on difficulty:
-    easy=1, medium=2, hard=3.
+    Coins are derived from problem.difficulty via EASY/MED/HARD_COIN_VALUE inside
+    _recompute_person_stats.
 
-    Then recompute the person's stats (current_streak, longest_streak,
-    total_problems, latest_submission) *from the submission table*.
+    After inserting new submissions, recompute the person's stats
+    (current_streak, longest_streak, total_problems, latest_submission, num_coins)
+    from the submission + problem tables.
 
     Returns: number of NEW rows inserted into submission.
     """
     cursor = None
     new_count = 0
-    coins_earned = 0
 
     try:
         cursor = dbi.dict_cursor(conn)
@@ -293,30 +317,20 @@ def refresh_user_submissions(
 
             meta = get_problem_meta(cursor, title_slug)
             lc_problem = meta["lc_problem"]
-            difficulty = meta["difficulty"]
-
-            if difficulty == "easy":
-                coin_value = 1
-            elif difficulty == "medium":
-                coin_value = 2
-            else:
-                coin_value = 3
 
             cursor.execute(
                 """
-                INSERT IGNORE INTO submission (pid, lc_problem, submission_date, coins)
-                VALUES (%s, %s, %s, %s)
+                INSERT IGNORE INTO submission (pid, lc_problem, submission_date)
+                VALUES (%s, %s, %s)
                 """,
-                (pid, lc_problem, submission_date, coin_value),
+                (pid, lc_problem, submission_date),
             )
 
             if cursor.rowcount == 1:
                 new_count += 1
-                coins_earned += coin_value
 
-        # recompute stats from the truth in `submission`
+        # recompute stats (including num_coins) from the truth in DB
         _recompute_person_stats(cursor, pid)
-        update_user_coins(cursor, pid, coins_earned)
 
         conn.commit()
         return new_count
@@ -328,28 +342,3 @@ def refresh_user_submissions(
     finally:
         if cursor is not None:
             cursor.close()
-
-def update_user_coins(cursor, pid: int, coins_earned: int) -> None:
-    """
-    Increment a user's coins by coins_earned (if >0) and update last_refreshed.
-    """
-    if coins_earned > 0:
-        cursor.execute(
-            """
-            UPDATE person
-            SET num_coins = num_coins + %s,
-                last_refreshed = NOW()
-            WHERE pid = %s
-            """,
-            (coins_earned, pid),
-        )
-    else:
-        cursor.execute(
-            """
-            UPDATE person
-            SET last_refreshed = NOW()
-            WHERE pid = %s
-            """,
-            (pid,),
-        )
-
