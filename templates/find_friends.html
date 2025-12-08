@@ -9,7 +9,6 @@
     <input type="text" name="search_query" placeholder="Search for a user..." required>
     <input type="submit" name="action" value="Search">
 </form>
-
 <!-- ONLY visible when there are results-->
 {% if search %}
 
@@ -18,7 +17,7 @@
         <button type="submit">Back</button>
     </form>
 {% endif %}
-
+<br>
   <!--Search Query results (ONLY visible when used search) -->
 {% if search %}
     <h2>Searching for {{search_term}}</h2>
