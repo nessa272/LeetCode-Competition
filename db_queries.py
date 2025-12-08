@@ -4,9 +4,7 @@ import cs304dbi as dbi
 print(dbi.conf('leetcode_db'))
 
 def get_profile(conn, pid):
-    '''
-    Retrieve all information from a user's profile based on pid
-    '''
+    """ Retrieve all information from a user's profile based on pid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select * from person
@@ -18,9 +16,7 @@ def get_profile(conn, pid):
     return result
 
 def get_followers(conn, pid):
-    '''
-    Get the users that the user's (with the pid) follows 
-    '''
+    """Get the users that the user's (with the pid) follows """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                 SELECT p.pid, p.name, p.lc_username
@@ -35,9 +31,8 @@ def get_followers(conn, pid):
     return result
 
 def get_follows(conn, pid):
-    '''
-    Get the users that the user's (with the pid) follows 
-    '''
+    """ Get the users that the user's (with the pid) follows """
+
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                 SELECT p.pid, p.name, p.lc_username
@@ -52,9 +47,7 @@ def get_follows(conn, pid):
     return result
 
 def find_friends(conn, pid):
-    '''
-    Find people who the user (pid) is NOT connected to
-    '''
+    """Find people who the user (pid) is NOT connected to"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     select p.pid, p.name, p.lc_username  from person p where p.pid <> %s
@@ -68,9 +61,7 @@ def find_friends(conn, pid):
     return result
 
 def search_friends(conn, pid, search_term):
-    '''
-    Find people who the user (pid) is NOT connected to
-    '''
+    """Find people who the user (pid) is NOT connected to based on a search term """
     search_term = f"%{search_term.lower()}%"
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -90,9 +81,7 @@ def search_friends(conn, pid, search_term):
     return result
 
 def follow(conn, pid1, pid2):
-    '''
-    Create connection where user pid1 follows user pid2
-    '''
+    """ Create connection where user pid1 follows user pid2"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     insert into `connection` (p1, p2)
@@ -102,9 +91,7 @@ def follow(conn, pid1, pid2):
     curs.close()
 
 def unfollow(conn, pid1, pid2):
-    '''
-    Delete connection where user pid1 follows user pid2
-    '''
+   """ Delete connection where user pid1 follows user pid2"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     delete from `connection` 
@@ -114,9 +101,7 @@ def unfollow(conn, pid1, pid2):
     curs.close()
 
 def edit_profile(conn, pid, name, username):
-    '''
-    Delete connection where user pid1 follows user pid2
-    '''
+    """ updates profile with new name and username   """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     update person
@@ -130,11 +115,13 @@ def edit_profile(conn, pid, name, username):
 # Login/auth queries
 
 def username_exists(conn, username):
+    """checks if username exists"""
     curs = dbi.dict_cursor(conn)
     curs.execute('SELECT 1 FROM person WHERE username=%s', [username])
     return curs.fetchone() is not None
 
 def lc_username_exists(conn, lc_username):
+    """checks if leetcode username exists """
     curs = dbi.dict_cursor(conn)
     curs.execute('SELECT 1 FROM person WHERE lc_username=%s', [lc_username])
     return curs.fetchone() is not None
