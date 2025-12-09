@@ -144,7 +144,7 @@ def refresh_profile(pid: int, lc_username: str):
       - If it succeeds, everything is committed together.
 
     Returns: number of NEW rows inserted into submission.
-"""
+    """
     conn = dbi.connect()
     num_submissions = refresh_user_submissions(conn, pid, lc_username) # will deal with rollback in case of failure
     print(f"{num_submissions} submissions added to database for username {lc_username}")

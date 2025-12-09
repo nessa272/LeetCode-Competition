@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block main_content %}
+<h1>Create Party</h1>
 <form method="POST" action="{{ url_for('create_party') }}">
     <fieldset>
         <legend>Party Details</legend>
@@ -41,6 +42,6 @@
         {% endif %}
     </fieldset>
 
-    <button type="submit">Create Party & Invite</button>
+    <button type="submit" class="btn">Create Party & Invite</button>
 </form>
 {% endblock %}
