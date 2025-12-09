@@ -215,3 +215,63 @@ fieldset {
     padding: 1rem 1.5rem;
     border-radius: 6px;
 }
+
+/* --- Homepage Leaderboard CSS --- */
+.leaderboard-title {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    text-align: center;
+    padding: 1rem 1rem;
+    vertical-align: middle;
+}
+
+.rank-col {
+    width: 120px;
+}
+
+.user-col {
+    width: 300px;
+}
+
+.coins-col {
+    width: 120px;
+    font-weight: 700;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.leaderboard-pfp {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #41542a;   /* optional subtle border */
+}
+
+.leaderboard-username {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.medal {
+    font-size: 1.6rem;
+}
