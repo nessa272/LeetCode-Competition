@@ -125,8 +125,6 @@ CREATE TABLE submission (
   pid             INT NOT NULL,          -- FK to person
   lc_problem      INT NOT NULL,          -- FK to problem
   submission_date DATE NOT NULL,
-  coins           INT DEFAULT 0,
-  latest_submission DATE,
 
   UNIQUE KEY uniq_user_problem (pid, lc_problem),
 
