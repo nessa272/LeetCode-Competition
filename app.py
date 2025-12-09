@@ -36,7 +36,7 @@ def index():
             leaderboard=leaderboard
         )
     
-    return render_template("login.html")
+    return render_template("login.html", page_title='Login Page')
     
 
 @app.route('/about/')
@@ -68,7 +68,7 @@ def profile(pid):
         conn.close()
 
         # show profile
-        return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session.get('pid'))))
+        return render_template('profile.html', page_title='Profile Page', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session.get('pid'))))
     elif request.method =="POST":
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
@@ -114,7 +114,12 @@ def edit_profile(pid):
         conn.close()
 
         # show profile
-        return render_template('profile_edit.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+        return render_template('profile_edit.html', 
+                               page_title='Profile Edit Page', 
+                               profile=profile, 
+                               followers=followers,
+                               follows=follows, 
+                               loggedin= (str(pid) == str(session['pid'])))
     elif request.method =="POST":
 
         #get form info
@@ -171,7 +176,7 @@ def refresh_all():
 def signup():
     '''Loads signup page (create new account for new members)'''
     if request.method == 'GET':
-        return render_template('signup.html')
+        return render_template('signup.html', page_title='Signup Page')
 
     # else: POST request
     name = request.form.get('name')
@@ -221,7 +226,7 @@ def signup():
 def login():
     '''Login page to login to existing account'''
     if request.method == 'GET':
-        return render_template('login.html')
+        return render_template('login.html', page_title='Login Page')
 
     # else: POST
     username = request.form.get('username')
@@ -290,7 +295,9 @@ def create_party():
         except Exception as e:
             conn.rollback()
             flash(f"Error creating party: {e}")
-    return render_template("create_party.html", connections=connections)
+    return render_template("create_party.html", 
+                           page_title='Party Creation Page', 
+                           connections=connections)
 
 @app.route("/party/<int:cpid>")
 def view_party(cpid):
@@ -309,6 +316,7 @@ def view_party(cpid):
 
     return render_template(
         "view_party.html",
+        page_title='View Party Page',
         party=party,
         members=members,
         connections=connections
@@ -372,6 +380,7 @@ def my_parties():
 
     return render_template(
         "my_parties.html",
+        page_title='My Parties Page',
         current_parties=current,
         upcoming_parties=upcoming,
         completed_parties=completed
@@ -410,7 +419,12 @@ def find_friends():
         conn = dbi.connect()
         friends = db_queries.find_friends(conn, pid)
         conn.close()
-        return render_template('find_friends.html', pid= pid, username = username['username'], friends = friends, search = False)
+        return render_template('find_friends.html', 
+                               page_title='Find Friends Page', 
+                               pid= pid, 
+                               username = username['username'], 
+                               friends = friends, 
+                               search = False)
     else:
         action = request.form.get('action')
 
@@ -437,13 +451,24 @@ def find_friends():
             conn = dbi.connect()
             friends = db_queries.find_friends(conn, pid)
             conn.close()
-            return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = friends, search = False)
+            return render_template('find_friends.html', 
+                                   page_title='Find Friends Page',
+                                   pid= pid, 
+                                   username = username['lc_username'], 
+                                   friends = friends, 
+                                   search = False)
 
         elif action == 'Search':
             search_term= request.form.get('search_query')
             searched_friends = db_queries.search_friends(conn, pid, search_term)
             print(searched_friends)
-            return render_template('find_friends.html', pid= pid, username = username['lc_username'], friends = searched_friends, search_term = search_term, search = True)
+            return render_template('find_friends.html', 
+                                   page_title='Find Friends Page',
+                                   pid= pid, 
+                                   username = username['lc_username'], 
+                                   friends = searched_friends, 
+                                   search_term = search_term, 
+                                   search = True)
 
                
 

@@ -6,7 +6,8 @@
 
 <!-- Search Bar -->
 <form method="POST" action="{{ url_for('find_friends', pid=pid) }}">
-    <input type="text" name="search_query" placeholder="Search for a user..." required>
+    <label for="search_query" class="sr-only">Search users</label>
+    <input type="text" id="search_query" name="search_query" placeholder="Search for a user..." required>
     <input type="submit" name="action" value="Search">
 </form>
 <!-- ONLY visible when there are results-->

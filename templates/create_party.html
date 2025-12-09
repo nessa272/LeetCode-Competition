@@ -1,28 +1,26 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Code Parties</h1>
-
-<h2>Create a New Party</h2>
-
 <form method="POST" action="{{ url_for('create_party') }}">
     <fieldset>
         <legend>Party Details</legend>
-        <label>Party Name</label>
-        <input type="text" name="party_name"><br>
 
-        <label>Party Goal (number of problems)</label>
-        <input type="number" name="party_goal" required><br>
+        <label for="party_name">Party Name</label>
+        <input type="text" id="party_name" name="party_name"><br>
 
-        <label>Start Date</label>
-        <input type="date" name="party_start" required><br>
+        <label for="party_goal">Party Goal (number of problems)</label>
+        <input type="number" id="party_goal" name="party_goal" required><br>
 
-        <label>End Date</label>
-        <input type="date" name="party_end" required><br>
+        <label for="party_start">Start Date</label>
+        <input type="date" id="party_start" name="party_start" required><br>
+
+        <label for="party_end">End Date</label>
+        <input type="date" id="party_end" name="party_end" required><br>
     </fieldset>
 
     <fieldset>
         <legend>Invite Friends</legend>
+
         {% if connections %}
             {% for user in connections %}
                 {% if user.in_party %}
@@ -30,8 +28,12 @@
                         {{ user.lc_username }} (Already in this party)
                     </label><br>
                 {% else %}
-                    <input type="checkbox" name="invitees" value="{{ user.pid }}">
-                    <label>{{ user.lc_username }}</label><br>
+                    {# create a unique id for each checkbox #}
+                    <input type="checkbox" 
+                           id="invite_{{ user.pid }}" 
+                           name="invitees" 
+                           value="{{ user.pid }}">
+                    <label for="invite_{{ user.pid }}">{{ user.lc_username }}</label><br>
                 {% endif %}
             {% endfor %}
         {% else %}

@@ -34,7 +34,9 @@
       <a href="{{ url_for('profile', pid=session.get('pid')) }}"> 
         <!-- CURRENTLY NOT YET IMPLEMENTED NEED TO ADD PFP PHOTO INTO DDL OF PERSON TABLE -->
         <img src="{{ session.get('pfp_url', '/static/default_pfp.jpg') }}" 
-             class="profile-pic">
+             class="profile-pic"
+             alt="profile pic">
+             
       </a>
     {% else %}
       <a href="{{ url_for('login') }}" class="btn">Log In</a>
