@@ -87,7 +87,6 @@ def follow(conn, pid1, pid2):
     insert into `connection` (p1, p2)
     values (%s, %s)
     ''', [pid1, pid2])
-    conn.commit()
     curs.close()
 
 def unfollow(conn, pid1, pid2):
@@ -97,7 +96,6 @@ def unfollow(conn, pid1, pid2):
     delete from `connection` 
     where p1 = %s and p2 = %s
     ''', [pid1, pid2])
-    conn.commit()
     curs.close()
 
 def edit_profile(conn, pid, name, username):
@@ -108,7 +106,6 @@ def edit_profile(conn, pid, name, username):
     set name = %s, username = %s
     where pid = %s;
     ''', [name, username, pid])
-    conn.commit()
     curs.close()
 
 
@@ -335,7 +332,6 @@ def update_user_last_refreshed(conn, pid):
     """
     curs = dbi.dict_cursor(conn)
     curs.execute('UPDATE person SET last_refreshed = NOW() WHERE pid=%s', [pid])
-    conn.commit()
 
 def update_party_last_refreshed(conn, cpid):
     """Updates the timestamp that the whole party's leetcode database stats were last 
@@ -343,7 +339,6 @@ def update_party_last_refreshed(conn, cpid):
     """
     curs = dbi.dict_cursor(conn)
     curs.execute('UPDATE code_party SET last_bulk_refresh = NOW() WHERE cpid=%s', [cpid])
-    conn.commit()
 
 #HOMEPAGE leaderboard
 def get_leaderboard(conn, limit=10):

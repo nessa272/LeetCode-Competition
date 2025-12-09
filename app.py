@@ -73,8 +73,14 @@ def profile(pid):
         friend_name = db_queries.get_profile(conn, pid2)
         print(pid2)
         flash('Unfollowing %s' % (friend_name['lc_username']))
-        db_queries.unfollow(conn, pid, pid2)
-        return redirect(url_for('profile', pid=pid))
+        try:
+            db_queries.unfollow(conn, pid, pid2)
+            conn.commit()
+            return redirect(url_for('profile', pid=pid))
+        except Exception:
+            conn.rollback()
+        finally:
+            conn.close()
         #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
     conn.close()
                
@@ -143,9 +149,14 @@ def refresh_profile(pid: int, lc_username: str):
     num_submissions = refresh_user_submissions(conn, pid, lc_username) # will deal with rollback in case of failure
     print(f"{num_submissions} submissions added to database for username {lc_username}")
     #update when the user's leetcode stats were last updated
-    db_queries.update_user_last_refreshed(conn, pid)
-    conn.close()
-    return redirect(url_for('profile', pid=pid))
+    try:
+        db_queries.update_user_last_refreshed(conn, pid)
+        conn.commit()
+        return redirect(url_for('profile', pid=pid))
+    except Exception:
+        conn.rollback()
+    finally:
+        conn.close()
 
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
@@ -389,8 +400,14 @@ def refresh_party(cpid):
     for m in members:
         refresh_user_submissions(conn, m['pid'], m['lc_username'])
 
-    db_queries.update_party_last_refreshed(conn, cpid)
-    conn.close()
+    try:
+        db_queries.update_party_last_refreshed(conn, cpid)
+        conn.commit()
+    except Exception:
+        conn.rollback()
+    finally:
+        conn.close()
+    
 
     return redirect(url_for('view_party', cpid=cpid))
 
