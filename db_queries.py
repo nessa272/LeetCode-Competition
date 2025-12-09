@@ -7,8 +7,8 @@ def get_profile(conn, pid):
     """ Retrieve all information from a user's profile based on pid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-    select * from person
-    where pid = %s;
+        select * from person
+        where pid = %s;
     ''', 
     [pid])
     result = curs.fetchone()

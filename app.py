@@ -72,15 +72,8 @@ def profile(pid):
     elif request.method =="POST":
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
-        conn.close()
-
-        conn=dbi.connect()
         followers = db_queries.get_followers(conn, pid)
-        conn.close()
-
-        conn=dbi.connect()
         follows = db_queries.get_follows(conn, pid)
-        conn.close()
 
         action = request.form.get('action')
         #print('pid' not in session)
@@ -92,6 +85,7 @@ def profile(pid):
             db_queries.unfollow(conn, pid, pid2)
             return redirect(url_for('profile', pid=pid))
             #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+        conn.close()
                
 
 @app.route('/profile/edit/<pid>', methods = ['GET', 'POST'])
