@@ -334,6 +334,17 @@ def update_party_last_refreshed(conn, cpid):
     curs = dbi.dict_cursor(conn)
     curs.execute('UPDATE code_party SET last_bulk_refresh = NOW() WHERE cpid=%s', [cpid])
     conn.commit()
+
+#HOMEPAGE leaderboard
+def get_leaderboard(conn, limit=10):
+    curs = dbi.dict_cursor(conn)
+    curs.execute("""
+        SELECT pid, username, lc_username, num_coins
+        FROM person
+        ORDER BY num_coins DESC
+        LIMIT %s
+    """, [limit])
+    return curs.fetchall()
     
 if __name__ == '__main__':
     dbi.conf("leetcode_db")

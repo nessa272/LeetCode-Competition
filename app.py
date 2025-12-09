@@ -25,9 +25,18 @@ def index():
     if "pid" in session:
         conn=dbi.connect()
         pid = session['pid']
+
         username = db_queries.get_profile(conn, pid)
-        return render_template('main.html', page_title='Main Page', username = username['lc_username'])
-    return render_template("login.html") #prompt to login
+        leaderboard = db_queries.get_leaderboard(conn, limit=10)
+
+        return render_template(
+            'main.html',
+            page_title='Main Page',
+            username=username['username'],
+            leaderboard=leaderboard
+        )
+    
+    return render_template("login.html")
     
 
 @app.route('/about/')

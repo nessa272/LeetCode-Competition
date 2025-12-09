@@ -2,6 +2,48 @@
 
 {% block main_content %}
 <h1>Main</h1>
+<p>Welcome {{ username }}!</p>
 
-<p>Welcome {{username}}!</p>
+<h2 class="leaderboard-title">🏆 Top LeetCoders 🏆</h2>
+
+<table class="leaderboard-table">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>User</th>
+            <th>Coins</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for user in leaderboard %}
+        <tr>
+            <td class="rank-col">
+                {% if loop.index == 1 %}
+                    <span class="medal gold">🥇</span>
+                {% elif loop.index == 2 %}
+                    <span class="medal silver">🥈</span>
+                {% elif loop.index == 3 %}
+                    <span class="medal bronze">🥉</span>
+                {% else %}
+                    {{ loop.index }}
+                {% endif %}
+            </td>
+
+            <td class="user-col">
+                <div class="user-cell">
+                    <img src="/static/default_pfp.jpg" class="leaderboard-pfp">
+                    <span class="leaderboard-username">{{ user.username }}</span>
+                </div>
+            </td>
+
+            <td class="coins-col">
+                {{ user.num_coins }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
 {% endblock %}
