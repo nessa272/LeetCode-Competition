@@ -25,9 +25,9 @@ def index():
     if "pid" in session:
         conn=dbi.connect()
         pid = session['pid']
-
         username = db_queries.get_profile(conn, pid)
         leaderboard = db_queries.get_leaderboard(conn, limit=10)
+        conn.close()
 
         return render_template(
             'main.html',
@@ -50,66 +50,50 @@ def profile(pid):
     '''
     Loads a user's profile based on input pid.
     '''
-
     if request.method == "GET":
-
         # query profile info
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
-        conn.close()
-
         # get friends list
-        conn=dbi.connect()
         followers = db_queries.get_followers(conn, pid)
-        conn.close()
-
-        conn=dbi.connect()
         follows = db_queries.get_follows(conn, pid)
         conn.close()
-
         # show profile
         return render_template('profile.html', page_title='Profile Page', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session.get('pid'))))
-    elif request.method =="POST":
-        conn=dbi.connect()
-        profile = db_queries.get_profile(conn, pid) 
-        followers = db_queries.get_followers(conn, pid)
-        follows = db_queries.get_follows(conn, pid)
-
-        action = request.form.get('action')
-        #print('pid' not in session)
-        if action == "Unfollow":
-            pid2 = request.form.get('unfollow_friend')
-            friend_name = db_queries.get_profile(conn, pid2)
-            print(pid2)
-            flash('Unfollowing %s' % (friend_name['lc_username']))
-            db_queries.unfollow(conn, pid, pid2)
-            return redirect(url_for('profile', pid=pid))
-            #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
-        conn.close()
+    # else POST
+    conn=dbi.connect()
+    profile = db_queries.get_profile(conn, pid) 
+    followers = db_queries.get_followers(conn, pid)
+    follows = db_queries.get_follows(conn, pid)
+    action = request.form.get('action')
+    #print('pid' not in session)
+    # TO DO: Will add edit_profile and refresh_stats as other actions
+    if action == "Unfollow":
+        pid2 = request.form.get('unfollow_friend')
+        friend_name = db_queries.get_profile(conn, pid2)
+        print(pid2)
+        flash('Unfollowing %s' % (friend_name['lc_username']))
+        db_queries.unfollow(conn, pid, pid2)
+        return redirect(url_for('profile', pid=pid))
+        #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+    conn.close()
                
-
+# TO DO: TEMPORARY SOLUTION
+# Will be incorporated into POST action in profile (not separate url)
 @app.route('/profile/edit/<pid>', methods = ['GET', 'POST'])
 def edit_profile(pid):
     '''
     Loads a user's profile based on input pid.
     '''
-
     if request.method == "GET":
         if 'pid' not in session or str(pid) != str(session.get('pid')):
             return redirect(url_for('profile', pid = pid))
 
-
         # query profile info
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
-        conn.close()
-
         # get friends list
-        conn=dbi.connect()
         followers = db_queries.get_followers(conn, pid)
-        conn.close()
-
-        conn=dbi.connect()
         follows = db_queries.get_follows(conn, pid)
         conn.close()
 
@@ -121,18 +105,22 @@ def edit_profile(pid):
                                follows=follows, 
                                loggedin= (str(pid) == str(session['pid'])))
     elif request.method =="POST":
-
         #get form info
         name = request.form.get('name')
         username = request.form.get('username')
-
-        conn=dbi.connect()
-        db_queries.edit_profile(conn, pid, name, username)
-        conn.close()
+        conn = dbi.connect()
+        try:
+            db_queries.edit_profile(conn, pid, name, username)
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
         return redirect(url_for('profile', pid=pid))
-        #print('pid' not in session)
 
-
+# TO DO: TEMPORARY SOLUTION
+# Will be incorporated into POST action in profile (not separate url)
 @app.route('/refresh-profile/<pid>/<lc_username>')
 def refresh_profile(pid: int, lc_username: str):
     """
@@ -152,25 +140,13 @@ def refresh_profile(pid: int, lc_username: str):
     Returns: number of NEW rows inserted into submission.
 """
     conn = dbi.connect()
-    num_submissions = refresh_user_submissions(conn, pid, lc_username)
+    num_submissions = refresh_user_submissions(conn, pid, lc_username) # will deal with rollback in case of failure
     print(f"{num_submissions} submissions added to database for username {lc_username}")
     #update when the user's leetcode stats were last updated
     db_queries.update_user_last_refreshed(conn, pid)
     conn.close()
     return redirect(url_for('profile', pid=pid))
 
-def refresh_all():
-    '''Refresh all profiles to updated info'''
-    conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-                 SELECT pid, lc_username
-                 FROM person
-                 ''')
-    people = curs.fetchall()
-    for person in people:
-        refresh_profile(person['pid'], person['lc_username'])
-    conn.close()
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -186,38 +162,41 @@ def signup():
 
     if not username or not password or not lc_username:
         flash("All fields are required.")
-        return redirect(url_for('signup'))
+        return render_template('signup.html', page_title='Signup Page')
 
     conn = dbi.connect()
-    #before we create person make sure their fields are valid, specifically username and lc_username
-    if db_queries.username_exists(conn, username):
-        flash("That username is already taken. Please log in instead.")
-        return redirect(url_for('signup'))
-    conn.close()
-    conn = dbi.connect()
-    if db_queries.lc_username_exists(conn, lc_username):
-        flash("An account already exists with that LeetCode username. Please log in.")
-        return redirect(url_for('signup'))
-
-    # Create new person in database
     try:
-        pid = db_queries.create_person(conn, name, username, lc_username)
-    except Exception as err:
-        flash(f"Error creating person record: {err}")
-        return redirect(url_for('signup'))
+        #before we create person make sure their fields are valid, specifically username and lc_username
+        if db_queries.username_exists(conn, username):
+            flash("That username is already taken. Please log in instead.")
+            return render_template('signup.html', page_title='Signup Page')
+        if db_queries.lc_username_exists(conn, lc_username):
+            flash("An account already exists with that LeetCode username. Please log in.")
+            return render_template('signup.html', page_title='Signup Page')
 
-    hashed = bc.signup_hash(password) # Hash password
+        # create new person in database
+        try:
+            pid = db_queries.create_person(conn, name, username, lc_username)
+        except Exception as err:
+            flash(f"Error creating person record: {err}")
+            conn.rollback()
+            return render_template('signup.html', page_title='Signup Page')
 
-    # Put in database
-    try:
-        db_queries.create_userpass(conn, pid, hashed)
-    except Exception as err:
-        flash(f"Username already taken.")
-        return redirect(url_for('signup'))
+        hashed = bc.signup_hash(password) # Hash password
+        # Put in database
+        try:
+            db_queries.create_userpass(conn, pid, hashed)
+            conn.commit()
+        except Exception as err:
+            conn.rollback()
+            flash(f"Username already taken.")
+            return render_template('signup.html', page_title='Signup Page')
 
-    # successfully added, sign them in and bring back to main page
-    session['pid'] = pid
-    session['username'] = username
+        # successfully added, sign them in and bring back to main page
+        session['pid'] = pid
+        session['username'] = username
+    finally:
+        conn.close()
 
     flash("Account created successfully!")
     return redirect(url_for('index'))
@@ -231,25 +210,25 @@ def login():
     # else: POST
     username = request.form.get('username')
     password = request.form.get('password')
-
     conn = dbi.connect()
+    try:
+        user = db_queries.get_login_info(conn, username)
 
-    user = db_queries.get_login_info(conn, username)
+        if user is None:
+            flash("Invalid username or password")
+            return render_template('login.html', page_title='Login Page')
 
-    if user is None:
-        flash("Invalid username or password")
-        return redirect(url_for('login'))
+        stored_hash = user['hashed']
 
-    stored_hash = user['hashed']
-
-    if not bc.verify_password(password, stored_hash):
-        flash("Invalid username or password")
-        return redirect(url_for('login'))
+        if not bc.verify_password(password, stored_hash):
+            flash("Invalid username or password")
+            return render_template('login.html', page_title='Login Page')
+    finally:
+        conn.close()
 
     # login success
     session['pid'] = user['pid']
     session['username'] = user['username']
-
     flash("Logged in!")
     return redirect(url_for('index'))
 
@@ -268,33 +247,37 @@ def create_party():
         return redirect(url_for("login"))
 
     conn = dbi.connect()
-
     # Fetch connections/potential people to invite
-    connections = db_queries.get_party_invite_options(conn, session['pid'])
+    try:
+        connections = db_queries.get_party_invite_options(conn, session['pid'])
 
-    if request.method == "POST":
-        party_name = request.form.get("party_name")
-        party_goal = request.form.get("party_goal")
-        party_start = request.form.get("party_start")
-        party_end = request.form.get("party_end")
-        invitees = request.form.getlist("invitees")  # array of pid as strings
+        if request.method == "POST":
+            party_name = request.form.get("party_name")
+            party_goal = request.form.get("party_goal")
+            party_start = request.form.get("party_start")
+            party_end = request.form.get("party_end")
+            invitees = request.form.getlist("invitees")  # array of pid as strings
 
-        try:
-            # Create group
-            cpid = db_queries.create_code_party(conn, party_name, party_goal, party_start, party_end)
+            try:
+                # Create group
+                cpid = db_queries.create_code_party(conn, party_name, party_goal, party_start, party_end)
 
-            # Add party creator to the party
-            db_queries.assign_user_to_party(conn, session['pid'], cpid)
+                # Add party creator to the party
+                db_queries.assign_user_to_party(conn, session['pid'], cpid)
 
-            # Assign invitees -- IN FUTURE, THIS WILL BE THEY NEED TO ACCEPT FIRST, NOT AUTOMATICALLY ASSIGN
-            if invitees:
-                db_queries.assign_invitees_to_party(conn, cpid, invitees)
+                # Assign invitees -- IN FUTURE, THIS WILL BE THEY NEED TO ACCEPT FIRST, NOT AUTOMATICALLY ASSIGN
+                if invitees:
+                    db_queries.assign_invitees_to_party(conn, cpid, invitees)
 
-            flash("Party created successfully!")
-            return redirect(url_for("view_party", cpid=cpid))
-        except Exception as e:
-            conn.rollback()
-            flash(f"Error creating party: {e}")
+                conn.commit()
+                flash("Party created successfully!")
+                return redirect(url_for("view_party", cpid=cpid))
+            except Exception as e:
+                conn.rollback()
+                flash(f"Error creating party: {e}")
+    finally:
+        conn.close()
+    
     return render_template("create_party.html", 
                            page_title='Party Creation Page', 
                            connections=connections)
@@ -313,6 +296,7 @@ def view_party(cpid):
     party = db_queries.get_party_info(conn, cpid)
     members = db_queries.get_party_members(conn, cpid)
     connections = db_queries.get_party_invite_options(conn, session['pid'], cpid)
+    conn.close()
 
     return render_template(
         "view_party.html",
@@ -322,7 +306,7 @@ def view_party(cpid):
         connections=connections
     )
 
-
+# TO DO: Change to POST action in view_party
 @app.route("/party/<int:cpid>/remove_member", methods=["POST"])
 def remove_member(cpid):
     '''Loads page to remove a member from a code party'''
@@ -333,10 +317,13 @@ def remove_member(cpid):
     conn = dbi.connect()
     try:
         db_queries.remove_user_from_party(conn, remove_pid, cpid)
+        conn.commit()
         flash("Member removed!")
     except Exception as e:
         conn.rollback()
         flash(f"Error: {e}")
+    finally:
+        conn.close()
 
     return redirect(url_for("view_party", cpid=cpid))
 
@@ -349,9 +336,13 @@ def add_member(cpid):
     conn = dbi.connect()
     try:
         db_queries.assign_user_to_party(conn, new_pid, cpid)
+        conn.commit()
         flash("Member added!")
     except Exception as e:
+        conn.rollback()
         flash(f"Error adding member: {e}")
+    finally:
+        conn.close()
 
     return redirect(url_for("view_party", cpid=cpid))
 
@@ -376,6 +367,7 @@ def my_parties():
     upcoming.sort(key=lambda p: p['party_start'])
     # Completed parties: most recently ended
     completed.sort(key=lambda p: p['party_end'], reverse=True)
+    conn.close()
 
 
     return render_template(
@@ -391,7 +383,6 @@ def refresh_party(cpid):
     """Refreshes the party stats, specifically refetching leetcode 
     information for each party member"""
     conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
 
     members = db_queries.get_party_members(conn, cpid)
 
@@ -406,69 +397,66 @@ def refresh_party(cpid):
 #------------ Find Friends ----------------
 @app.route('/find_friends/', methods=['GET', 'POST'])
 def find_friends():
-    '''Loads page to find people (who are the user is not currently connected to) to friend'''
-    conn = dbi.connect()
+    """Loads page to find people (who are the user is not currently connected to) to friend"""
 
     if 'pid' not in session:
         return redirect(url_for('login'))
     pid = session['pid']
+    conn = dbi.connect()
     
-    username = db_queries.get_profile(conn, pid)
-    conn.close()
-    if request.method == 'GET':
-        conn = dbi.connect()
-        friends = db_queries.find_friends(conn, pid)
-        conn.close()
-        return render_template('find_friends.html', 
-                               page_title='Find Friends Page', 
-                               pid= pid, 
-                               username = username['username'], 
-                               friends = friends, 
-                               search = False)
-    else:
-        action = request.form.get('action')
-
-        #back to profile
-        if action == "Go Back To Profile":
-            return redirect(url_for('profile', pid=pid))
-        
-        #user decides to follow someone
-        elif action == "Follow":
-            pid2 = request.form.get('follow_friend')
-
-            conn = dbi.connect()
-            friend_name = db_queries.get_profile(conn, pid2)
-            conn.close()
-
-            flash('Following %s' % (friend_name['lc_username']))
-
-            #make connection 
-            conn = dbi.connect()
-            db_queries.follow(conn, pid, pid2)
-            conn.close()
-
-            #refresh friends list
-            conn = dbi.connect()
+    try:
+        username = db_queries.get_profile(conn, pid)
+        if request.method == 'GET':
             friends = db_queries.find_friends(conn, pid)
-            conn.close()
             return render_template('find_friends.html', 
-                                   page_title='Find Friends Page',
-                                   pid= pid, 
-                                   username = username['lc_username'], 
-                                   friends = friends, 
-                                   search = False)
+                                page_title='Find Friends Page', 
+                                pid= pid, 
+                                username = username['username'], 
+                                friends = friends, 
+                                search = False)
+        else:
+            action = request.form.get('action')
 
-        elif action == 'Search':
-            search_term= request.form.get('search_query')
-            searched_friends = db_queries.search_friends(conn, pid, search_term)
-            print(searched_friends)
-            return render_template('find_friends.html', 
-                                   page_title='Find Friends Page',
-                                   pid= pid, 
-                                   username = username['lc_username'], 
-                                   friends = searched_friends, 
-                                   search_term = search_term, 
-                                   search = True)
+            #back to profile
+            if action == "Go Back To Profile":
+                return redirect(url_for('profile', pid=pid))
+            
+            #user decides to follow someone
+            elif action == "Follow":
+                pid2 = request.form.get('follow_friend')
+
+                friend_name = db_queries.get_profile(conn, pid2)
+
+                flash('Following %s' % (friend_name['lc_username']))
+
+                #make connection 
+                try:
+                    db_queries.follow(conn, pid, pid2)
+                    conn.commit()
+                except Exception as _:
+                    conn.rollback()
+
+                #refresh friends list
+                friends = db_queries.find_friends(conn, pid)
+                return render_template('find_friends.html', 
+                                    page_title='Find Friends Page',
+                                    pid= pid, 
+                                    username = username['lc_username'], 
+                                    friends = friends, 
+                                    search = False)
+
+            elif action == 'Search':
+                search_term= request.form.get('search_query')
+                searched_friends = db_queries.search_friends(conn, pid, search_term)
+                return render_template('find_friends.html', 
+                                    page_title='Find Friends Page',
+                                    pid= pid, 
+                                    username = username['lc_username'], 
+                                    friends = searched_friends, 
+                                    search_term = search_term, 
+                                    search = True)
+    finally:
+        conn.close()
 
                
 

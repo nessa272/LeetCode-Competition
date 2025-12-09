@@ -127,24 +127,38 @@ def lc_username_exists(conn, lc_username):
     return curs.fetchone() is not None
 
 def create_person(conn, name, username, lc_username):
-    """Create a new person and return the new pid."""
+    """Create a new person and return the new pid (no commit here)."""
     curs = dbi.dict_cursor(conn)
-    curs.execute('''
-        INSERT INTO person (name, username, lc_username, current_streak, longest_streak,
-                            total_problems, num_coins)
-        VALUES (%s, %s, %s, NULL, NULL, NULL, 0)
-    ''', [name, username, lc_username])
-    conn.commit()
-    return curs.lastrowid
+    try:
+        curs.execute(
+            '''
+            INSERT INTO person (name, username, lc_username, current_streak, longest_streak,
+                                total_problems, num_coins)
+            VALUES (%s, %s, %s, NULL, NULL, NULL, 0)
+            ''',
+            [name, username, lc_username]
+        )
+        return curs.lastrowid
+    except Exception:
+        raise
+    finally:
+        curs.close()
 
 def create_userpass(conn, pid, hashed):
-    """Insert into userpass table."""
+    """Insert password for the user (no commit here)."""
     curs = dbi.dict_cursor(conn)
-    curs.execute('''
-        INSERT INTO userpass (pid, hashed)
-        VALUES (%s, %s)
-    ''', [pid, hashed])
-    conn.commit()
+    try:
+        curs.execute(
+            '''
+            INSERT INTO userpass (pid, hashed)
+            VALUES (%s, %s)
+            ''',
+            [pid, hashed]
+        )
+    except Exception:
+        raise
+    finally:
+        curs.close()
 
 def get_login_info(conn, username):
     """Return person info + password hash for login."""
@@ -212,7 +226,6 @@ def create_code_party(conn, party_name, party_goal, party_start, party_end):
         INSERT INTO code_party (name, party_goal, party_start, party_end)
         VALUES (%s, %s, %s, %s)
     ''', [party_name, party_goal, party_start, party_end])
-    conn.commit()
     return curs.lastrowid
 
 def assign_user_to_party(conn, pid, cpid):
@@ -223,7 +236,6 @@ def assign_user_to_party(conn, pid, cpid):
         INSERT INTO party_membership (pid, cpid)
         VALUES (%s, %s)
     ''', [pid, cpid])
-    conn.commit()
 
 
 def assign_invitees_to_party(conn, cpid, pid_list):
@@ -243,7 +255,6 @@ def assign_invitees_to_party(conn, cpid, pid_list):
            VALUES (%s, %s)''',
         rows
     )
-    conn.commit()
     return cpid
 
 
@@ -253,8 +264,8 @@ def get_party_info(conn, cpid):
     """
     curs = dbi.dict_cursor(conn)
     curs.execute("SELECT * FROM code_party WHERE cpid=%s", [cpid])
+    # TO DO: CLOSE CURSORS
     return curs.fetchone()
-
 
 def get_party_members(conn, cpid):
     """
@@ -276,7 +287,6 @@ def remove_user_from_party(conn, pid, cpid):
         DELETE FROM party_membership
         WHERE pid=%s AND cpid=%s
     ''', [pid, cpid])
-    conn.commit()
 
 def get_parties_for_user(conn, pid):
     """
