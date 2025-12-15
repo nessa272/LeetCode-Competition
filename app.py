@@ -118,15 +118,12 @@ def edit_profile(pid):
         try:
             db_queries.edit_profile(conn, pid, name, username)
             conn.commit()
-        except Exception as e:
+        except Exception:
             conn.rollback()
-            raise
         finally:
             conn.close()
         return redirect(url_for('profile', pid=pid))
 
-# TO DO: TEMPORARY SOLUTION
-# Will be incorporated into POST action in profile (not separate url)
 @app.route('/refresh-profile/<pid>/<lc_username>')
 def refresh_profile(pid: int, lc_username: str):
     """
@@ -146,11 +143,9 @@ def refresh_profile(pid: int, lc_username: str):
     Returns: number of NEW rows inserted into submission.
     """
     conn = dbi.connect()
-    num_submissions = refresh_user_submissions(conn, pid, lc_username) # will deal with rollback in case of failure
-    print(f"{num_submissions} submissions added to database for username {lc_username}")
-    #update when the user's leetcode stats were last updated
     try:
-        db_queries.update_user_last_refreshed(conn, pid)
+        num_submissions = refresh_user_submissions(conn, pid, lc_username)
+        print(f"{num_submissions} submissions added to database for username {lc_username}")
         conn.commit()
         return redirect(url_for('profile', pid=pid))
     except Exception:
@@ -396,19 +391,29 @@ def refresh_party(cpid):
     conn = dbi.connect()
 
     members = db_queries.get_party_members(conn, cpid)
+    failed_refreshes = []
 
     for m in members:
-        refresh_user_submissions(conn, m['pid'], m['lc_username'])
-
-    try:
-        db_queries.update_party_last_refreshed(conn, cpid)
-        conn.commit()
-    except Exception:
-        conn.rollback()
-    finally:
-        conn.close()
+        try:
+            refresh_user_submissions(conn, m['pid'], m['lc_username'])
+            conn.commit()
+        except Exception:
+            failed_refreshes.append(m['username'])
+            conn.rollback()
     
+    if failed_refreshes:
+        flash("Failed to refresh: " + ", ".join(failed_refreshes))
+    # Only refresh party if EVERYONE'S stats updated
+    else:
+        try:
+            db_queries.update_party_last_refreshed(conn, cpid)
+            conn.commit()
+            flash("Party refreshed")
+        except Exception:
+            conn.rollback()
+            flash(f"Error refreshing party")
 
+    conn.close()
     return redirect(url_for('view_party', cpid=cpid))
 
 #------------ Find Friends ----------------
@@ -450,7 +455,7 @@ def find_friends():
                 try:
                     db_queries.follow(conn, pid, pid2)
                     conn.commit()
-                except Exception as _:
+                except Exception:
                     conn.rollback()
 
                 #refresh friends list

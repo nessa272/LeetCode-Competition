@@ -7,10 +7,10 @@ def get_profile(conn, pid):
     """ Retrieve all information from a user's profile based on pid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        select * from person
-        where pid = %s;
-    ''', 
-    [pid])
+                 SELECT pid, name, username, lc_username, latest_submission, current_streak, longest_streak, total_problems, num_coins, personal_goal, last_refreshed
+                 FROM person
+                 WHERE pid = %s;
+                 ''', [pid])
     result = curs.fetchone()
     curs.close()
     return result
@@ -126,20 +126,17 @@ def lc_username_exists(conn, lc_username):
 def create_person(conn, name, username, lc_username):
     """Create a new person and return the new pid (no commit here)."""
     curs = dbi.dict_cursor(conn)
-    try:
-        curs.execute(
-            '''
-            INSERT INTO person (name, username, lc_username, current_streak, longest_streak,
-                                total_problems, num_coins)
-            VALUES (%s, %s, %s, NULL, NULL, NULL, 0)
-            ''',
-            [name, username, lc_username]
-        )
-        return curs.lastrowid
-    except Exception:
-        raise
-    finally:
-        curs.close()
+    curs.execute(
+        '''
+        INSERT INTO person (name, username, lc_username, current_streak, longest_streak,
+                            total_problems, num_coins)
+        VALUES (%s, %s, %s, NULL, NULL, NULL, 0)
+        ''',
+        [name, username, lc_username]
+    )
+    new_row = curs.lastrowid
+    curs.close()
+    return new_row
 
 def create_userpass(conn, pid, hashed):
     """Insert password for the user (no commit here)."""
@@ -161,18 +158,11 @@ def get_login_info(conn, username):
     """Return person info + password hash for login."""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        SELECT p.*, u.hashed
+        SELECT p.pid, p.username, u.hashed
         FROM person AS p
         JOIN userpass AS u ON p.pid = u.pid
         WHERE p.username = %s
     ''', [username])
-    return curs.fetchone()
-
-
-def get_person_by_pid(conn, pid):
-    """Return profile for profile page."""
-    curs = dbi.dict_cursor(conn)
-    curs.execute('SELECT * FROM person WHERE pid=%s', [pid])
     return curs.fetchone()
 
 # Group queries
@@ -260,9 +250,14 @@ def get_party_info(conn, cpid):
     Returns data for a code party.
     """
     curs = dbi.dict_cursor(conn)
-    curs.execute("SELECT * FROM code_party WHERE cpid=%s", [cpid])
-    # TO DO: CLOSE CURSORS
-    return curs.fetchone()
+    curs.execute('''
+                 SELECT cpid, name, party_goal, party_start, party_end, winner, last_bulk_refresh 
+                 FROM code_party 
+                 WHERE cpid=%s;
+                 ''', [cpid])
+    result = curs.fetchone()
+    curs.close()
+    return result
 
 def get_party_members(conn, cpid):
     """
@@ -270,7 +265,7 @@ def get_party_members(conn, cpid):
     """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-        SELECT p.*
+        SELECT p.pid, p.username, p.lc_username, p.name
         FROM person p
         JOIN party_membership pm ON pm.pid = p.pid
         WHERE pm.cpid = %s
@@ -325,13 +320,6 @@ def get_parties_for_user(conn, pid):
     ''', [pid])
     return curs.fetchall()
 
-# COINS db helpers
-def update_user_last_refreshed(conn, pid):
-    """Updates the timestamp that the user's leetcode database stats were last refreshed
-     - it happens on button press on profile page/party stats page
-    """
-    curs = dbi.dict_cursor(conn)
-    curs.execute('UPDATE person SET last_refreshed = NOW() WHERE pid=%s', [pid])
 
 def update_party_last_refreshed(conn, cpid):
     """Updates the timestamp that the whole party's leetcode database stats were last 
@@ -350,8 +338,3 @@ def get_leaderboard(conn, limit=10):
         LIMIT %s
     """, [limit])
     return curs.fetchall()
-    
-if __name__ == '__main__':
-    dbi.conf("leetcode_db")
-    dbi.conf("leetcode_db")
-    conn=dbi.connect()

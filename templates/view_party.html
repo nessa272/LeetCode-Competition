@@ -16,7 +16,7 @@
         <ul>
             {% for member in members %}
                 <li>
-                    {{ member.lc_username }}
+                    {{ member.name }} ({{ member.username }})
                     {% if member.pid != session['pid'] %}
                         <form style="display:inline" method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
                             <input type="hidden" name="pid" value="{{ member.pid }}">

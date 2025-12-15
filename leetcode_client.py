@@ -294,51 +294,43 @@ def refresh_user_submissions(
     cursor = None
     new_count = 0
 
-    try:
-        cursor = dbi.dict_cursor(conn)
+    
+    cursor = dbi.dict_cursor(conn)
 
-        submissions = fetch_recent_ac_submissions(username, limit=limit)
+    submissions = fetch_recent_ac_submissions(username, limit=limit)
 
-        for sub in submissions:
-            title_slug = sub.get("titleSlug")
-            ts = sub.get("timestamp")
+    for sub in submissions:
+        title_slug = sub.get("titleSlug")
+        ts = sub.get("timestamp")
 
-            if not title_slug or ts is None:
-                continue
+        if not title_slug or ts is None:
+            continue
 
-            try:
-                timestamp = int(ts)
-            except (ValueError, TypeError):
-                continue
+        try:
+            timestamp = int(ts)
+        except (ValueError, TypeError):
+            continue
 
-            submission_date = datetime.fromtimestamp(
-                timestamp, tz=timezone.utc
-            ).date()
+        submission_date = datetime.fromtimestamp(
+            timestamp, tz=timezone.utc
+        ).date()
 
-            meta = get_problem_meta(cursor, title_slug)
-            lc_problem = meta["lc_problem"]
+        meta = get_problem_meta(cursor, title_slug)
+        lc_problem = meta["lc_problem"]
 
-            cursor.execute(
-                """
-                INSERT IGNORE INTO submission (pid, lc_problem, submission_date)
-                VALUES (%s, %s, %s)
-                """,
-                (pid, lc_problem, submission_date),
-            )
+        cursor.execute(
+            """
+            INSERT IGNORE INTO submission (pid, lc_problem, submission_date)
+            VALUES (%s, %s, %s)
+            """,
+            (pid, lc_problem, submission_date),
+        )
 
-            if cursor.rowcount == 1:
-                new_count += 1
+        if cursor.rowcount == 1:
+            new_count += 1
 
-        # recompute stats (including num_coins) from the truth in DB
-        _recompute_person_stats(cursor, pid)
+    # recompute stats (including num_coins) from the truth in DB
+    _recompute_person_stats(cursor, pid)
 
-        conn.commit()
-        return new_count
-
-    except Exception:
-        conn.rollback()
-        raise
-
-    finally:
-        if cursor is not None:
-            cursor.close()
+    cursor.close()
+    return new_count
