@@ -25,6 +25,7 @@ HTML {
     --color-link: #a84a40;
     --color-hover: #e38f84;
     --color-background:var(--color-light);
+    --color-grey: #777;
 }
 
 /* For flashed messages; make them stand out using reddish and italics */
@@ -242,6 +243,15 @@ fieldset {
 }
 
 /* --- Homepage Leaderboard CSS --- */
+.leaderboard-card {
+    margin-top: 1.5rem;
+    background: var(--color-light);
+    border-radius: 16px;
+    padding: 0.5rem 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    overflow: hidden; /* clips rounded corners */
+}
+
 .leaderboard-title {
     margin-top: 2rem;
     margin-bottom: 1rem;
@@ -251,36 +261,49 @@ fieldset {
 
 .leaderboard-table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+    border-collapse: separate;
+    margin: 10px;
     font-size: 1.1rem;
+    border-spacing: 0;
+}
+/* Header */
+.leaderboard-table thead th {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-border);
+    padding: 1rem;
+    background: var(--color-light);
+    text-align: left;
 }
 
-.leaderboard-table th,
+.leaderboard-table tbody tr:hover {
+    background: var(--color-text-light);
+}
+
+/* Cells */
 .leaderboard-table td {
-    text-align: center;
-    padding: 1rem 1rem;
-    vertical-align: middle;
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+/* Remove last divider */
+.leaderboard-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .rank-col {
-    width: 120px;
+    font-weight: 700;
+    text-align: left;
 }
 
 .user-col {
-    width: 300px;
+    font-weight: 500;
+    text-align: left;
 }
 
 .coins-col {
-    width: 120px;
     font-weight: 700;
-}
-
-.user-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+    text-align: left;
 }
 
 .leaderboard-pfp {
@@ -300,3 +323,56 @@ fieldset {
 .medal {
     font-size: 2rem;
 }
+
+/* Linked profile pages for Homepage Leaderboard CSS */
+.user-wrapper {
+    position: relative;
+    outline: none;
+}
+
+.user-cell {
+    /* clickable row */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.user-popover {
+    /* hidden by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    background: var(--color-light);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 8px;
+    width: 160px;
+    display: none;
+    z-index: 10;
+}
+
+.user-wrapper:focus-within .user-popover { 
+/* show when focused */
+    display: block;
+}
+
+.user-popover a {
+    display: block;
+    padding: 4px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+.user-popover a:hover {
+    background: var(--color-text-light);
+}
+
+.leetcode-username {
+    font-size: 0.85em;
+    color: var(--color-grey);
+}
+
