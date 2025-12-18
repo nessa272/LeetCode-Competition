@@ -193,7 +193,6 @@ def edit_profile(pid):
             conn = dbi.connect()
             try:
                 db_queries.edit_profile(conn, pid, name, username)
-                conn.commit()
             except Exception:
                 conn.rollback()
             finally:

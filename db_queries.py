@@ -141,6 +141,7 @@ def edit_profile(conn, pid, name, username):
     set name = %s, username = %s
     where pid = %s;
     ''', [name, username, pid])
+    conn.commit()
     curs.close()
 
 def upload_profile_pic(conn, pid, filename):
