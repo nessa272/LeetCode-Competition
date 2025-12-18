@@ -296,6 +296,9 @@ def upload_profile_pic(pid):
             conn.close()
 
             return redirect(url_for('profile', pid = pid)) # return to profile 
+        elif not allowed_file(file.filename):
+            flash('File type not allowed')
+            return redirect(url_for('edit_profile', pid = pid))
     except Exception as err:
         flash('Upload failed {why}'.format(why=err))
         return redirect(url_for('profile', pid = pid))
