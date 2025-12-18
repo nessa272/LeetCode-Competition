@@ -1,53 +1,63 @@
-HTML {
-    --font-family: Arial, Helvetica, sans-serif;
-    /* Colors */
-    --color-border: #445733;
-    --color-button: var(--color-border);
-    --color-button-hover: #c8d4b0;
-    --color-light: #fffbf1;
-    --color-text: #262a0f;
-    --color-text-light: #faf2db;
-    --color-alert: #a84a40;
-    --color-header: #5c6536;
-    --color-visited: #c56c61;
-    --color-link: #a84a40;
-    --color-hover: #e38f84;
-    --color-light-hover: #fad5d0;
-    --color-light-hover: #fad5d0;
-    --color-background:var(--color-light);
-    --color-grey: #777;
-    --color-grey: #777;
+/* =========================
+   Theme Variables
+   ========================= */
+
+:root {
+  --font-family: Arial, Helvetica, sans-serif;
+
+  --color-border: #445733;
+  --color-button: var(--color-border);
+  --color-button-hover: #c8d4b0;
+
+  --color-light: #fffbf1;
+  --color-background: var(--color-light);
+
+  --color-text: #262a0f;
+  --color-text-light: #faf2db;
+
+  --color-alert: #a84a40;
+  --color-header: #5c6536;
+
+  --color-link: #a84a40;
+  --color-hover: #e38f84;
+  --color-light-hover: #fad5d0;
+
+  --color-visited: #c56c61;
+  --color-grey: #777;
 }
 
-/* For flashed messages; make them stand out using reddish and italics */
+/* =========================
+   Base Typography / Layout
+   ========================= */
 
-#messages {
-    color: var(--color-alert);
-    font-style: italic;
+body {
+  font-family: var(--font-family);
+  font-size: 18px;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  margin: 0;
+  padding: 0;
 }
-
 
 h1, h2, h3, h4, h5, h6 {
-    color: var(--color-header);
+  color: var(--color-header);
 }
 
 h1 {
-    font-size: 200%;
+  font-size: 200%;
 }
 
-body {
-    font-family: var(--font-family);
-    font-size: 18px;
-    color: var(--color-text);
-    background-color: var(--color-background);
-    margin: 0;
-    padding:0;
+/* Flashed messages */
+#messages {
+  color: var(--color-alert);
+  font-style: italic;
 }
 
 .main-content {
-    padding: 20px 40px 20px 50px;
-    line-height: 1.5;
+  padding: 20px 40px 20px 50px;
+  line-height: 1.5;
 }
+
 /* Reset default margins/padding for main text elements */
 .main-content h1,
 .main-content h2,
@@ -58,480 +68,348 @@ body {
 .main-content p,
 .main-content ul,
 .main-content ol {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 /* Vertical rhythm for headings */
-.main-content h1 {
-    margin-bottom:1rem;
-}
+.main-content h1 { margin-bottom: 1rem; }
 .main-content h2,
 .main-content h3,
 .main-content h4,
 .main-content h5,
-.main-content h6 {
-    margin-bottom: 0rem;
-}
+.main-content h6 { margin-bottom: 0; }
 
 /* Base spacing for paragraphs and lists */
 .main-content p,
 .main-content ul,
-.main-content ol {
-    margin-bottom: 0.75rem;
-}
+.main-content ol { margin-bottom: 0.75rem; }
 
-/* List indentation */
 .main-content ul,
-.main-content ol {
-    padding-left: 1.25rem;
+.main-content ol { padding-left: 1.25rem; }
+
+.main-content li { margin-bottom: 0.4rem; }
+
+/* =========================
+   Links & Buttons
+   ========================= */
+
+a:not(.btn) {
+  color: var(--color-link);
+  text-decoration: none;
+}
+a:not(.btn):hover {
+  text-decoration: underline;
 }
 
-/* Spacing between list items */
-.main-content li {
-    margin-bottom: 0.4rem;
-}
-
-/*Buttons*/
-/*Buttons*/
 .btn {
-    display: inline-block;
-    padding: 0.6rem 1.1rem;   
-    padding: 0.6rem 1.1rem;   
-    border-radius: 6px;
-    font-weight: bold;
-    text-decoration: none;
-    cursor: pointer;
-    cursor: pointer;
-    transition: 0.2s ease-in-out;
-    border: 2px solid var(--color-border);
-    background-color: var(--color-button);
-    color: var(--color-light);
-    font-size: 1em;
-    border: 2px solid var(--color-border);
-    background-color: var(--color-button);
-    color: var(--color-light);
-    font-size: 1em;
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+
+  border: 2px solid var(--color-border);
+  background-color: var(--color-button);
+  color: var(--color-light);
+  font-size: 1em;
 }
 
 .btn:hover {
-    background-color: var(--color-button-hover);
-    color: var(--color-text);
+  background-color: var(--color-button-hover);
+  color: var(--color-text);
 }
 
-/* Derived variations */
 .btn-primary {
-    border-color: var(--color-alert);
-    background-color: var(--color-alert);
-    color: var(--color-light);
-    padding: 0.3rem 0.9rem;   
+  border-color: var(--color-alert);
+  background-color: var(--color-alert);
+  color: var(--color-light);
+  padding: 0.3rem 0.9rem;
 }
 .btn-primary:hover {
-    background-color: var(--color-light-hover);
-    color: var(--color-text);
+  background-color: var(--color-light-hover);
+  color: var(--color-text);
 }
 
 .btn-sm {
-    padding: 0.25rem 0.5rem;  
-    font-size: 0.8em;  
-    border-radius: 4px;
-    vertical-align: middle;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8em;
+  border-radius: 4px;
+  vertical-align: middle;
 }
+
+/* =========================
+   Profile Page Layout
+   ========================= */
 
 #profile-columns {
-    display: flex;
-    gap: 40px;
-    align-items: flex-start;
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
 }
 
-.left-col {
-    flex: 1;
-}
-
-.right-col {
-    flex: 1;
+#profile-columns .left-col,
+#profile-columns .right-col {
+  flex: 1;
 }
 
 #profile-info img,
 .left-col img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    display: block;
-    margin-bottom: 1rem;
-    border: 2px solid var(--color-border);
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin-bottom: 1rem;
+  border: 2px solid var(--color-border);
 }
 
 .friend-list {
-    list-style: disc;
-    padding-left: 1.25rem;
+  list-style: disc;
+  padding-left: 1.25rem;
 }
-
 
 .profile-pic {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    object-fit: cover;
-    cursor: pointer;
-    border: 2px solid var(--color-border);
-    background-color: var(--color-background);
-    transition: 0.2s ease-in-out;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid var(--color-border);
+  background-color: var(--color-background);
+  transition: 0.2s ease-in-out;
 }
 
-a:not(.btn) {
-    color: var(--color-link);
-    text-decoration: none;
-}
-
-a:not(.btn):hover {
-    text-decoration: underline;
-}
-
-
-/* -------------------------
-   NAVBAR + Dropdown
---------------------------- */
-
-
-/* -------------------------
-   NAVBAR + Dropdown
---------------------------- */
+/* =========================
+   Navbar + Dropdown
+   ========================= */
 
 .navbar {
-    position: sticky;
-    top: 0;
-    background: var(--color-border);
-    padding: 8px 16px;
-    border-bottom: none;
-    z-index: 999;
-    font-weight: bold;
+  position: sticky;
+  top: 0;
+  background: var(--color-border);
+  padding: 8px 16px;
+  border-bottom: none;
+  z-index: 999;
+  font-weight: bold;
 }
 
 .navbar nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .navbar a {
-    color: var(--color-light);
+  color: var(--color-light);
 }
 
+.navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
 
 .nav-left {
-    list-style: none;
-    display: flex;
-    gap: 12px;
-    margin: 0;
-    padding: 0;
+  display: flex;
+  gap: 12px;
 }
 
 .nav-right {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
-.navbar ul { 
-    list-style-type: none; 
-    margin: 0; padding: 0; 
-    display: flex; 
-}
-
-.navbar li { 
-    position: relative; 
-    padding: 0 10px; 
+.navbar li {
+  position: relative;
+  padding: 0 10px;
 }
 
 .dropdown-content {
-    display: none;
-    position: absolute;
-    padding:12px;
-    background-color: var(--color-border);
-    min-width: 150px;
-    z-index: 1;
+  display: none;
+  position: absolute;
+  padding: 12px;
+  background-color: var(--color-border);
+  min-width: 150px;
+  z-index: 1;
 }
 
 .dropdown-content a {
-    padding: 8px;
-    display: block;
-    color: var(--color-light);
+  padding: 8px;
+  display: block;
+  color: var(--color-light);
 }
 
 .dropdown:hover .dropdown-content {
-    display: block;
+  display: block;
 }
+
+/* =========================
+   Fieldsets
+   ========================= */
 
 fieldset {
-    margin: 0 0 2rem 0;
-    border: 2px solid var(--color-border);
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin: 0 0 2rem 0;
+  border: 2px solid var(--color-border);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-
-/* -------------------------
-   Cards
---------------------------- */
+/* =========================
+   Cards (generic)
+   ========================= */
 
 .content-card {
-    background: var(--color-light);
-    border: 2px solid var(--color-border);
-    border-radius: 8px; 
-    padding: 1rem 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+  background: var(--color-light);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  overflow: hidden;
 
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .welcome-card {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .leaderboard-card {
-    padding: 0.5rem 0;
+  padding: 0.5rem 0;
 }
 
-
-/* -------------------------
-   Homepage styling
---------------------------- */
+/* Homepage styling */
 .welcome-text h2 {
-    margin: 0 0 0.3rem 0;
+  margin: 0 0 0.3rem 0;
 }
-
 .welcome-text p {
-    margin: 0;
-    color: var(--color-grey);
+  margin: 0;
+  color: var(--color-grey);
 }
-
 .welcome-actions {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
-
-/* -------------------------
+/* =========================
    Leaderboard
---------------------------- */
-
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-
-/* -------------------------
-   Cards
---------------------------- */
-
-.content-card {
-    background: var(--color-light);
-    border: 2px solid var(--color-border);
-    border-radius: 8px; 
-    padding: 1rem 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.welcome-card {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.leaderboard-card {
-    padding: 0.5rem 0;
-}
-
-
-/* -------------------------
-   Homepage styling
---------------------------- */
-.welcome-text h2 {
-    margin: 0 0 0.3rem 0;
-}
-
-.welcome-text p {
-    margin: 0;
-    color: var(--color-grey);
-}
-
-.welcome-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-
-/* -------------------------
-   Leaderboard
---------------------------- */
+   ========================= */
 
 .leaderboard-title {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    font-size: 2rem;
-    font-weight: 700;
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
 .leaderboard-table {
-    width: 100%;
-    border-collapse: separate;
-    margin: 10px;
-    border-collapse: separate;
-    margin: 10px;
-    font-size: 1.1rem;
-    border-spacing: 0;
+  width: 100%;
+  border-collapse: separate;
+  margin: 10px;
+  font-size: 1.1rem;
+  border-spacing: 0;
 }
-/* Header */
+
 .leaderboard-table thead th {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--color-border);
-    padding: 1rem;
-    background: var(--color-light);
-    text-align: left;
-    border-spacing: 0;
-}
-/* Header */
-.leaderboard-table thead th {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--color-border);
-    padding: 1rem;
-    background: var(--color-light);
-    text-align: left;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-border);
+  padding: 1rem;
+  background: var(--color-light);
+  text-align: left;
 }
 
 .leaderboard-table tbody tr:hover {
-    background: var(--color-text-light);
+  background: var(--color-text-light);
 }
 
-/* Cells */
-.leaderboard-table tbody tr:hover {
-    background: var(--color-text-light);
-}
-
-/* Cells */
 .leaderboard-table td {
-    padding: 1.2rem 1rem;
-    border-bottom: 1px solid #eee;
+  padding: 1.2rem 1rem;
+  border-bottom: 1px solid #eee;
 }
 
-/* Remove last divider */
 .leaderboard-table tbody tr:last-child td {
-    border-bottom: none;
-    padding: 1.2rem 1rem;
-    border-bottom: 1px solid #eee;
+  border-bottom: none;
 }
 
-/* Remove last divider */
-.leaderboard-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.rank-col {
-    font-weight: 700;
-    text-align: left;
-    font-weight: 700;
-    text-align: left;
-}
-
-.user-col {
-    font-weight: 500;
-    text-align: left;
-    font-weight: 500;
-    text-align: left;
-}
-
-.coins-col {
-    font-weight: 700;
-    text-align: left;
-    text-align: left;
-}
+.rank-col { font-weight: 700; text-align: left; }
+.user-col { font-weight: 500; text-align: left; }
+.coins-col { font-weight: 700; text-align: left; }
 
 .leaderboard-pfp {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #41542a;   /* optional subtle border */
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #41542a;
 }
 
 .leaderboard-username {
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
 }
 
-.medal {
-    font-size: 2rem;
-}
+.medal { font-size: 2rem; }
 
-/* -------------------------
+/* =========================
    Clickable user popover
---------------------------- */
+   ========================= */
+
 .user-wrapper {
-    position: relative;
-    outline: none;
+  position: relative;
+  outline: none;
 }
 
 .user-cell {
-    /* clickable row */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
 }
 
 .user-popover {
-    /* hidden by default */
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 6px;
-    background: var(--color-light);
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    padding: 8px;
-    width: 160px;
-    display: none;
-    z-index: 10;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  background: var(--color-light);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  padding: 8px;
+  width: 160px;
+  display: none;
+  z-index: 10;
 }
 
-.user-wrapper:focus-within .user-popover { 
-/* show when focused */
-    display: block;
+.user-wrapper:focus-within .user-popover {
+  display: block;
 }
 
 .user-popover a {
-    display: block;
-    padding: 4px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: var(--color-text);
-    font-size: 0.9rem;
+  display: block;
+  padding: 4px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--color-text);
+  font-size: 0.9rem;
 }
 
 .user-popover a:hover {
-    background: var(--color-text-light);
+  background: var(--color-text-light);
 }
 
 .leetcode-username {
-    font-size: 0.85em;
-    color: var(--color-grey);
+  font-size: 0.85em;
+  color: var(--color-grey);
 }
 
 /* =========================
@@ -545,11 +423,8 @@ fieldset {
   align-items: start;
 }
 
-/* Stack columns on small screens */
 @media (max-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+  .dashboard-grid { grid-template-columns: 1fr; }
 }
 
 .cardish {
@@ -588,450 +463,85 @@ fieldset {
 }
 
 .muted {
-  color:var(--color-text);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: bold;
   white-space: nowrap;
-}
-
-
-/* -------------------------
-   Party Cards / Full-width Rows
---------------------------- */
-.party-card {
-    display: block;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.party-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.8rem 1rem;
-    box-sizing: border-box; 
-    cursor: pointer;
-    background-color: var(--color-border);
-    color: var(--color-light);
-    border-radius: 6px;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-.party-card .card-header .card-title {
-    color: var(--color-light);
-}
-
-.party-card .card-body {
-    overflow: hidden;
-    max-height: 1000px;
-    transition: max-height 0.35s ease, padding 0.35s ease;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.party-card .card-body.collapsed {
-    max-height: 0;
-    padding: 0;
-}
-
-.party-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.8rem 1rem; /* <-- padding prevents text from getting cut */
-    box-sizing: border-box; /* ensures padding is included in width */
-    text-decoration: none;
-    color: inherit;
-    background-color: var(--color-light);
-    border-bottom: 1px solid var(--color-border);
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-}
-
-/* -------------------------
-   Clickable user popover
---------------------------- */
-.user-wrapper {
-    position: relative;
-    outline: none;
-}
-
-.user-cell {
-    /* clickable row */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
-.user-popover {
-    /* hidden by default */
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 6px;
-    background: var(--color-light);
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    padding: 8px;
-    width: 160px;
-    display: none;
-    z-index: 10;
-}
-
-.user-wrapper:focus-within .user-popover { 
-/* show when focused */
-    display: block;
-}
-
-.user-popover a {
-    display: block;
-    padding: 4px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: var(--color-text);
-    font-size: 0.9rem;
-}
-
-.user-popover a:hover {
-    background: var(--color-text-light);
-}
-
-.leetcode-username {
-    font-size: 0.85em;
-    color: var(--color-grey);
 }
 
 /* =========================
-   View Party Dashboard
+   Party Cards / Full-width Rows
    ========================= */
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 24px;
-  align-items: start;
-}
-
-/* Stack columns on small screens */
-@media (max-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.cardish {
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background: white;
-}
-
-.chart-wrap {
-  position: relative;
-  width: 100%;
-  min-height: 280px;
-}
-
-.progress-wrap {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.progress-outer {
-  flex: 1;
-  height: 14px;
-  background: #eee;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-inner {
-  height: 100%;
-  width: 0%;
-  background: var(--color-header);
-  transition: width 250ms ease;
-}
-
-.muted {
-  color:var(--color-text);
-  font-size: 14px;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-
-/* -------------------------
-   Party Cards / Full-width Rows
---------------------------- */
 .party-card {
-    display: block;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .party-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.8rem 1rem;
-    box-sizing: border-box; 
-    cursor: pointer;
-    background-color: var(--color-border);
-    color: var(--color-light);
-    border-radius: 6px;
-    transition: background 0.3s ease, color 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  box-sizing: border-box;
+  cursor: pointer;
+  background-color: var(--color-border);
+  color: var(--color-light);
+  border-radius: 6px;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .party-card .card-header .card-title {
-    color: var(--color-light);
+  color: var(--color-light);
 }
 
 .party-card .card-body {
-    overflow: hidden;
-    max-height: 1000px;
-    transition: max-height 0.35s ease, padding 0.35s ease;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
+  overflow: hidden;
+  max-height: 1000px;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .party-card .card-body.collapsed {
-    max-height: 0;
-    padding: 0;
+  max-height: 0;
+  padding: 0;
 }
 
 .party-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.8rem 1rem; /* <-- padding prevents text from getting cut */
-    box-sizing: border-box; /* ensures padding is included in width */
-    text-decoration: none;
-    color: inherit;
-    background-color: var(--color-light);
-    border-bottom: 1px solid var(--color-border);
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  box-sizing: border-box;
+  text-decoration: none;
+  color: inherit;
+  background-color: var(--color-light);
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
 }
 
-/* View party member/user lists CSS - also used for find friends */
+/* View party member/user lists (also used for find friends) */
 .people-user-cell {
-    display: inline-flex;        /* shrink to fit content */
-    align-items: center;         /* vertically center text and button */
-    gap: 6px;                    /* spacing between name and button */
-    padding: 2px 4px;            /* optional inner spacing */
-    border-radius: 6px;          /* nice rounded corners on hover */
-    cursor: pointer;             /* hover effect */
-    color: var(--color-link);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-link);
 }
 
 .people-user-cell .btn {
-    margin-left: auto; /* pushes button to right if you want alignment */
+  margin-left: auto;
 }
 
 .people-user-cell:hover {
-    background-color: var(--color-text-light);
-    border-radius: 6px; 
-}
-
-/* -------------------------
-   Clickable user popover
---------------------------- */
-.user-wrapper {
-    position: relative;
-    outline: none;
-}
-
-.user-cell {
-    /* clickable row */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
-.user-popover {
-    /* hidden by default */
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 6px;
-    background: var(--color-light);
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    padding: 8px;
-    width: 160px;
-    display: none;
-    z-index: 10;
-}
-
-.user-wrapper:focus-within .user-popover { 
-/* show when focused */
-    display: block;
-}
-
-.user-popover a {
-    display: block;
-    padding: 4px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: var(--color-text);
-    font-size: 0.9rem;
-}
-
-.user-popover a:hover {
-    background: var(--color-text-light);
-}
-
-.leetcode-username {
-    font-size: 0.85em;
-    color: var(--color-grey);
-}
-
-/* =========================
-   View Party Dashboard
-   ========================= */
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 24px;
-  align-items: start;
-}
-
-/* Stack columns on small screens */
-@media (max-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.cardish {
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background: white;
-}
-
-.chart-wrap {
-  position: relative;
-  width: 100%;
-  min-height: 280px;
-}
-
-.progress-wrap {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.progress-outer {
-  flex: 1;
-  height: 14px;
-  background: #eee;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-inner {
-  height: 100%;
-  width: 0%;
-  background: var(--color-header);
-  transition: width 250ms ease;
-}
-
-.muted {
-  color:var(--color-text);
-  font-size: 14px;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-
-/* -------------------------
-   Party Cards / Full-width Rows
---------------------------- */
-.party-card {
-    display: block;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.party-card .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.8rem 1rem;
-    box-sizing: border-box; 
-    cursor: pointer;
-    background-color: var(--color-border);
-    color: var(--color-light);
-    border-radius: 6px;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-.party-card .card-header .card-title {
-    color: var(--color-light);
-}
-
-.party-card .card-body {
-    overflow: hidden;
-    max-height: 1000px;
-    transition: max-height 0.35s ease, padding 0.35s ease;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.party-card .card-body.collapsed {
-    max-height: 0;
-    padding: 0;
-}
-
-.party-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0.8rem 1rem; /* <-- padding prevents text from getting cut */
-    box-sizing: border-box; /* ensures padding is included in width */
-    text-decoration: none;
-    color: inherit;
-    background-color: var(--color-light);
-    border-bottom: 1px solid var(--color-border);
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-}
-
-/* View party member/user lists CSS - also used for find friends */
-.people-user-cell {
-    display: inline-flex;        /* shrink to fit content */
-    align-items: center;         /* vertically center text and button */
-    gap: 6px;                    /* spacing between name and button */
-    padding: 2px 4px;            /* optional inner spacing */
-    border-radius: 6px;          /* nice rounded corners on hover */
-    cursor: pointer;             /* hover effect */
-    color: var(--color-link);
-}
-
-.people-user-cell .btn {
-    margin-left: auto; /* pushes button to right if you want alignment */
-}
-
-.people-user-cell:hover {
-    background-color: var(--color-text-light);
-    border-radius: 6px; 
+  background-color: var(--color-text-light);
 }
