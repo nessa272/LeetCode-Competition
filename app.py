@@ -68,23 +68,41 @@ def profile(pid):
     Loads a user's profile based on input pid.
     '''
     if request.method == "GET":
+        #check if this is your profile or someone elses
+        if "pid" in session:
+            loggedin = (str(pid) == str(session.get('pid')))
+        else:
+            loggedin = None
+                                   
         # query profile info
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
         # get friends list
         followers = db_queries.get_followers(conn, pid)
         follows = db_queries.get_follows(conn, pid)
+
+        #check if the session_pid is following this profile user
+        isfollowing = db_queries.is_following(conn, session.get('pid'), pid)
+
         conn.close()
+
+        
         # show profile
-        print(f'profile: {profile}')
-        return render_template('profile.html', page_title='Profile Page', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session.get('pid'))))
+        return render_template('profile.html', page_title='Profile Page', 
+                               profile=profile, followers=followers, follows=follows, 
+                               loggedin= loggedin, 
+                               session_pid = session.get('pid'),
+                               is_following = isfollowing)
     # else POST
+    
     conn=dbi.connect()
     profile = db_queries.get_profile(conn, pid) 
     followers = db_queries.get_followers(conn, pid)
     follows = db_queries.get_follows(conn, pid)
     action = request.form.get('action')
     #print('pid' not in session)
+
+    #unfollows someone from your friends list (on your page)
     # TO DO: Will add edit_profile and refresh_stats as other actions
     if action == "Unfollow":
         pid2 = request.form.get('unfollow_friend')
@@ -100,6 +118,45 @@ def profile(pid):
         finally:
             conn.close()
         #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+    
+    #unfollow looking from a diff page
+    elif action == "Unfollow_out":
+        #double check session
+        if 'pid' not in session:
+            flash("You must be logged in to unfollow")
+            return redirect(url_for("login"))
+        
+        #flash message
+        friend_name = db_queries.get_profile(conn, pid)
+        flash('Unfollowing %s' % (friend_name['username']))
+
+        try:
+            db_queries.unfollow(conn, session.get('pid'), pid)
+            conn.commit()
+            return redirect(url_for('profile', pid=pid))
+        except Exception:
+            conn.rollback()
+        finally:
+            conn.close()
+    
+    elif action == "Follow_out":
+        if 'pid' not in session:
+            flash("You must be logged in to follow")
+            return redirect(url_for("login"))
+        
+        #flash message
+        friend_name = db_queries.get_profile(conn, pid)
+        flash('Following %s' % (friend_name['username']))
+
+        try:
+            db_queries.follow(conn, session.get('pid'), pid)
+            conn.commit()
+            return redirect(url_for('profile', pid=pid))
+        except Exception:
+            conn.rollback()
+        finally:
+            conn.close()
+    
     conn.close()
                
 # TO DO: TEMPORARY SOLUTION
