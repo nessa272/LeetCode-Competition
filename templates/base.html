@@ -34,7 +34,7 @@
     <div class="nav-right">
       {% if session.get('pid') %}
         <a href="{{ url_for('profile', pid=session.get('pid')) }}">
-          <img src="{{ session.get('pfp_url', '/static/default_pfp.jpg') }}" 
+          <img src="{{ url_for('show_profile_pic', pid=session.get('pid')) }}" 
                class="profile-pic" alt="profile pic">
         </a>
       {% else %}

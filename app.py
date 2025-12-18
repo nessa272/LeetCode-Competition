@@ -8,7 +8,12 @@ import secrets
 import cs304dbi as dbi
 import db_queries
 import bcrypt_utils as bc
+import os
+import time
 from leetcode_client import refresh_user_submissions
+from party_charts import build_chart_data
+from party_utils import compute_party_dates, nth
+import datetime
 from party_charts import build_chart_data
 from party_utils import compute_party_dates, nth
 import datetime
@@ -22,16 +27,26 @@ print(dbi.conf('leetcode_db'))
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
+# set uploads folder path for profile pics
+UPLOAD_FOLDER = '/students/leetcode/uploads/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # team uploads directory
+app.config['MAX_CONTENT_LENGTH'] = 1*1024*1024 # 1 MB max file upload
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+
 @app.route('/')
 def index():
     '''Main page of the website'''
     if "pid" in session:
         conn=dbi.connect()
         pid = session['pid']
-        username = db_queries.get_profile(conn, pid)
+        user = db_queries.get_profile(conn, pid)
         leaderboard = db_queries.get_leaderboard(conn, limit=10)
         problems_today = db_queries.get_problems_solved_today(conn, pid)
+        problems_today = db_queries.get_problems_solved_today(conn, pid)
         conn.close()
+
+        print(f'user: {user}')
+        print(f'user filename: {user['filename']}')
 
         return render_template(
             'main.html',
@@ -50,12 +65,19 @@ def about():
     #flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
+# -------------------- PROFILE RELATED ROUTES------------------
 @app.route('/profile/<pid>', methods = ['GET', 'POST'])
 def profile(pid):
     '''
     Loads a user's profile based on input pid.
     '''
     if request.method == "GET":
+        #check if this is your profile or someone elses
+        if "pid" in session:
+            loggedin = (str(pid) == str(session.get('pid')))
+        else:
+            loggedin = None
+                                   
         #check if this is your profile or someone elses
         if "pid" in session:
             loggedin = (str(pid) == str(session.get('pid')))
@@ -72,7 +94,13 @@ def profile(pid):
         #check if the session_pid is following this profile user
         isfollowing = db_queries.is_following(conn, session.get('pid'), pid)
 
+
+        #check if the session_pid is following this profile user
+        isfollowing = db_queries.is_following(conn, session.get('pid'), pid)
+
         conn.close()
+
+        
 
         
         # show profile
@@ -81,7 +109,13 @@ def profile(pid):
                                loggedin= loggedin, 
                                session_pid = session.get('pid'),
                                is_following = isfollowing)
+        return render_template('profile.html', page_title='Profile Page', 
+                               profile=profile, followers=followers, follows=follows, 
+                               loggedin= loggedin, 
+                               session_pid = session.get('pid'),
+                               is_following = isfollowing)
     # else POST
+    
     
     conn=dbi.connect()
     profile = db_queries.get_profile(conn, pid) 
@@ -91,11 +125,14 @@ def profile(pid):
     #print('pid' not in session)
 
     #unfollows someone from your friends list (on your page)
+
+    #unfollows someone from your friends list (on your page)
     # TO DO: Will add edit_profile and refresh_stats as other actions
     if action == "Unfollow":
         pid2 = request.form.get('unfollow_friend')
         friend_name = db_queries.get_profile(conn, pid2)
         print(pid2)
+        flash('Unfollowing %s' % (friend_name['username']))
         flash('Unfollowing %s' % (friend_name['username']))
         try:
             db_queries.unfollow(conn, pid, pid2)
@@ -106,6 +143,45 @@ def profile(pid):
         finally:
             conn.close()
         #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
+    
+    #unfollow looking from a diff page
+    elif action == "Unfollow_out":
+        #double check session
+        if 'pid' not in session:
+            flash("You must be logged in to unfollow")
+            return redirect(url_for("login"))
+        
+        #flash message
+        friend_name = db_queries.get_profile(conn, pid)
+        flash('Unfollowing %s' % (friend_name['username']))
+
+        try:
+            db_queries.unfollow(conn, session.get('pid'), pid)
+            conn.commit()
+            return redirect(url_for('profile', pid=pid))
+        except Exception:
+            conn.rollback()
+        finally:
+            conn.close()
+    
+    elif action == "Follow_out":
+        if 'pid' not in session:
+            flash("You must be logged in to follow")
+            return redirect(url_for("login"))
+        
+        #flash message
+        friend_name = db_queries.get_profile(conn, pid)
+        flash('Following %s' % (friend_name['username']))
+
+        try:
+            db_queries.follow(conn, session.get('pid'), pid)
+            conn.commit()
+            return redirect(url_for('profile', pid=pid))
+        except Exception:
+            conn.rollback()
+        finally:
+            conn.close()
+    
     
     #unfollow looking from a diff page
     elif action == "Unfollow_out":
@@ -221,10 +297,59 @@ def refresh_my_stats():
     # TEMPORARY solution whilst not pursuing ajax for the sake of time.
     next_url = request.args.get("next")
     return redirect(next_url or url_for('index'))
+        action = request.form.get('action')
+        #print(action)
+        if action == "update":
+            #print("update")
+            #get form info
+            name = request.form.get('name')
+            username = request.form.get('username')
+            conn = dbi.connect()
+            try:
+                db_queries.edit_profile(conn, pid, name, username)
+                conn.commit()
+            except Exception:
+                conn.rollback()
+            finally:
+                conn.close()
+            return redirect(url_for('profile', pid=pid))
+        
+        #cancel button
+        else:
+            return redirect(url_for('profile', pid=pid))
+
+@app.route('/refresh-stats', methods=['POST'])
+def refresh_my_stats():
+    """Refreshes ONLY the signed in user stats. This allows for a post button
+    to work for any page this button needs to be implemented on. """
+    # Get current user from session
+    if 'pid' not in session:
+        return redirect(url_for('login'))
+
+    conn = dbi.connect()
+    try:
+        #get lc username for this SIGNED IN person
+        profile = db_queries.get_profile(conn, session['pid'])
+        lc_username = profile['lc_username']
+        #refresh their submissions
+        num_submissions = refresh_user_submissions(conn, session['pid'], lc_username)
+        conn.commit()
+        print(f"{num_submissions} submissions added to database for username {lc_username}")
+    except Exception as e:
+        conn.rollback()
+    finally:
+        conn.close()
+
+    # Redirect back to wherever the request came from, passed in by the html
+    # TEMPORARY solution whilst not pursuing ajax for the sake of time.
+    next_url = request.args.get("next")
+    return redirect(next_url or url_for('index'))
 
 @app.route('/refresh-profile/<pid>/<lc_username>')
 def refresh_profile(pid: int, lc_username: str):
     """
+    NOTE: this route alolows you to refresh anyone's profile with its unique link, 
+    currently deprecated use for preferred refresh_my_stats. 
     NOTE: this route alolows you to refresh anyone's profile with its unique link, 
     currently deprecated use for preferred refresh_my_stats. 
     Fetch a user's recent accepted submissions from LeetCode and insert
@@ -252,6 +377,69 @@ def refresh_profile(pid: int, lc_username: str):
         conn.rollback()
     finally:
         conn.close()
+
+@app.route('/upload-profile-pic/<pid>', methods=['POST'])
+def upload_profile_pic(pid):
+    """
+    Handle uploaded profile pic.
+    """
+    # TODO: handle user session login for extra backup?
+    try:
+        # TODO: handle file size
+        file = request.files['pic']
+
+        if file.filename == '': # in case the user submits w/o selecting a file 
+            flash('No selected file')
+            return redirect(url_for('edit_profile', pid = pid))
+
+        if file and allowed_file(file.filename): # if uploaded and file type approved
+            print('forming filename')
+            # form secure filename
+            user_filename = file.filename
+            ext = user_filename.split('.')[-1]
+            timestamp = time.time()
+            filename = secure_filename('{}_{}.{}'.format(pid,timestamp,ext))
+
+            # get filename path
+            pathname = os.path.join(app.config['UPLOAD_FOLDER'],filename)
+
+            # save image to filesystem by formed path
+            file.save(pathname)
+            os.chmod(pathname, 0o444) # readable by owner, group and others
+
+            # upload filename to database
+            conn = dbi.connect()
+            db_queries.upload_profile_pic(conn, pid, filename)
+            conn.close()
+
+            return redirect(url_for('profile', pid = pid)) # return to profile 
+    except Exception as err:
+        flash('Upload failed {why}'.format(why=err))
+        return redirect(url_for('profile', pid = pid))
+
+@app.route('/show-profile-pic/<pid>')
+def show_profile_pic(pid):
+    """
+    Show profile pic given just the pid.
+    """
+    conn = dbi.connect()
+    filename = db_queries.get_profile_pic(conn, pid)
+    conn.close()
+    return redirect(url_for('uploaded_file', filename=filename['filename']))
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """
+    Handle request for profile picture given the filename.
+    """
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+def allowed_file(filename):
+    """
+    Helper function to check allowed file type.
+    """
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])
@@ -429,6 +617,23 @@ def party_charts(cpid):
 
     return jsonify(data)
 
+@app.route("/api/party/<int:cpid>/charts")
+def party_charts(cpid):
+    if 'pid' not in session:
+        return jsonify({"error": "not logged in"}), 401
+
+    conn = dbi.connect()
+    submissions = db_queries.get_party_submissions(conn, cpid)
+    party_info = db_queries.get_party_info(conn, cpid)
+    conn.close()
+
+    data = build_chart_data(submissions, party_info['party_goal'])
+
+    if party_info and "progress" in data:
+        data["progress"]["goal"] = int(party_info["party_goal"])  # or party.party_goal depending on row type
+
+    return jsonify(data)
+
 # TO DO: Change to POST action in view_party
 @app.route("/party/<int:cpid>/remove_member", methods=["POST"])
 def remove_member(cpid):
@@ -491,6 +696,21 @@ def my_parties():
     upcoming.sort(key=lambda p: p['party_start'])
     # Completed parties: most recently ended
     completed.sort(key=lambda p: p['party_end'], reverse=True)
+
+    now = datetime.datetime.now()
+
+    # get num days relative to current date for each party
+    current = compute_party_dates(current)
+    upcoming = compute_party_dates(upcoming)
+    completed = compute_party_dates(completed)
+
+    #add ucer's rank for each party
+    for p in all_parties:
+        print(p['name'], p.get('rank'), p.get('word_rank'))
+        if p.get('rank') is not None:
+            p['word_rank'] = nth(p['rank'])
+        else:
+            p['word_rank'] = None
 
     now = datetime.datetime.now()
 
@@ -581,6 +801,7 @@ def find_friends():
 
                 friend_name = db_queries.get_profile(conn, pid2)
 
+                flash('Following %s' % (friend_name['username']))
                 flash('Following %s' % (friend_name['username']))
 
                 #make connection 

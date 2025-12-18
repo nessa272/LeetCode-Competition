@@ -32,8 +32,47 @@
 </div>
 
 <br>
+<div class="content-card welcome-card">
+    <div class="welcome-text">
+        <h2>Welcome, {{ username }}!</h2>
+        <p>
+            You've solved
+            <strong>{{ problems_today }}</strong>
+            LeetCode problem{{ '' if problems_today == 1 else 's' }}
+            today.
+        </p>
+    </div>
+
+    <div class="welcome-actions">
+        <a href="https://leetcode.com/problemset/all/"
+           target="_blank"
+           class="btn btn-primary">
+            Go solve problems
+        </a>
+
+        <form method="POST" action="{{ url_for('refresh_my_stats', next=url_for('index')) }}"
+            onsubmit="this.querySelector('button').disabled = true;
+                        this.querySelector('button').innerText = 'Refreshing…';
+                        document.body.style.cursor='wait';">
+            <button type="submit" class="btn">
+                Refresh Leetcode Stats
+            </button>
+        </form>
+    </div>
+</div>
+
+<br>
 <h2 class="leaderboard-title">🏆 Top LeetCoders 🏆</h2>
 
+<div class="content-card leaderboard-card">
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Coins</th>
+            </tr>
+        </thead>
 <div class="content-card leaderboard-card">
     <table class="leaderboard-table">
         <thead>
@@ -58,12 +97,26 @@
                         {{ loop.index }}
                     {% endif %}
                 </td>
+        <tbody>
+            {% for user in leaderboard %}
+            <tr>
+                <td class="rank-col">
+                    {% if loop.index == 1 %}
+                        <span class="medal gold">🥇</span>
+                    {% elif loop.index == 2 %}
+                        <span class="medal silver">🥈</span>
+                    {% elif loop.index == 3 %}
+                        <span class="medal bronze">🥉</span>
+                    {% else %}
+                        {{ loop.index }}
+                    {% endif %}
+                </td>
 
                 <td class="user-col">
                     <div class="user-wrapper" tabindex="0">
 
                         <div class="user-cell">
-                            <img src="/static/default_pfp.jpg"
+                            <img src="{{ url_for('uploaded_file', filename=user.filename) if user.filename else url_for('static', filename='default_pfp.jpg') }}"
                                 class="leaderboard-pfp"
                                 alt="profile pic">
 

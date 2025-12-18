@@ -8,7 +8,7 @@
     <!-- LEFT COLUMN -->
     <div class="left-col">
         <h2>Profile</h2>
-        <img src="{{ profile.pfp_url or url_for('static', filename='default_pfp.jpg') }}" alt="Profile Picture">
+        <img src="{{ url_for('uploaded_file', filename=profile.filename) if profile.filename else url_for('static', filename='default_pfp.jpg') }}" alt="Profile Picture">
 
         <ul class="profile-list">
             <li><strong>Name:</strong> {{ profile.name }}</li>
@@ -25,6 +25,17 @@
         <a class="btn" name="action" value="edit_profile" href="{{ url_for('edit_profile', pid=profile.pid) }}">
             Edit Profile
        </a> 
+       </a> 
+
+       <br><br>
+        <form method="POST" action="{{ url_for('refresh_my_stats', next=url_for('profile', pid=profile.pid)) }}"
+            onsubmit="this.querySelector('button').disabled = true;
+                        this.querySelector('button').innerText = 'Refreshing…';
+                        document.body.style.cursor='wait';">
+            <button type="submit" class="btn">
+                Refresh Leetcode Stats
+            </button>
+        </form>
 
        <br><br>
         <form method="POST" action="{{ url_for('refresh_my_stats', next=url_for('profile', pid=profile.pid)) }}"
@@ -43,6 +54,25 @@
         {% endif %}
 
         <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
+        {% endif %}
+
+        <!--get option to unfollow/follow for the person's page you're on-->
+        {% if loggedin != None and not loggedin and not is_following %}
+        <!--first check if has session, then check if its your own page, then check you follow-->
+        <form action="{{ url_for('profile', pid=profile.pid) }}" 
+            method="POST" 
+            style="display:inline;">
+            <input type="hidden" name="follow_friend_out" value="{{ profile.pid }}">
+            <button type="submit" class="btn" name="action" value="Follow_out">Follow</button>
+        </form>
+        {% endif %}
+        {% if loggedin != None and not loggedin and is_following %}
+        <form action="{{ url_for('profile', pid=profile.pid) }}" 
+            method="POST" 
+            style="display:inline;">
+            <input type="hidden" name="unfollow_friend_out" value="{{ profile.pid }}">
+            <button type="submit" class="btn" name="action" value="Unfollow_out">Unfollow</button>
+        </form>
         {% endif %}
 
         <!--get option to unfollow/follow for the person's page you're on-->

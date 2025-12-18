@@ -8,7 +8,14 @@
     <!-- LEFT COLUMN -->
     <div class="left-col">
           <h2>Your Profile</h2>
-        <img src="{{ profile.pfp_url or url_for('static', filename='default_pfp.jpg') }}" alt="Profile Picture">
+        <img src="{{ url_for('uploaded_file', filename=profile.filename) if profile.filename else url_for('static', filename='default_pfp.jpg') }}" alt="Profile Picture">
+
+        <!-- change profile picture -->
+        <form method="post" action="{{url_for('upload_profile_pic', pid=profile.pid)}}" enctype="multipart/form-data">
+            <p><label>Edit profile photo:</label></p>
+            <p><input type="file" name="pic"></p>
+            <p><button type="submit" class="btn">Upload</button></p>
+        </form>
 
         <!-- change information -->
         <form action="{{ url_for('edit_profile', pid = profile.pid) }}" method="POST">
