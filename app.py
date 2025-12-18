@@ -9,6 +9,7 @@ import cs304dbi as dbi
 import db_queries
 import bcrypt_utils as bc
 from leetcode_client import refresh_user_submissions
+from party_charts import build_chart_data
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -342,6 +343,23 @@ def view_party(cpid):
         members=members,
         connections=connections
     )
+
+@app.route("/api/party/<int:cpid>/charts")
+def party_charts(cpid):
+    if 'pid' not in session:
+        return jsonify({"error": "not logged in"}), 401
+
+    conn = dbi.connect()
+    submissions = db_queries.get_party_submissions(conn, cpid)
+    party_info = db_queries.get_party_info(conn, cpid)
+    conn.close()
+
+    data = build_chart_data(submissions, party_info['party_goal'])
+
+    if party_info and "progress" in data:
+        data["progress"]["goal"] = int(party_info["party_goal"])  # or party.party_goal depending on row type
+
+    return jsonify(data)
 
 # TO DO: Change to POST action in view_party
 @app.route("/party/<int:cpid>/remove_member", methods=["POST"])

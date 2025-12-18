@@ -272,6 +272,33 @@ def get_party_members(conn, cpid):
     ''', [cpid])
     return curs.fetchall()
 
+def get_party_submissions(conn, cpid):
+    """
+    Returns all submissions made by members in the party with cpid
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute(
+        '''
+        SELECT 
+            p.name, 
+            p.username, 
+            prob.difficulty,
+            sub.submission_date
+        FROM person p
+        INNER JOIN submission sub ON sub.pid = p.pid
+        INNER JOIN problem prob ON prob.lc_problem = sub.lc_problem
+        INNER JOIN party_membership mem ON mem.pid = p.pid
+        INNER JOIN code_party party ON party.cpid = mem.cpid
+        WHERE mem.cpid = %s
+        AND sub.submission_date >= party.party_start
+        AND sub.submission_date < party.party_end;
+        ''', [cpid]
+    )
+    result = curs.fetchall()
+    curs.close()
+    return result
+
+
 def remove_user_from_party(conn, pid, cpid):
     """Remove a user from a party"""
     curs = dbi.dict_cursor(conn)

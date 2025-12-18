@@ -441,3 +441,64 @@ fieldset {
     color: var(--color-grey);
 }
 
+/* =========================
+   View Party Dashboard
+   ========================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Stack columns on small screens */
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cardish {
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: white;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+}
+
+.progress-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.progress-outer {
+  flex: 1;
+  height: 14px;
+  background: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-inner {
+  height: 100%;
+  width: 0%;
+  background: var(--color-header);
+  transition: width 250ms ease;
+}
+
+.muted {
+  color:var(--color-text);
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+

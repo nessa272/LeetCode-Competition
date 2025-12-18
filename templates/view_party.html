@@ -2,8 +2,11 @@
 
 {% block main_content %}
 <div class="container mt-4">
-    {% if party %}
-        <h1>{{party.name}}</h1>
+  {% if party %}
+    <div class="dashboard-grid">
+      <!-- LEFT COLUMN: existing info/controls -->
+      <div class="left-col">
+        <h1>{{ party.name }}</h1>
 
         <h2>Party Details</h2>
         <p><strong>Goal:</strong> {{ party.party_goal }} problems</p>
@@ -14,48 +17,168 @@
 
         <h3>Current Members</h3>
         <ul>
-            {% for member in members %}
-                <li>
-                    {{ member.name }} ({{ member.username }})
-                    {% if member.pid != session['pid'] %}
-                        <form style="display:inline" method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
-                            <input type="hidden" name="pid" value="{{ member.pid }}">
-                            <button type="submit">Remove</button>
-                        </form>
-                    {% else %}
-                        (You)
-                    {% endif %}
-                </li>
-            {% endfor %}
+          {% for member in members %}
+            <li>
+              {{ member.name }} ({{ member.username }})
+              {% if member.pid != session['pid'] %}
+                <form style="display:inline" method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
+                  <input type="hidden" name="pid" value="{{ member.pid }}">
+                  <button type="submit">Remove</button>
+                </form>
+              {% else %}
+                (You)
+              {% endif %}
+            </li>
+          {% endfor %}
         </ul>
-        <a class="btn" href="{{ url_for('refresh_party', cpid=party.cpid) }}">
-            Refresh Full Party Stats
-        </a>
-        {% if party.last_bulk_refresh %}
-            <p>Last refreshed for this party: {{ party.last_bulk_refresh }}</p>
-        {% else %}
-            <p>No refresh yet.</p>
-        {% endif %}
 
+        <a class="btn" href="{{ url_for('refresh_party', cpid=party.cpid) }}">
+          Refresh Full Party Stats
+        </a>
+
+        {% if party.last_bulk_refresh %}
+          <p>Last refreshed for this party: {{ party.last_bulk_refresh }}</p>
+        {% else %}
+          <p>No refresh yet.</p>
+        {% endif %}
 
         <hr>
 
         <h3>Invite Connections</h3>
-            {% if connections %}
-                {% for user in connections %}
-                    <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
-                        <input type="hidden" name="pid" value="{{ user.pid }}">
-                        <label>{{ user.lc_username }}</label>
-                        <button type="submit">Add</button>
-                    </form>
-                {% endfor %}
-            {% else %}
-                <p>No connections available to invite.</p>
-            {% endif %}
+        {% if connections %}
+          {% for user in connections %}
+            <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
+              <input type="hidden" name="pid" value="{{ user.pid }}">
+              <label>{{ user.lc_username }}</label>
+              <button type="submit">Add</button>
+            </form>
+          {% endfor %}
+        {% else %}
+          <p>No connections available to invite.</p>
+        {% endif %}
+      </div>
 
-    {% else %}
-        <h2>You are not in any party yet.</h2>
-        <a href="{{ url_for('create_party') }}" class="btn btn-primary mt-3">Create a Party</a>
-    {% endif %}
+      <!-- RIGHT COLUMN: graphs -->
+      <div class="right-col">
+        <div class="cardish">
+          <h2>Group Progress</h2>
+          <div class="progress-wrap">
+            <div class="progress-outer">
+              <div id="progressInner" class="progress-inner"></div>
+            </div>
+            <div class="muted" id="progressText">0 / 0</div>
+          </div>
+        </div>
+
+        <div class="cardish">
+          <h2>Problems Solved per Person</h2>
+          <div class="chart-wrap">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+
+        <div class="cardish">
+          <h2>Cumulative Problems Over Time</h2>
+          <div class="chart-wrap">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      const party_cpid = {{ party.cpid | tojson }};
+      const PRIMARY_COLOR = "#5c6536";
+      const PRIMARY_DARK = "#262a0f";
+
+      let barChart = null;
+      let lineChart = null;
+
+      function setProgress(done, goal) {
+        const pct = goal > 0 ? Math.min(done / goal, 1) : 0;
+        document.getElementById("progressInner").style.width = (pct * 100).toFixed(1) + "%";
+        document.getElementById("progressText").textContent = `${done} / ${goal}`;
+      }
+
+      function renderBar(bar) {
+        const ctx = document.getElementById("barChart");
+        if (barChart) barChart.destroy();
+
+        barChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: bar.labels,
+            datasets: [{
+              label: "Problems",
+              data: bar.counts,
+              backgroundColor: PRIMARY_COLOR,
+              borderColor: PRIMARY_DARK,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { title: { display: true, text: "Member" } },
+              y: { beginAtZero: true, title: { display: true, text: "Problems Solved" } }
+            }
+          }
+        });
+      }
+
+      function renderLine(line) {
+        const ctx = document.getElementById("lineChart");
+        if (lineChart) lineChart.destroy();
+
+        const datasets = Object.entries(line.series).map(([name, values]) => ({
+          label: name,
+          data: values,
+          tension: 0.2
+        }));
+
+        // Make Total stand out slightly (no hardcoded colors)
+        const totalIdx = datasets.findIndex(d => d.label === "Total");
+        if (totalIdx >= 0) datasets[totalIdx].borderWidth = 3;
+
+        lineChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: line.dates,
+            datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: { legend: { position: "bottom" } },
+            scales: {
+              x: { title: { display: true, text: "Date" } },
+              y: { beginAtZero: true, title: { display: true, text: "Cumulative Problems" } }
+            }
+          }
+        });
+      }
+
+      async function loadCharts() {
+        const resp = await fetch(`/api/party/${party_cpid}/charts`);
+        const data = await resp.json();
+
+        setProgress(data.progress.done, data.progress.goal);
+        renderBar(data.bar);
+        renderLine(data.line);
+      }
+
+      loadCharts();
+    </script>
+
+  {% else %}
+    <h2>You are not in any party yet.</h2>
+    <a href="{{ url_for('create_party') }}" class="btn btn-primary mt-3">Create a Party</a>
+  {% endif %}
 </div>
 {% endblock %}
