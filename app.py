@@ -8,6 +8,7 @@ import secrets
 import cs304dbi as dbi
 import db_queries
 import bcrypt_utils as bc
+import os
 from leetcode_client import refresh_user_submissions
 
 # we need a secret_key to use flash() and sessions
@@ -18,6 +19,11 @@ print(dbi.conf('leetcode_db'))
 
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
+
+# set uploads folder path for profile pics
+UPLOAD_FOLDER = '/students/leetcode/uploads/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # team uploads directory
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 @app.route('/')
 def index():
@@ -45,6 +51,7 @@ def about():
     #flash('this is a flashed message')
     return render_template('about.html', page_title='About Us')
 
+# -------------------- PROFILE RELATED ROUTES------------------
 @app.route('/profile/<pid>', methods = ['GET', 'POST'])
 def profile(pid):
     '''
@@ -152,6 +159,38 @@ def refresh_profile(pid: int, lc_username: str):
         conn.rollback()
     finally:
         conn.close()
+
+@app.route('/upload-profile-pic/<pid>', methods=['POST'])
+def upload_profile_pic(pid):
+    """
+    Handle uploaded profile pic.
+    """
+    # TODO: handle user session login for extra backup?
+    try:
+        file = request.files['pic']
+        if file.filename == '': # in case the user submits w/o selecting a file 
+            flash('No selected file')
+            return redirect(url_for('profile', pid = pid))
+        if file and allowed_file(file.filename): # if uploaded and file type approved
+            filename = secure_filename(file.filename) # get secure filename
+            pathname = os.path.join(app.config['UPLOAD_FOLDER'],filename)
+            # save file to directory by formed path
+            file.save(pathname)
+            os.chmod(pathname, 0o444) # readable by owner, group and others
+            # upload filename to database
+            db_queries.upload_profile_pic()
+            conn.close()
+            return redirect(url_for('profile', pid = pid)) # return to profile 
+    except Exception as err:
+        flash('Upload failed {why}'.format(why=err))
+        return redirect(url_for('profile', pid = pid))
+
+def allowed_file(filename):
+    """
+    Helper function to check allowed file type.
+    """
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --------------------LOGIN/AUTHENTICATION ROUTES------------------
 @app.route('/signup', methods=['GET', 'POST'])

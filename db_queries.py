@@ -7,9 +7,10 @@ def get_profile(conn, pid):
     """ Retrieve all information from a user's profile based on pid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 SELECT pid, name, username, lc_username, latest_submission, current_streak, longest_streak, total_problems, num_coins, personal_goal, last_refreshed
-                 FROM person
-                 WHERE pid = %s;
+                 SELECT person.pid, name, username, lc_username, latest_submission, current_streak, longest_streak, total_problems, num_coins, personal_goal, last_refreshed
+                 FROM person left join picfile
+                 ON person.pid = picfile.pid
+                 WHERE person.pid = %s;
                  ''', [pid])
     result = curs.fetchone()
     curs.close()
@@ -108,6 +109,17 @@ def edit_profile(conn, pid, name, username):
     ''', [name, username, pid])
     curs.close()
 
+def upload_profile_pic(conn, pid, filename):
+    """
+    Inserts or updates filename of the uploaded profile picture of the user
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''insert into picfile(pid, filename)
+                    values (%s, %s)
+                    on duplicate key update 
+                    filename=%s''', [pid, filename, filename])
+    conn.commit()
+    curs.close()
 
 # Login/auth queries
 
