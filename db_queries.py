@@ -62,23 +62,6 @@ def is_following(conn, follower_id, followed_id):
     curs.close()
     return result
 
-
-
-def is_following(conn, follower_id, followed_id):
-    """
-    Returns 1 (in dictionary) if follower_id is following followed_id, returns None otherwise.
-    """
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-    SELECT 1
-    FROM connection
-    WHERE p1 = %s AND p2 = %s''', 
-    [follower_id, followed_id])
-    result = curs.fetchone()
-    curs.close()
-    return result
-
-
 def find_friends(conn, pid):
     """Find people who the user (pid) is NOT connected to"""
     curs = dbi.dict_cursor(conn)
@@ -133,14 +116,14 @@ def unfollow(conn, pid1, pid2):
     conn.commit()
     curs.close()
 
-def edit_profile(conn, pid, name, username, lc_username):
+def edit_profile(conn, pid, name, username, lc_username, personal_goal):
     """ updates profile with new name and username   """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     update person
-    set name = %s, username = %s, lc_username = %s
+    set name = %s, username = %s, lc_username = %s, personal_goal = %s
     where pid = %s;
-    ''', [name, username, lc_username, pid])
+    ''', [name, username, lc_username, personal_goal, pid])
     conn.commit()
     curs.close()
 

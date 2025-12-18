@@ -28,11 +28,13 @@
                 <label for="lc_username">LeetCode Username</label>
                 <input type="text" id="lc_username" name="lc_username" value="{{ profile.lc_username }}">
                 <br>
+                <label for="personal_goal">Personal Goal</label>
+                <input type="text" id="personal_goal" name="personal_goal" value="{{ profile.personal_goal }}">
+                <br>
                 <button type="submit" class="btn" name="action" value="cancel">Cancel</button>
                 <button type="submit" class="btn" name="action" value="update">Update</button>
 
           </form>
-
 
         <ul class="profile-list">
             <li><strong>Latest Submission:</strong> {{ profile.latest_submission }}</li> 
@@ -40,7 +42,6 @@
             <li><strong>Longest Streak:</strong> {{ profile.longest_streak }}</li>
             <li><strong>Total Problems:</strong> {{ profile.total_problems }}</li>
             <li><strong>Coins:</strong> {{ profile.num_coins }}</li>
-            <li><strong>Personal Goal:</strong> {{ profile.personal_goal }}</li>
             <li><strong>Number of Friends:</strong> {{ friends | length }}</li>
         </ul>
 

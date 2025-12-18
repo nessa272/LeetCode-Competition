@@ -188,9 +188,11 @@ def edit_profile(pid):
             #get form info
             name = request.form.get('name')
             username = request.form.get('username')
+            lc_username = request.form.get('lc_username')
+            personal_goal = request.form.get('personal_goal')
             conn = dbi.connect()
             try:
-                db_queries.edit_profile(conn, pid, name, username)
+                db_queries.edit_profile(conn, pid, name, username, lc_username, personal_goal)
             except Exception:
                 conn.rollback()
             finally:
@@ -217,7 +219,7 @@ def refresh_my_stats():
         #refresh their submissions
         num_submissions = refresh_user_submissions(conn, session['pid'], lc_username)
         conn.commit()
-        # print(f"{num_submissions} submissions added to database for username {lc_username}")
+        print(f"{num_submissions} submissions added to database for username {lc_username}")
     except Exception as e:
         conn.rollback()
     finally:
@@ -253,7 +255,7 @@ def refresh_profile(pid: int, lc_username: str):
     conn = dbi.connect()
     try:
         num_submissions = refresh_user_submissions(conn, pid, lc_username)
-        # print(f"{num_submissions} submissions added to database for username {lc_username}")
+        print(f"{num_submissions} submissions added to database for username {lc_username}")
         conn.commit()
         return redirect(url_for('profile', pid=pid))
     except Exception:
@@ -266,7 +268,9 @@ def upload_profile_pic(pid):
     """
     Handle uploaded profile pic.
     """
+    # TODO: handle user session login for extra backup?
     try:
+        # TODO: handle file size
         file = request.files['pic']
 
         if file.filename == '': # in case the user submits w/o selecting a file 
@@ -274,7 +278,7 @@ def upload_profile_pic(pid):
             return redirect(url_for('edit_profile', pid = pid))
 
         if file and allowed_file(file.filename): # if uploaded and file type approved
-            # print('forming filename')
+            print('forming filename')
             # form secure filename
             user_filename = file.filename
             ext = user_filename.split('.')[-1]
@@ -431,7 +435,6 @@ def create_party():
     # Fetch connections/potential people to invite
     try:
         connections = db_queries.get_party_invite_options(conn, session['pid'])
-        mutual_parties = db_queries.get_upcoming_mutual_parties(conn, session['pid'])
 
         if request.method == "POST":
             party_name = request.form.get("party_name")
@@ -462,8 +465,7 @@ def create_party():
     
     return render_template("create_party.html", 
                            page_title='Party Creation Page', 
-                           connections=connections,
-                           mutual_parties=mutual_parties)
+                           connections=connections)
 
 @app.route("/party/<int:cpid>")
 def view_party(cpid):
@@ -561,6 +563,7 @@ def my_parties():
 
     conn = dbi.connect()
     all_parties = db_queries.get_parties_for_user(conn, session['pid'])
+    mutual_parties = db_queries.get_upcoming_mutual_parties(conn, session['pid'])
     conn.close()
 
     current = [p for p in all_parties if p['status'] == 'in_progress']
@@ -584,7 +587,7 @@ def my_parties():
 
     #add ucer's rank for each party
     for p in all_parties:
-        # print(p['name'], p.get('rank'), p.get('word_rank'))
+        print(p['name'], p.get('rank'), p.get('word_rank'))
         if p.get('rank') is not None:
             p['word_rank'] = nth(p['rank'])
         else:
@@ -599,7 +602,7 @@ def my_parties():
 
     #add ucer's rank for each party
     for p in all_parties:
-        # print(p['name'], p.get('rank'), p.get('word_rank'))
+        print(p['name'], p.get('rank'), p.get('word_rank'))
         if p.get('rank') is not None:
             p['word_rank'] = nth(p['rank'])
         else:
@@ -611,7 +614,8 @@ def my_parties():
         page_title='My Parties Page',
         current_parties=current,
         upcoming_parties=upcoming,
-        completed_parties=completed
+        completed_parties=completed,
+        mutual_parties=mutual_parties
     )
 
 @app.route('/party/<int:cpid>/refresh')
@@ -679,6 +683,7 @@ def find_friends():
 
                 friend_name = db_queries.get_profile(conn, pid2)
 
+                flash('Following %s' % (friend_name['username']))
                 flash('Following %s' % (friend_name['username']))
 
                 #make connection 
