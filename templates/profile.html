@@ -72,7 +72,7 @@
             {% for follower in followers %}
                 <li>
                     <a href="{{ url_for('profile', pid=follower.pid) }}">
-                         {{ follower.name }} ({{ follower.lc_username }})
+                         {{ follower.name }} ({{ follower.username }})
                     </a>
                </li>
             {% endfor %}
@@ -86,7 +86,7 @@
                 <li>
                     <!-- Profile link -->
                     <a href="{{ url_for('profile', pid=followed_user.pid) }}">
-                        {{ followed_user.name }} ({{ followed_user.lc_username }})
+                        {{ followed_user.name }} ({{ followed_user.username }})
                     </a>
 
                     <!-- Unfollow button -->
