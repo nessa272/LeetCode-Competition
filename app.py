@@ -468,25 +468,29 @@ def create_party():
 def view_party(cpid):
     """
     Loads page to view existing code party
-    
-    :param cpid: the code party id
     """
     if 'pid' not in session:
         return redirect(url_for('login'))
 
     conn = dbi.connect()
-    party = db_queries.get_party_info(conn, cpid)
-    members = db_queries.get_party_members(conn, cpid)
-    connections = db_queries.get_party_invite_options(conn, session['pid'], cpid, limit=10)
-    conn.close()
-
-    return render_template(
-        "view_party.html",
-        page_title='View Party Page',
-        party=party,
-        members=members,
-        connections=connections
-    )
+    try:
+        party = db_queries.get_party_info(conn, cpid)
+        members = db_queries.get_party_members(conn, cpid)
+        
+        #check if u are viewing a party u are in or not
+        user_in_party = any(m['pid'] == session['pid'] for m in members)
+        connections = db_queries.get_party_invite_options(conn, session['pid'], cpid) if user_in_party else []
+        
+        return render_template(
+            "view_party.html",
+            page_title='View Party Page',
+            party=party,
+            members=members,
+            connections=connections,
+            user_in_party=user_in_party
+        )
+    finally:
+        conn.close()
 
 @app.route("/api/party/<int:cpid>/charts")
 def party_charts(cpid):
