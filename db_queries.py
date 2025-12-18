@@ -19,7 +19,7 @@ def get_followers(conn, pid):
     """Get the users that the user's (with the pid) follows """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                SELECT p.pid, p.name, p.lc_username
+                SELECT p.pid, p.name, p.lc_username, p.username
                 FROM person p
                 JOIN connection c 
                 ON p.pid = c.p1   -- p1 are the people that follow you
@@ -35,7 +35,7 @@ def get_follows(conn, pid):
 
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                SELECT p.pid, p.name, p.lc_username
+                SELECT p.pid, p.name, p.lc_username, p.username
                 FROM person p
                 JOIN connection c 
                     ON p.pid = c.p2  -- p2 are the people you follow
