@@ -24,11 +24,18 @@
         {% if loggedin %}
         <a class="btn" name="action" value="edit_profile" href="{{ url_for('edit_profile', pid=profile.pid) }}">
             Edit Profile
-       </a>
+       </a> 
 
-        <a class="btn" href="{{ url_for('refresh_profile', pid=profile.pid, lc_username=profile.lc_username) }}">
-            Refresh Leetcode Stats
-        </a>
+       <br><br>
+        <form method="POST" action="{{ url_for('refresh_my_stats', next=url_for('profile', pid=profile.pid)) }}"
+            onsubmit="this.querySelector('button').disabled = true;
+                        this.querySelector('button').innerText = 'Refreshing…';
+                        document.body.style.cursor='wait';">
+            <button type="submit" class="btn">
+                Refresh Leetcode Stats
+            </button>
+        </form>
+
         {% if profile.last_refreshed %}
             <p><em>Last refreshed: {{ profile.last_refreshed.strftime("%b %d, %Y %H:%M") }}</em></p>
         {% else %}
@@ -76,17 +83,5 @@
             {% endfor %}
         </ul>
     </div>
-    
-<script>
-    
-document.addEventListener("DOMContentLoaded", () => {
-    const refreshLink = document.querySelector("a.btn[href*='refresh_profile']");
-    if (refreshLink) {
-        refreshLink.addEventListener("click", () => {
-            document.body.style.cursor = "wait";
-        });
-    }
-});
-</script>
 </div>
 {% endblock %}

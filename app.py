@@ -169,6 +169,8 @@ def refresh_my_stats():
 @app.route('/refresh-profile/<pid>/<lc_username>')
 def refresh_profile(pid: int, lc_username: str):
     """
+    NOTE: this route alolows you to refresh anyone's profile with its unique link, 
+    currently deprecated use for preferred refresh_my_stats. 
     Fetch a user's recent accepted submissions from LeetCode and insert
     new (pid, lc_problem) rows into 'submission'.
 
