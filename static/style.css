@@ -115,6 +115,7 @@ body {
     border: 2px solid var(--color-border);
     background-color: var(--color-button);
     color: var(--color-light);
+    font-size: 1em;
 }
 
 .btn:hover {
@@ -127,6 +128,7 @@ body {
     border-color: var(--color-alert);
     background-color: var(--color-alert);
     color: var(--color-light);
+    padding: 0.3rem 0.9rem;   
 }
 .btn-primary:hover {
     background-color: var(--color-light-hover);
@@ -308,11 +310,6 @@ fieldset {
     gap: 1rem;
 }
 
-.welcome-actions .btn-primary {
-    font-size: 0.875rem;    
-    line-height: 1.1rem;
-    padding: 0.5rem 1rem;
-}
 
 /* -------------------------
    Leaderboard

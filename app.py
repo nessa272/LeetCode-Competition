@@ -27,13 +27,15 @@ def index():
         pid = session['pid']
         username = db_queries.get_profile(conn, pid)
         leaderboard = db_queries.get_leaderboard(conn, limit=10)
+        problems_today = db_queries.get_problems_solved_today(conn, pid)
         conn.close()
 
         return render_template(
             'main.html',
             page_title='Main Page',
             username=username['username'],
-            leaderboard=leaderboard
+            leaderboard=leaderboard,
+            problems_today=problems_today
         )
     
     return render_template("login.html", page_title='Login Page')
@@ -123,6 +125,33 @@ def edit_profile(pid):
         finally:
             conn.close()
         return redirect(url_for('profile', pid=pid))
+
+@app.route('/refresh-stats', methods=['POST'])
+def refresh_my_stats():
+    """Refreshes ONLY the signed in user stats. This allows for a post button
+    to work for any page this button needs to be implemented on. """
+    # Get current user from session
+    if 'pid' not in session:
+        return redirect(url_for('login'))
+
+    conn = dbi.connect()
+    try:
+        #get lc username for this SIGNED IN person
+        profile = db_queries.get_profile(conn, session['pid'])
+        lc_username = profile['lc_username']
+        #refresh their submissions
+        num_submissions = refresh_user_submissions(conn, session['pid'], lc_username)
+        conn.commit()
+        print(f"{num_submissions} submissions added to database for username {lc_username}")
+    except Exception as e:
+        conn.rollback()
+    finally:
+        conn.close()
+
+    # Redirect back to wherever the request came from, passed in by the html
+    # TEMPORARY solution whilst not pursuing ajax for the sake of time.
+    next_url = request.args.get("next")
+    return redirect(next_url or url_for('index'))
 
 @app.route('/refresh-profile/<pid>/<lc_username>')
 def refresh_profile(pid: int, lc_username: str):
