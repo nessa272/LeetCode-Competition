@@ -7,11 +7,6 @@
       <!-- LEFT COLUMN: existing info/controls -->
       <div class="left-col">
         <h1>{{ party.name }}</h1>
-  {% if party %}
-    <div class="dashboard-grid">
-      <!-- LEFT COLUMN: existing info/controls -->
-      <div class="left-col">
-        <h1>{{ party.name }}</h1>
 
         <h2>Party Details</h2>
         <p><strong>Goal:</strong> {{ party.party_goal }} problems</p>
@@ -55,18 +50,13 @@
           {% endfor %}
         </ul>
 
-
         <a class="btn" href="{{ url_for('refresh_party', cpid=party.cpid) }}">
-          Refresh Full Party Stats
           Refresh Full Party Stats
         </a>
 
-
         {% if party.last_bulk_refresh %}
           <p>Last refreshed for this party: {{ party.last_bulk_refresh }}</p>
-          <p>Last refreshed for this party: {{ party.last_bulk_refresh }}</p>
         {% else %}
-          <p>No refresh yet.</p>
           <p>No refresh yet.</p>
         {% endif %}
 
@@ -220,10 +210,6 @@
       loadCharts();
     </script>
 
-  {% else %}
-    <h2>You are not in any party yet.</h2>
-    <a href="{{ url_for('create_party') }}" class="btn btn-primary mt-3">Create a Party</a>
-  {% endif %}
   {% else %}
     <h2>You are not in any party yet.</h2>
     <a href="{{ url_for('create_party') }}" class="btn btn-primary mt-3">Create a Party</a>
