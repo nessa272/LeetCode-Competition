@@ -41,36 +41,55 @@
     <!-- RIGHT COLUMN -->
     <div class="right-col">
         <h2>Followers</h2>
-        <ul class="friend-list">
+        <ul>
             {% for follower in followers %}
                 <li>
-                    <a href="{{ url_for('profile', pid=follower.pid) }}">
-                         {{ follower.name }} ({{ follower.lc_username }})
-                         {% if loggedin: %}
-                        {% endif %}
-                    </a>
-               </li>
-            {% endfor %}
-        </ul>
-    </div>
-<script>
-</script>
-    <!-- RIGHT COLUMN -->
-    <div class="right-col">
-        <h2>Following</h2>
-        <ul class="friend-list">
-            {% for followed_user in follows %}
-                <li>
-                    <!-- Profile link -->
-                    <a href="{{ url_for('profile', pid=followed_user.pid) }}">
-                        {{ followed_user.name }} ({{ followed_user.lc_username }})
-                    </a>
+                    <div class="user-wrapper people-user-cell" tabindex="0">
+                        <!-- Name triggers popover -->
+                        <span>{{ follower.name }} ({{ follower.lc_username }})</span>
+
+                        <!-- Popover -->
+                        <div class="user-popover">
+                            <a href="{{ url_for('profile', pid=follower.pid) }}">
+                                View LeetParty Profile
+                            </a>
+                            <a href="https://leetcode.com/u/{{ follower.lc_username }}/"
+                            target="_blank" rel="noopener">
+                                View LeetCode Profile
+                            </a>
+                        </div>
+                    </div>
                 </li>
             {% endfor %}
         </ul>
     </div>
-<script>
 
-</script>
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+        <h2>Following</h2>
+        <ul>
+            {% for followed_user in follows %}
+                <li>
+                    <div class="user-wrapper people-user-cell" tabindex="0">
+                        <!-- Name triggers popover -->
+                        <span>{{ followed_user.name }} ({{ followed_user.lc_username }})</span>
+
+                        <!-- Popover -->
+                        <div class="user-popover">
+                            <a href="{{ url_for('profile', pid=followed_user.pid) }}">
+                                View LeetParty Profile
+                            </a>
+                            <a href="https://leetcode.com/u/{{ followed_user.lc_username }}/"
+                            target="_blank" rel="noopener">
+                                View LeetCode Profile
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
 </div>
 {% endblock %}
