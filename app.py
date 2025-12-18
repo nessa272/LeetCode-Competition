@@ -554,6 +554,7 @@ def my_parties():
 
     conn = dbi.connect()
     all_parties = db_queries.get_parties_for_user(conn, session['pid'])
+    mutual_parties = db_queries.get_upcoming_mutual_parties(conn, session['pid'])
     conn.close()
 
     current = [p for p in all_parties if p['status'] == 'in_progress']
@@ -604,7 +605,8 @@ def my_parties():
         page_title='My Parties Page',
         current_parties=current,
         upcoming_parties=upcoming,
-        completed_parties=completed
+        completed_parties=completed,
+        mutual_parties=mutual_parties
     )
 
 @app.route('/party/<int:cpid>/refresh')
