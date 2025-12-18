@@ -566,14 +566,7 @@ fieldset {
 }
 
 /* View party member/user lists CSS - also used for find friends */
-.party-list li {
-    display: flex;
-    align-items: center;
-    padding: 2px 0;
-    gap: 6px;
-}
-
-.party-user-cell {
+.people-user-cell {
     display: inline-flex;        /* shrink to fit content */
     align-items: center;         /* vertically center text and button */
     gap: 6px;                    /* spacing between name and button */
@@ -583,11 +576,11 @@ fieldset {
     color: var(--color-link);
 }
 
-.party-user-cell .btn {
+.people-user-cell .btn {
     margin-left: auto; /* pushes button to right if you want alignment */
 }
 
-.party-user-cell:hover {
+.people-user-cell:hover {
     background-color: var(--color-text-light);
     border-radius: 6px; 
 }

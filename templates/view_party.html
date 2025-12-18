@@ -19,9 +19,9 @@
         <ul>
           {% for member in members %}
             <li>
-              <div class="user-wrapper party-user-cell" tabindex="0">
+              <div class="user-wrapper people-user-cell" tabindex="0">
                 <!-- Clickable name that triggers the popover -->
-                <div class="user-cell">
+                <div class="people-user-cell">
                   <span>{{ member.name }} ({{ member.username }})</span>
                 </div>
 
@@ -65,8 +65,8 @@
         <h3>Invite Connections</h3>
         {% if connections %}
           {% for user in connections %}
-            <div class="user-wrapper party-user-cell" tabindex="0">
-              <div class="user-cell">
+            <div class="user-wrapper people-user-cell" tabindex="0">
+              <div class="people-user-cell">
                   <span>{{ user.name }} ({{ user.username }})</span>
               </div>
 
