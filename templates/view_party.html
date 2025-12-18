@@ -5,7 +5,15 @@
     <div class="dashboard-grid">
       <!-- LEFT COLUMN: existing info/controls -->
       <div class="left-col">
-        <h1>{{ party.name }}</h1>
+        <!-- format side by side party header and join party button if exists -->
+        <div class="party-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <h1 style="margin: 0;">{{ party.name }}</h1>
+          {% if not user_in_party %}
+          <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
+              <button class="btn btn-primary">Join Party</button>
+          </form>
+          {% endif %}
+        </div>
         <a href="{{ url_for('my_parties') }}">
             Return to My Code Parties
         </a>
@@ -38,15 +46,16 @@
                       View LeetCode Profile
                   </a>
               </div>
-
-                {% if member.pid != session['pid'] %}
-                <!-- Remove button stays inside the wrapper -->
-                <form method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
-                  <input type="hidden" name="pid" value="{{ member.pid }}">
-                  <button class="btn btn-sm" type="submit">Remove</button>
-                </form>
-                {% else %}
-                <span>(You)</span>
+                {% if user_in_party %}      
+                  {% if member.pid != session['pid'] %}
+                  <!-- Remove button stays inside the wrapper -->
+                  <form method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
+                    <input type="hidden" name="pid" value="{{ member.pid }}">
+                    <button class="btn btn-sm" type="submit">Remove</button>
+                  </form>
+                  {% else %}
+                  <span>(You)</span>
+                  {% endif %}
                 {% endif %}
               </div>
             </li>
@@ -65,34 +74,40 @@
 
         <hr>
 
-        <h2>Invite Connections</h2>
-        {% if connections %}
-          {% for user in connections %}
-            <div class="user-wrapper people-user-cell" tabindex="0">
-              <div class="people-user-cell">
-                  <span>{{ user.name }} ({{ user.username }})</span>
-              </div>
+        {% if user_in_party %}
+          <h3>Invite Connections</h3>
+          {% if connections %}
+          <ul class="people-list">
+            {% for user in connections %}
+              <li>
+                <div class="user-wrapper people-user-cell" tabindex="0">
+                  <div class="people-user-cell">
+                      <span>{{ user.name }} ({{ user.username }})</span>
+                  </div>
 
-              <div class="user-popover">
-                  <a href="{{ url_for('profile', pid=user.pid) }}">
-                      View LeetParty Profile
-                  </a>
+                  <div class="user-popover">
+                      <a href="{{ url_for('profile', pid=user.pid) }}">
+                          View LeetParty Profile
+                      </a>
 
-                  <a href="https://leetcode.com/u/{{ user.lc_username }}/"
-                  target="_blank" rel="noopener">
-                      View LeetCode Profile
-                  </a>
-              </div>
+                      <a href="https://leetcode.com/u/{{ user.lc_username }}/"
+                        target="_blank" rel="noopener">
+                          View LeetCode Profile
+                      </a>
+                  </div>
 
-              <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
-                <input type="hidden" name="pid" value="{{ user.pid }}">
-                <button class="btn btn-sm" type="submit">Add</button>
-              </form>
-            </div>
-          {% endfor %}
-        {% else %}
+                  <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
+                    <input type="hidden" name="pid" value="{{ user.pid }}">
+                    <button class="btn btn-sm" type="submit">Add</button>
+                  </form>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+          {% else %}
           <p>No connections available to invite.</p>
-        {% endif %}
+          {% endif %}
+          {% endif %}
 
       </div>
 
