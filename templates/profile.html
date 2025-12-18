@@ -44,6 +44,25 @@
 
         <a class="btn" href="{{ url_for('logout') }}">Log Out</a>
         {% endif %}
+
+        <!--get option to unfollow/follow for the person's page you're on-->
+        {% if loggedin != None and not loggedin and not is_following %}
+        <!--first check if has session, then check if its your own page, then check you follow-->
+        <form action="{{ url_for('profile', pid=profile.pid) }}" 
+            method="POST" 
+            style="display:inline;">
+            <input type="hidden" name="follow_friend_out" value="{{ profile.pid }}">
+            <button type="submit" class="btn" name="action" value="Follow_out">Follow</button>
+        </form>
+        {% endif %}
+        {% if loggedin != None and not loggedin and is_following %}
+        <form action="{{ url_for('profile', pid=profile.pid) }}" 
+            method="POST" 
+            style="display:inline;">
+            <input type="hidden" name="unfollow_friend_out" value="{{ profile.pid }}">
+            <button type="submit" class="btn" name="action" value="Unfollow_out">Unfollow</button>
+        </form>
+        {% endif %}
     </div>
 
     <!-- RIGHT COLUMN -->

@@ -46,6 +46,22 @@ def get_follows(conn, pid):
     curs.close()
     return result
 
+
+def is_following(conn, follower_id, followed_id):
+    """
+    Returns 1 (in dictionary) if follower_id is following followed_id, returns None otherwise.
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    SELECT 1
+    FROM connection
+    WHERE p1 = %s AND p2 = %s''', 
+    [follower_id, followed_id])
+    result = curs.fetchone()
+    curs.close()
+    return result
+
+
 def find_friends(conn, pid):
     """Find people who the user (pid) is NOT connected to"""
     curs = dbi.dict_cursor(conn)
