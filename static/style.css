@@ -63,13 +63,15 @@ body {
 }
 
 /* Vertical rhythm for headings */
-.main-content h1,
+.main-content h1 {
+    margin-bottom:1rem;
+}
 .main-content h2,
 .main-content h3,
 .main-content h4,
 .main-content h5,
 .main-content h6 {
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
 }
 
 /* Base spacing for paragraphs and lists */

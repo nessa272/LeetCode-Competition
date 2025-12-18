@@ -9,6 +9,7 @@
         <a href="{{ url_for('my_parties') }}">
             Return to My Code Parties
         </a>
+        <hr>
 
         <h2>Party Details</h2>
         <p><strong>Goal:</strong> {{ party.party_goal }} problems</p>
@@ -17,7 +18,7 @@
 
         <hr>
 
-        <h3>Current Members</h3>
+        <h2>Current Members</h2>
         <ul>
           {% for member in members %}
             <li>
@@ -64,7 +65,7 @@
 
         <hr>
 
-        <h3>Invite Connections</h3>
+        <h2>Invite Connections</h2>
         {% if connections %}
           {% for user in connections %}
             <div class="user-wrapper people-user-cell" tabindex="0">
