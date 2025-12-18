@@ -503,3 +503,59 @@ fieldset {
 }
 
 
+/* -------------------------
+   Party Cards / Full-width Rows
+--------------------------- */
+.party-card {
+    display: block;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.party-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    box-sizing: border-box; 
+    cursor: pointer;
+    background-color: var(--color-border);
+    color: var(--color-light);
+    border-radius: 6px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.party-card .card-header .card-title {
+    color: var(--color-light);
+}
+
+.party-card .card-body {
+    overflow: hidden;
+    max-height: 1000px;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.party-card .card-body.collapsed {
+    max-height: 0;
+    padding: 0;
+}
+
+.party-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem; /* <-- padding prevents text from getting cut */
+    box-sizing: border-box; /* ensures padding is included in width */
+    text-decoration: none;
+    color: inherit;
+    background-color: var(--color-light);
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
