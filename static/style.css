@@ -135,6 +135,12 @@ body {
     color: var(--color-text);
 }
 
+.btn-sm {
+    padding: 0.25rem 0.5rem;  
+    font-size: 0.8em;  
+    border-radius: 4px;
+    vertical-align: middle;
+}
 
 #profile-columns {
     display: flex;
@@ -557,4 +563,30 @@ fieldset {
     background-color: var(--color-light);
     border-bottom: 1px solid var(--color-border);
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+/* View party member/user lists CSS */
+.party-list li {
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+    gap: 6px;
+}
+
+.party-user-cell {
+    display: inline-flex;        /* shrink to fit content */
+    align-items: center;         /* vertically center text and button */
+    gap: 6px;                    /* spacing between name and button */
+    padding: 2px 4px;            /* optional inner spacing */
+    border-radius: 6px;          /* nice rounded corners on hover */
+    cursor: pointer;             /* hover effect */
+}
+
+.party-user-cell .btn {
+    margin-left: auto; /* pushes button to right if you want alignment */
+}
+
+.party-user-cell:hover {
+    background-color: var(--color-text-light);
+    border-radius: 6px; /* optional for rounded edges */
 }

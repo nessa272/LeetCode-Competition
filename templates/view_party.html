@@ -19,15 +19,33 @@
         <ul>
           {% for member in members %}
             <li>
-              {{ member.name }} ({{ member.username }})
-              {% if member.pid != session['pid'] %}
-                <form style="display:inline" method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
+              <div class="user-wrapper party-user-cell" tabindex="0">
+                <!-- Clickable name that triggers the popover -->
+                <div class="user-cell">
+                  <span>{{ member.name }} ({{ member.username }})</span>
+                </div>
+
+                <div class="user-popover">
+                  <a href="{{ url_for('profile', pid=member.pid) }}">
+                      View LeetParty Profile
+                  </a>
+
+                  <a href="https://leetcode.com/u/{{ member.lc_username }}/"
+                  target="_blank" rel="noopener">
+                      View LeetCode Profile
+                  </a>
+              </div>
+
+                {% if member.pid != session['pid'] %}
+                <!-- Remove button stays inside the wrapper -->
+                <form method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
                   <input type="hidden" name="pid" value="{{ member.pid }}">
-                  <button type="submit">Remove</button>
+                  <button class="btn btn-sm" type="submit">Remove</button>
                 </form>
-              {% else %}
-                (You)
-              {% endif %}
+                {% else %}
+                <span>(You)</span>
+                {% endif %}
+              </div>
             </li>
           {% endfor %}
         </ul>
@@ -47,11 +65,27 @@
         <h3>Invite Connections</h3>
         {% if connections %}
           {% for user in connections %}
-            <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
-              <input type="hidden" name="pid" value="{{ user.pid }}">
-              <label>{{ user.lc_username }}</label>
-              <button type="submit">Add</button>
-            </form>
+            <div class="user-wrapper party-user-cell" tabindex="0">
+              <div class="user-cell">
+                <span>{{ user.lc_username }}</span>
+              </div>
+
+              <div class="user-popover">
+                  <a href="{{ url_for('profile', pid=user.pid) }}">
+                      View LeetParty Profile
+                  </a>
+
+                  <a href="https://leetcode.com/u/{{ user.lc_username }}/"
+                  target="_blank" rel="noopener">
+                      View LeetCode Profile
+                  </a>
+              </div>
+
+              <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
+                <input type="hidden" name="pid" value="{{ user.pid }}">
+                <button class="btn btn-sm" type="submit">Add</button>
+              </form>
+            </div>
           {% endfor %}
         {% else %}
           <p>No connections available to invite.</p>
