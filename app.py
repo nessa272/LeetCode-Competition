@@ -77,7 +77,7 @@ def profile(pid):
         pid2 = request.form.get('unfollow_friend')
         friend_name = db_queries.get_profile(conn, pid2)
         print(pid2)
-        flash('Unfollowing %s' % (friend_name['lc_username']))
+        flash('Unfollowing %s' % (friend_name['username']))
         try:
             db_queries.unfollow(conn, pid, pid2)
             conn.commit()
@@ -515,7 +515,7 @@ def find_friends():
 
                 friend_name = db_queries.get_profile(conn, pid2)
 
-                flash('Following %s' % (friend_name['lc_username']))
+                flash('Following %s' % (friend_name['username']))
 
                 #make connection 
                 try:
