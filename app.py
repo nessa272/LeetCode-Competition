@@ -45,13 +45,10 @@ def index():
         problems_today = db_queries.get_problems_solved_today(conn, pid)
         conn.close()
 
-        print(f'user: {user}')
-        print(f'user filename: {user['filename']}')
-
         return render_template(
             'main.html',
             page_title='Main Page',
-            username=username['username'],
+            username=user['username'],
             leaderboard=leaderboard,
             problems_today=problems_today
         )
@@ -78,12 +75,6 @@ def profile(pid):
         else:
             loggedin = None
                                    
-        #check if this is your profile or someone elses
-        if "pid" in session:
-            loggedin = (str(pid) == str(session.get('pid')))
-        else:
-            loggedin = None
-                                   
         # query profile info
         conn=dbi.connect()
         profile = db_queries.get_profile(conn, pid) 
@@ -94,14 +85,7 @@ def profile(pid):
         #check if the session_pid is following this profile user
         isfollowing = db_queries.is_following(conn, session.get('pid'), pid)
 
-
-        #check if the session_pid is following this profile user
-        isfollowing = db_queries.is_following(conn, session.get('pid'), pid)
-
         conn.close()
-
-        
-
         
         # show profile
         return render_template('profile.html', page_title='Profile Page', 
@@ -109,13 +93,7 @@ def profile(pid):
                                loggedin= loggedin, 
                                session_pid = session.get('pid'),
                                is_following = isfollowing)
-        return render_template('profile.html', page_title='Profile Page', 
-                               profile=profile, followers=followers, follows=follows, 
-                               loggedin= loggedin, 
-                               session_pid = session.get('pid'),
-                               is_following = isfollowing)
     # else POST
-    
     
     conn=dbi.connect()
     profile = db_queries.get_profile(conn, pid) 
@@ -125,14 +103,11 @@ def profile(pid):
     #print('pid' not in session)
 
     #unfollows someone from your friends list (on your page)
-
-    #unfollows someone from your friends list (on your page)
     # TO DO: Will add edit_profile and refresh_stats as other actions
     if action == "Unfollow":
         pid2 = request.form.get('unfollow_friend')
         friend_name = db_queries.get_profile(conn, pid2)
         print(pid2)
-        flash('Unfollowing %s' % (friend_name['username']))
         flash('Unfollowing %s' % (friend_name['username']))
         try:
             db_queries.unfollow(conn, pid, pid2)
@@ -143,45 +118,6 @@ def profile(pid):
         finally:
             conn.close()
         #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
-    
-    #unfollow looking from a diff page
-    elif action == "Unfollow_out":
-        #double check session
-        if 'pid' not in session:
-            flash("You must be logged in to unfollow")
-            return redirect(url_for("login"))
-        
-        #flash message
-        friend_name = db_queries.get_profile(conn, pid)
-        flash('Unfollowing %s' % (friend_name['username']))
-
-        try:
-            db_queries.unfollow(conn, session.get('pid'), pid)
-            conn.commit()
-            return redirect(url_for('profile', pid=pid))
-        except Exception:
-            conn.rollback()
-        finally:
-            conn.close()
-    
-    elif action == "Follow_out":
-        if 'pid' not in session:
-            flash("You must be logged in to follow")
-            return redirect(url_for("login"))
-        
-        #flash message
-        friend_name = db_queries.get_profile(conn, pid)
-        flash('Following %s' % (friend_name['username']))
-
-        try:
-            db_queries.follow(conn, session.get('pid'), pid)
-            conn.commit()
-            return redirect(url_for('profile', pid=pid))
-        except Exception:
-            conn.rollback()
-        finally:
-            conn.close()
-    
     
     #unfollow looking from a diff page
     elif action == "Unfollow_out":
@@ -250,53 +186,6 @@ def edit_profile(pid):
                                follows=follows, 
                                loggedin= (str(pid) == str(session['pid'])))
     elif request.method =="POST":
-        action = request.form.get('action')
-        #print(action)
-        if action == "update":
-            #print("update")
-            #get form info
-            name = request.form.get('name')
-            username = request.form.get('username')
-            conn = dbi.connect()
-            try:
-                db_queries.edit_profile(conn, pid, name, username)
-                conn.commit()
-            except Exception:
-                conn.rollback()
-            finally:
-                conn.close()
-            return redirect(url_for('profile', pid=pid))
-        
-        #cancel button
-        else:
-            return redirect(url_for('profile', pid=pid))
-
-@app.route('/refresh-stats', methods=['POST'])
-def refresh_my_stats():
-    """Refreshes ONLY the signed in user stats. This allows for a post button
-    to work for any page this button needs to be implemented on. """
-    # Get current user from session
-    if 'pid' not in session:
-        return redirect(url_for('login'))
-
-    conn = dbi.connect()
-    try:
-        #get lc username for this SIGNED IN person
-        profile = db_queries.get_profile(conn, session['pid'])
-        lc_username = profile['lc_username']
-        #refresh their submissions
-        num_submissions = refresh_user_submissions(conn, session['pid'], lc_username)
-        conn.commit()
-        print(f"{num_submissions} submissions added to database for username {lc_username}")
-    except Exception as e:
-        conn.rollback()
-    finally:
-        conn.close()
-
-    # Redirect back to wherever the request came from, passed in by the html
-    # TEMPORARY solution whilst not pursuing ajax for the sake of time.
-    next_url = request.args.get("next")
-    return redirect(next_url or url_for('index'))
         action = request.form.get('action')
         #print(action)
         if action == "update":
@@ -599,23 +488,6 @@ def view_party(cpid):
         members=members,
         connections=connections
     )
-
-@app.route("/api/party/<int:cpid>/charts")
-def party_charts(cpid):
-    if 'pid' not in session:
-        return jsonify({"error": "not logged in"}), 401
-
-    conn = dbi.connect()
-    submissions = db_queries.get_party_submissions(conn, cpid)
-    party_info = db_queries.get_party_info(conn, cpid)
-    conn.close()
-
-    data = build_chart_data(submissions, party_info['party_goal'])
-
-    if party_info and "progress" in data:
-        data["progress"]["goal"] = int(party_info["party_goal"])  # or party.party_goal depending on row type
-
-    return jsonify(data)
 
 @app.route("/api/party/<int:cpid>/charts")
 def party_charts(cpid):
