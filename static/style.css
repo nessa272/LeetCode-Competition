@@ -13,7 +13,9 @@ HTML {
     --color-link: #a84a40;
     --color-hover: #e38f84;
     --color-light-hover: #fad5d0;
+    --color-light-hover: #fad5d0;
     --color-background:var(--color-light);
+    --color-grey: #777;
     --color-grey: #777;
 }
 
@@ -89,14 +91,21 @@ body {
 }
 
 /*Buttons*/
+/*Buttons*/
 .btn {
     display: inline-block;
+    padding: 0.6rem 1.1rem;   
     padding: 0.6rem 1.1rem;   
     border-radius: 6px;
     font-weight: bold;
     text-decoration: none;
     cursor: pointer;
+    cursor: pointer;
     transition: 0.2s ease-in-out;
+    border: 2px solid var(--color-border);
+    background-color: var(--color-button);
+    color: var(--color-light);
+    font-size: 1em;
     border: 2px solid var(--color-border);
     background-color: var(--color-button);
     color: var(--color-light);
@@ -120,6 +129,12 @@ body {
     color: var(--color-text);
 }
 
+.btn-sm {
+    padding: 0.25rem 0.5rem;  
+    font-size: 0.8em;  
+    border-radius: 4px;
+    vertical-align: middle;
+}
 
 #profile-columns {
     display: flex;
@@ -159,6 +174,7 @@ body {
     object-fit: cover;
     cursor: pointer;
     border: 2px solid var(--color-border);
+    background-color: var(--color-background);
     transition: 0.2s ease-in-out;
 }
 
@@ -170,6 +186,11 @@ a:not(.btn) {
 a:not(.btn):hover {
     text-decoration: underline;
 }
+
+
+/* -------------------------
+   NAVBAR + Dropdown
+--------------------------- */
 
 
 /* -------------------------
@@ -300,6 +321,62 @@ fieldset {
    Leaderboard
 --------------------------- */
 
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+/* -------------------------
+   Cards
+--------------------------- */
+
+.content-card {
+    background: var(--color-light);
+    border: 2px solid var(--color-border);
+    border-radius: 8px; 
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.welcome-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.leaderboard-card {
+    padding: 0.5rem 0;
+}
+
+
+/* -------------------------
+   Homepage styling
+--------------------------- */
+.welcome-text h2 {
+    margin: 0 0 0.3rem 0;
+}
+
+.welcome-text p {
+    margin: 0;
+    color: var(--color-grey);
+}
+
+.welcome-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+
+/* -------------------------
+   Leaderboard
+--------------------------- */
+
 .leaderboard-title {
     margin-top: 2rem;
     margin-bottom: 1rem;
@@ -311,7 +388,19 @@ fieldset {
     width: 100%;
     border-collapse: separate;
     margin: 10px;
+    border-collapse: separate;
+    margin: 10px;
     font-size: 1.1rem;
+    border-spacing: 0;
+}
+/* Header */
+.leaderboard-table thead th {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-border);
+    padding: 1rem;
+    background: var(--color-light);
+    text-align: left;
     border-spacing: 0;
 }
 /* Header */
@@ -329,7 +418,19 @@ fieldset {
 }
 
 /* Cells */
+.leaderboard-table tbody tr:hover {
+    background: var(--color-text-light);
+}
+
+/* Cells */
 .leaderboard-table td {
+    padding: 1.2rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+/* Remove last divider */
+.leaderboard-table tbody tr:last-child td {
+    border-bottom: none;
     padding: 1.2rem 1rem;
     border-bottom: 1px solid #eee;
 }
@@ -342,15 +443,20 @@ fieldset {
 .rank-col {
     font-weight: 700;
     text-align: left;
+    font-weight: 700;
+    text-align: left;
 }
 
 .user-col {
+    font-weight: 500;
+    text-align: left;
     font-weight: 500;
     text-align: left;
 }
 
 .coins-col {
     font-weight: 700;
+    text-align: left;
     text-align: left;
 }
 
@@ -487,3 +593,443 @@ fieldset {
 }
 
 
+/* -------------------------
+   Party Cards / Full-width Rows
+--------------------------- */
+.party-card {
+    display: block;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.party-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    box-sizing: border-box; 
+    cursor: pointer;
+    background-color: var(--color-border);
+    color: var(--color-light);
+    border-radius: 6px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.party-card .card-header .card-title {
+    color: var(--color-light);
+}
+
+.party-card .card-body {
+    overflow: hidden;
+    max-height: 1000px;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.party-card .card-body.collapsed {
+    max-height: 0;
+    padding: 0;
+}
+
+.party-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem; /* <-- padding prevents text from getting cut */
+    box-sizing: border-box; /* ensures padding is included in width */
+    text-decoration: none;
+    color: inherit;
+    background-color: var(--color-light);
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+/* -------------------------
+   Clickable user popover
+--------------------------- */
+.user-wrapper {
+    position: relative;
+    outline: none;
+}
+
+.user-cell {
+    /* clickable row */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.user-popover {
+    /* hidden by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    background: var(--color-light);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 8px;
+    width: 160px;
+    display: none;
+    z-index: 10;
+}
+
+.user-wrapper:focus-within .user-popover { 
+/* show when focused */
+    display: block;
+}
+
+.user-popover a {
+    display: block;
+    padding: 4px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+.user-popover a:hover {
+    background: var(--color-text-light);
+}
+
+.leetcode-username {
+    font-size: 0.85em;
+    color: var(--color-grey);
+}
+
+/* =========================
+   View Party Dashboard
+   ========================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Stack columns on small screens */
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cardish {
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: white;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+}
+
+.progress-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.progress-outer {
+  flex: 1;
+  height: 14px;
+  background: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-inner {
+  height: 100%;
+  width: 0%;
+  background: var(--color-header);
+  transition: width 250ms ease;
+}
+
+.muted {
+  color:var(--color-text);
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+
+/* -------------------------
+   Party Cards / Full-width Rows
+--------------------------- */
+.party-card {
+    display: block;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.party-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    box-sizing: border-box; 
+    cursor: pointer;
+    background-color: var(--color-border);
+    color: var(--color-light);
+    border-radius: 6px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.party-card .card-header .card-title {
+    color: var(--color-light);
+}
+
+.party-card .card-body {
+    overflow: hidden;
+    max-height: 1000px;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.party-card .card-body.collapsed {
+    max-height: 0;
+    padding: 0;
+}
+
+.party-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem; /* <-- padding prevents text from getting cut */
+    box-sizing: border-box; /* ensures padding is included in width */
+    text-decoration: none;
+    color: inherit;
+    background-color: var(--color-light);
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+/* View party member/user lists CSS - also used for find friends */
+.people-user-cell {
+    display: inline-flex;        /* shrink to fit content */
+    align-items: center;         /* vertically center text and button */
+    gap: 6px;                    /* spacing between name and button */
+    padding: 2px 4px;            /* optional inner spacing */
+    border-radius: 6px;          /* nice rounded corners on hover */
+    cursor: pointer;             /* hover effect */
+    color: var(--color-link);
+}
+
+.people-user-cell .btn {
+    margin-left: auto; /* pushes button to right if you want alignment */
+}
+
+.people-user-cell:hover {
+    background-color: var(--color-text-light);
+    border-radius: 6px; 
+}
+
+/* -------------------------
+   Clickable user popover
+--------------------------- */
+.user-wrapper {
+    position: relative;
+    outline: none;
+}
+
+.user-cell {
+    /* clickable row */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.user-popover {
+    /* hidden by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    background: var(--color-light);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    padding: 8px;
+    width: 160px;
+    display: none;
+    z-index: 10;
+}
+
+.user-wrapper:focus-within .user-popover { 
+/* show when focused */
+    display: block;
+}
+
+.user-popover a {
+    display: block;
+    padding: 4px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+.user-popover a:hover {
+    background: var(--color-text-light);
+}
+
+.leetcode-username {
+    font-size: 0.85em;
+    color: var(--color-grey);
+}
+
+/* =========================
+   View Party Dashboard
+   ========================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Stack columns on small screens */
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cardish {
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: white;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+}
+
+.progress-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.progress-outer {
+  flex: 1;
+  height: 14px;
+  background: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-inner {
+  height: 100%;
+  width: 0%;
+  background: var(--color-header);
+  transition: width 250ms ease;
+}
+
+.muted {
+  color:var(--color-text);
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+
+/* -------------------------
+   Party Cards / Full-width Rows
+--------------------------- */
+.party-card {
+    display: block;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.party-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    box-sizing: border-box; 
+    cursor: pointer;
+    background-color: var(--color-border);
+    color: var(--color-light);
+    border-radius: 6px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.party-card .card-header .card-title {
+    color: var(--color-light);
+}
+
+.party-card .card-body {
+    overflow: hidden;
+    max-height: 1000px;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.party-card .card-body.collapsed {
+    max-height: 0;
+    padding: 0;
+}
+
+.party-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.8rem 1rem; /* <-- padding prevents text from getting cut */
+    box-sizing: border-box; /* ensures padding is included in width */
+    text-decoration: none;
+    color: inherit;
+    background-color: var(--color-light);
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+/* View party member/user lists CSS - also used for find friends */
+.people-user-cell {
+    display: inline-flex;        /* shrink to fit content */
+    align-items: center;         /* vertically center text and button */
+    gap: 6px;                    /* spacing between name and button */
+    padding: 2px 4px;            /* optional inner spacing */
+    border-radius: 6px;          /* nice rounded corners on hover */
+    cursor: pointer;             /* hover effect */
+    color: var(--color-link);
+}
+
+.people-user-cell .btn {
+    margin-left: auto; /* pushes button to right if you want alignment */
+}
+
+.people-user-cell:hover {
+    background-color: var(--color-text-light);
+    border-radius: 6px; 
+}

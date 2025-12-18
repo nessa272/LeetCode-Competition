@@ -7,9 +7,10 @@ def get_profile(conn, pid):
     """ Retrieve all information from a user's profile based on pid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 SELECT pid, name, username, lc_username, latest_submission, current_streak, longest_streak, total_problems, num_coins, personal_goal, last_refreshed
-                 FROM person
-                 WHERE pid = %s;
+                 SELECT person.pid, name, username, lc_username, latest_submission, current_streak, longest_streak, total_problems, num_coins, personal_goal, last_refreshed, filename
+                 FROM person left join picfile
+                 ON person.pid = picfile.pid
+                 WHERE person.pid = %s;
                  ''', [pid])
     result = curs.fetchone()
     curs.close()
@@ -19,7 +20,8 @@ def get_followers(conn, pid):
     """Get the users that the user's (with the pid) follows """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                SELECT p.pid, p.name, p.lc_username
+                SELECT p.pid, p.name, p.lc_username, p.username
+                SELECT p.pid, p.name, p.lc_username, p.username
                 FROM person p
                 JOIN connection c 
                 ON p.pid = c.p1   -- p1 are the people that follow you
@@ -35,7 +37,8 @@ def get_follows(conn, pid):
 
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                SELECT p.pid, p.name, p.lc_username
+                SELECT p.pid, p.name, p.lc_username, p.username
+                SELECT p.pid, p.name, p.lc_username, p.username
                 FROM person p
                 JOIN connection c 
                     ON p.pid = c.p2  -- p2 are the people you follow
@@ -45,6 +48,38 @@ def get_follows(conn, pid):
     result = curs.fetchall()
     curs.close()
     return result
+
+
+def is_following(conn, follower_id, followed_id):
+    """
+    Returns 1 (in dictionary) if follower_id is following followed_id, returns None otherwise.
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    SELECT 1
+    FROM connection
+    WHERE p1 = %s AND p2 = %s''', 
+    [follower_id, followed_id])
+    result = curs.fetchone()
+    curs.close()
+    return result
+
+
+
+def is_following(conn, follower_id, followed_id):
+    """
+    Returns 1 (in dictionary) if follower_id is following followed_id, returns None otherwise.
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    SELECT 1
+    FROM connection
+    WHERE p1 = %s AND p2 = %s''', 
+    [follower_id, followed_id])
+    result = curs.fetchone()
+    curs.close()
+    return result
+
 
 def find_friends(conn, pid):
     """Find people who the user (pid) is NOT connected to"""
@@ -108,6 +143,17 @@ def edit_profile(conn, pid, name, username):
     ''', [name, username, pid])
     curs.close()
 
+def upload_profile_pic(conn, pid, filename):
+    """
+    Inserts or updates filename of the uploaded profile picture of the user
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''insert into picfile(pid, filename)
+                    values (%s, %s)
+                    on duplicate key update 
+                    filename=%s''', [pid, filename, filename])
+    conn.commit()
+    curs.close()
 
 # Login/auth queries
 
@@ -183,7 +229,7 @@ def get_party_invite_options(conn, pid, cpid=None, limit=50):
             SELECT DISTINCT
                 p.pid,
                 p.name,
-                p.lc_username
+                p.username
             FROM person p
             JOIN connection c
             ON (c.p1 = %s AND c.p2 = p.pid)
@@ -301,6 +347,33 @@ def get_party_submissions(conn, cpid):
     return result
 
 
+def get_party_submissions(conn, cpid):
+    """
+    Returns all submissions made by members in the party with cpid
+    """
+    curs = dbi.dict_cursor(conn)
+    curs.execute(
+        '''
+        SELECT 
+            p.name, 
+            p.username, 
+            prob.difficulty,
+            sub.submission_date
+        FROM person p
+        INNER JOIN submission sub ON sub.pid = p.pid
+        INNER JOIN problem prob ON prob.lc_problem = sub.lc_problem
+        INNER JOIN party_membership mem ON mem.pid = p.pid
+        INNER JOIN code_party party ON party.cpid = mem.cpid
+        WHERE mem.cpid = %s
+        AND sub.submission_date >= party.party_start
+        AND sub.submission_date < party.party_end;
+        ''', [cpid]
+    )
+    result = curs.fetchall()
+    curs.close()
+    return result
+
+
 def remove_user_from_party(conn, pid, cpid):
     """Remove a user from a party"""
     curs = dbi.dict_cursor(conn)
@@ -361,8 +434,9 @@ def update_party_last_refreshed(conn, cpid):
 def get_leaderboard(conn, limit=10):
     curs = dbi.dict_cursor(conn)
     curs.execute("""
-        SELECT pid, username, lc_username, num_coins
-        FROM person
+        SELECT person.pid, username, lc_username, num_coins, filename
+        FROM person left join picfile
+        ON person.pid = picfile.pid
         ORDER BY num_coins DESC
         LIMIT %s
     """, [limit])
@@ -381,3 +455,12 @@ def get_problems_solved_today(conn, pid: int) -> int:
     )
     row = curs.fetchone()
     return row["problems_today"] if row else 0
+
+
+def get_profile_pic(conn, pid):
+    curs = dbi.dict_cursor(conn)
+    curs.execute("""
+                select filename
+                from picfile
+                where pid=%s""", [pid])
+    return curs.fetchone()

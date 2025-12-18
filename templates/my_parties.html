@@ -3,59 +3,85 @@
 {% block main_content %}
 <h1>My Code Parties</h1>
 
-<div class="dashboard-grid">
-  <div class="left-col">
-
-    <fieldset class="party-fieldset">
-      <legend>Current Parties</legend>
-      {% if current_parties %}
-        <ul>
-          {% for party in current_parties %}
-            <li>
-              <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
-              — Ends: {{ party.party_end }}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
+<!-- Current Parties (OPEN) -->
+<div class="party-card content-card">
+    <div class="card-header" onclick="toggleCard(this)">
+        <h2 class="card-title">Current Parties</h2>
+        <span class="arrow">▼</span>
+    </div>
+    <div class="card-body">
+        {% if current_parties %}
+            {% for party in current_parties %}
+            <a href="{{ url_for('view_party', cpid=party.cpid) }}" class="party-row">
+                <div class="party-left">{{ party.name }}</div>
+                <div class="party-right">{{ party.days_until_end }} day{% if party.days_until_end != 1 %}s{% endif %} left</div>
+                {% if party.word_rank %}
+                <div class="party-rank">You are in {{ party.word_rank }} place</div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        {% else %}
         <p>No current parties.</p>
-      {% endif %}
-    </fieldset>
-
-    <fieldset class="party-fieldset">
-      <legend>Upcoming Parties</legend>
-      {% if upcoming_parties %}
-        <ul>
-          {% for party in upcoming_parties %}
-            <li>
-              <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
-              — Starts: {{ party.party_start }}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No upcoming parties.</p>
-      {% endif %}
-    </fieldset>
-
-  </div>
-
-  <div class="right-col">
-    <fieldset class="party-fieldset">
-      <legend>Completed Parties</legend>
-      {% if completed_parties %}
-        <ul>
-          {% for party in completed_parties %}
-            <li>
-              <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
-              — Ended: {{ party.party_end }}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No completed parties.</p>
-      {% endif %}
-    </fieldset>
-  </div>
+        {% endif %}
+    </div>
 </div>
+
+<!-- Upcoming Parties (OPEN) -->
+<div class="party-card content-card">
+    <div class="card-header" onclick="toggleCard(this)">
+        <h2 class="card-title">Upcoming Parties</h2>
+        <span class="arrow">▼</span>
+    </div>
+    <div class="card-body">
+        {% if upcoming_parties %}
+            {% for party in upcoming_parties %}
+            <a href="{{ url_for('view_party', cpid=party.cpid) }}" class="party-row">
+                <div class="party-left">{{ party.name }}</div>
+                <div class="party-right">Starts in {{ party.days_until_start }} day{% if party.days_until_start != 1 %}s{% endif %}</div>
+            </a>
+            {% endfor %}
+        {% else %}
+        <p>No upcoming parties.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Completed Parties (dCLOSED bc we want user to open if they want) -->
+<div class="party-card content-card">
+    <div class="card-header" onclick="toggleCard(this)">
+        <h2 class="card-title">Completed Parties</h2>
+        <span class="arrow">▼</span>
+    </div>
+    <div class="card-body collapsed">
+        {% if completed_parties %}
+            {% for party in completed_parties %}
+            <a href="{{ url_for('view_party', cpid=party.cpid) }}" class="party-row">
+                <div class="party-left">{{ party.name }}</div>
+                <div class="party-right">Ended {{ party.days_since_end }} day{% if party.days_since_end != 1 %}s{% endif %} ago</div>
+                {% if party.word_rank %}
+                <div class="party-rank">You were in {{ party.word_rank }} place</div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        {% else %}
+        <p>No completed parties.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleCard(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('.arrow');
+
+    if (body.classList.contains('collapsed')) {
+        body.classList.remove('collapsed');
+        arrow.style.transform = 'rotate(180deg)';
+    } else {
+        body.classList.add('collapsed');
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+</script>
+
 {% endblock %}

@@ -8,14 +8,14 @@
 <form method="POST" action="{{ url_for('find_friends', pid=pid) }}">
     <label for="search_query" class="sr-only">Search users</label>
     <input type="text" id="search_query" name="search_query" placeholder="Search for a user..." required>
-    <input type="submit" name="action" value="Search">
+    <input class="btn btn-sm" type="submit" name="action" value="Search">
 </form>
 <!-- ONLY visible when there are results-->
 {% if search %}
 
     <!-- Back Button -->
     <form method="GET" action="{{ url_for('find_friends', pid=pid) }}">
-        <button type="submit">Back</button>
+        <button class="btn btn-sm" type="submit">Back</button>
     </form>
 {% endif %}
 
@@ -36,14 +36,26 @@
 {% endif %}
 
 {% for friend in friends %}
-    <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-        {{ friend['name'] }}
+    <li>
+      <div class="user-wrapper people-user-cell" tabindex="0">
+        <span>{{ friend.name }}</span>
+        <div class="user-popover">
+          <a href="{{ url_for('profile', pid=friend.pid) }}">
+              View LeetParty Profile
+          </a>
+          <a href="https://leetcode.com/u/{{ friend.lc_username }}/"
+             target="_blank" rel="noopener">
+              View LeetCode Profile
+          </a>
+        </div>
+
         <form method="POST" action="{{ url_for('find_friends', pid=pid) }}">
-            <input type="hidden" name="follow_friend" value="{{ friend['pid'] }}">
-            <input type="submit" name = "action" value="Follow">
+          <input type="hidden" name="follow_friend" value="{{ friend.pid }}">
+          <input class="btn btn-sm" type="submit" name="action" value="Follow">
         </form>
+      </div>
     </li>
-{% endfor %}
+  {% endfor %}
 </ul>
 
 <a href="{{ url_for('profile', pid=pid) }}">
