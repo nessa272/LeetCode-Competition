@@ -133,14 +133,14 @@ def unfollow(conn, pid1, pid2):
     conn.commit()
     curs.close()
 
-def edit_profile(conn, pid, name, username):
+def edit_profile(conn, pid, name, username, lc_username):
     """ updates profile with new name and username   """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     update person
-    set name = %s, username = %s
+    set name = %s, username = %s, lc_username = %s
     where pid = %s;
-    ''', [name, username, pid])
+    ''', [name, username, lc_username, pid])
     conn.commit()
     curs.close()
 
