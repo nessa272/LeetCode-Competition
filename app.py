@@ -535,7 +535,9 @@ def add_member(cpid):
     if 'pid' not in session:
         return redirect(url_for('login'))
 
-    new_pid = request.form.get("pid")
+    # FYI or session['pid'] fallback is for in case user wants to join this party
+    # see view_party user_not_in_party button
+    new_pid = request.form.get("pid") or session['pid']
     conn = dbi.connect()
     try:
         db_queries.assign_user_to_party(conn, new_pid, cpid)
