@@ -310,7 +310,10 @@ def show_profile_pic(pid):
     conn = dbi.connect()
     filename = db_queries.get_profile_pic(conn, pid)
     conn.close()
-    return redirect(url_for('uploaded_file', filename=filename['filename']))
+    if filename:
+        return redirect(url_for('uploaded_file', filename=filename['filename']))
+    else:
+        return redirect(url_for('static', filename='default_pfp.jpg'))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
