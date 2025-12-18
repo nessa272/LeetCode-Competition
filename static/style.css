@@ -565,7 +565,7 @@ fieldset {
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
 }
 
-/* View party member/user lists CSS */
+/* View party member/user lists CSS - also used for find friends */
 .party-list li {
     display: flex;
     align-items: center;
@@ -580,6 +580,7 @@ fieldset {
     padding: 2px 4px;            /* optional inner spacing */
     border-radius: 6px;          /* nice rounded corners on hover */
     cursor: pointer;             /* hover effect */
+    color: var(--color-link);
 }
 
 .party-user-cell .btn {
@@ -588,5 +589,5 @@ fieldset {
 
 .party-user-cell:hover {
     background-color: var(--color-text-light);
-    border-radius: 6px; /* optional for rounded edges */
+    border-radius: 6px; 
 }
