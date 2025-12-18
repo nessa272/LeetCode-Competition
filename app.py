@@ -9,6 +9,7 @@ import cs304dbi as dbi
 import db_queries
 import bcrypt_utils as bc
 import os
+import time
 from leetcode_client import refresh_user_submissions
 
 # we need a secret_key to use flash() and sessions
@@ -23,6 +24,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 # set uploads folder path for profile pics
 UPLOAD_FOLDER = '/students/leetcode/uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # team uploads directory
+app.config['MAX_CONTENT_LENGTH'] = 1*1024*1024 # 1 MB max file upload
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 @app.route('/')
@@ -31,14 +33,17 @@ def index():
     if "pid" in session:
         conn=dbi.connect()
         pid = session['pid']
-        username = db_queries.get_profile(conn, pid)
+        user = db_queries.get_profile(conn, pid)
         leaderboard = db_queries.get_leaderboard(conn, limit=10)
         conn.close()
+
+        print(f'user: {user}')
+        print(f'user filename: {user['filename']}')
 
         return render_template(
             'main.html',
             page_title='Main Page',
-            username=username['username'],
+            username=user['username'],
             leaderboard=leaderboard
         )
     
@@ -66,6 +71,7 @@ def profile(pid):
         follows = db_queries.get_follows(conn, pid)
         conn.close()
         # show profile
+        print(f'profile: {profile}')
         return render_template('profile.html', page_title='Profile Page', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session.get('pid'))))
     # else POST
     conn=dbi.connect()
@@ -169,26 +175,52 @@ def upload_profile_pic(pid):
     try:
         # TODO: handle file size
         file = request.files['pic']
-        print('got file!')
+
         if file.filename == '': # in case the user submits w/o selecting a file 
             flash('No selected file')
-            return redirect(url_for('profile', pid = pid))
+            return redirect(url_for('edit_profile', pid = pid))
+
         if file and allowed_file(file.filename): # if uploaded and file type approved
             print('forming filename')
-            filename = secure_filename(file.filename) # get secure filename
+            # form secure filename
+            user_filename = file.filename
+            ext = user_filename.split('.')[-1]
+            timestamp = time.time()
+            filename = secure_filename('{}_{}.{}'.format(pid,timestamp,ext))
+
+            # get filename path
             pathname = os.path.join(app.config['UPLOAD_FOLDER'],filename)
-            # save file to directory by formed path
-            print("abt to save!!")
+
+            # save image to filesystem by formed path
             file.save(pathname)
-            print("saved!!")
             os.chmod(pathname, 0o444) # readable by owner, group and others
+
             # upload filename to database
-            db_queries.upload_profile_pic()
+            conn = dbi.connect()
+            db_queries.upload_profile_pic(conn, pid, filename)
             conn.close()
+
             return redirect(url_for('profile', pid = pid)) # return to profile 
     except Exception as err:
         flash('Upload failed {why}'.format(why=err))
         return redirect(url_for('profile', pid = pid))
+
+@app.route('/show-profile-pic/<pid>')
+def show_profile_pic(pid):
+    """
+    Show profile pic given just the pid.
+    """
+    conn = dbi.connect()
+    filename = db_queries.get_profile_pic(conn, pid)
+    conn.close()
+    return redirect(url_for('uploaded_file', filename=filename['filename']))
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """
+    Handle request for profile picture given the filename.
+    """
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 def allowed_file(filename):
     """

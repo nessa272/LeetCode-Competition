@@ -32,7 +32,7 @@
 
             <td class="user-col">
                 <div class="user-cell">
-                    <img src="/static/default_pfp.jpg" class="leaderboard-pfp" alt="profile pic">
+                    <img src="{{ url_for('uploaded_file', filename=user.filename) if user.filename else url_for('static', filename='default_pfp.jpg') }}" class="leaderboard-pfp" alt="profile pic">
                     <span class="leaderboard-username">{{ user.username }}</span>
                 </div>
             </td>

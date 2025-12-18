@@ -7,7 +7,7 @@ def get_profile(conn, pid):
     """ Retrieve all information from a user's profile based on pid"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 SELECT person.pid, name, username, lc_username, latest_submission, current_streak, longest_streak, total_problems, num_coins, personal_goal, last_refreshed
+                 SELECT person.pid, name, username, lc_username, latest_submission, current_streak, longest_streak, total_problems, num_coins, personal_goal, last_refreshed, filename
                  FROM person left join picfile
                  ON person.pid = picfile.pid
                  WHERE person.pid = %s;
@@ -344,9 +344,18 @@ def update_party_last_refreshed(conn, cpid):
 def get_leaderboard(conn, limit=10):
     curs = dbi.dict_cursor(conn)
     curs.execute("""
-        SELECT pid, username, lc_username, num_coins
-        FROM person
+        SELECT person.pid, username, lc_username, num_coins, filename
+        FROM person left join picfile
+        ON person.pid = picfile.pid
         ORDER BY num_coins DESC
         LIMIT %s
     """, [limit])
     return curs.fetchall()
+
+def get_profile_pic(conn, pid):
+    curs = dbi.dict_cursor(conn)
+    curs.execute("""
+                select filename
+                from picfile
+                where pid=%s""", [pid])
+    return curs.fetchone()

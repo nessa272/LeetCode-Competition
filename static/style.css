@@ -157,6 +157,7 @@ body {
     object-fit: cover;
     cursor: pointer;
     border: 2px solid var(--color-border);
+    background-color: var(--color-background);
     transition: 0.2s ease-in-out;
 }
 
