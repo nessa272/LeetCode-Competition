@@ -10,6 +10,8 @@ import db_queries
 import bcrypt_utils as bc
 from leetcode_client import refresh_user_submissions
 from party_charts import build_chart_data
+from party_utils import compute_party_dates, nth
+import datetime
 
 # we need a secret_key to use flash() and sessions
 app.secret_key = secrets.token_hex()
@@ -410,6 +412,7 @@ def my_parties():
 
     conn = dbi.connect()
     all_parties = db_queries.get_parties_for_user(conn, session['pid'])
+    conn.close()
 
     current = [p for p in all_parties if p['status'] == 'in_progress']
     upcoming = [p for p in all_parties if p['status'] == 'upcoming']
@@ -422,7 +425,21 @@ def my_parties():
     upcoming.sort(key=lambda p: p['party_start'])
     # Completed parties: most recently ended
     completed.sort(key=lambda p: p['party_end'], reverse=True)
-    conn.close()
+
+    now = datetime.datetime.now()
+
+    # get num days relative to current date for each party
+    current = compute_party_dates(current)
+    upcoming = compute_party_dates(upcoming)
+    completed = compute_party_dates(completed)
+
+    #add ucer's rank for each party
+    for p in all_parties:
+        print(p['name'], p.get('rank'), p.get('word_rank'))
+        if p.get('rank') is not None:
+            p['word_rank'] = nth(p['rank'])
+        else:
+            p['word_rank'] = None
 
 
     return render_template(
