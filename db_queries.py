@@ -199,7 +199,7 @@ def get_party_invite_options(conn, pid, cpid=None):
             SELECT DISTINCT
                 p.pid,
                 p.name,
-                p.lc_username
+                p.username
             FROM person p
             JOIN connection c
             ON (c.p1 = %s AND c.p2 = p.pid)
