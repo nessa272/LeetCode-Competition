@@ -3,47 +3,6 @@
 {% block main_content %}
 <h1>My Code Parties</h1>
 
-<h2>Mutual Parties You’re Not In</h2>
-<!-- FYI: ❮ and ❯ for html character codes &#10094; and &#10095; -->
-<div class="party-slideshow">
-  <button class="slide-btn prev-slide">&#10094;</button>
-  
-  <div class="slides-container">
-    {% for party in mutual_parties[:5] %}
-    <div class="slide">
-      <div class="slide-name">{{ party.name }}</div>
-      <a href="{{ url_for('view_party', cpid=party.cpid) }}" class="btn btn-sm">View Party</a>
-    </div>
-    {% endfor %}
-  </div>
-
-  <button class="slide-btn next-slide">&#10095;</button>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const container = document.querySelector('.slides-container');
-    const slides = Array.from(container.children);
-    let index = 0;
-
-    const showSlide = (i) => {
-        const offset = i * 128; // slide width + gap
-        container.scrollTo({ left: offset, behavior: 'smooth' });
-    }
-
-    document.querySelector('.next-slide').addEventListener('click', () => {
-        index = (index + 1) % slides.length;
-        showSlide(index);
-    });
-
-    document.querySelector('.prev-slide').addEventListener('click', () => {
-        index = (index - 1 + slides.length) % slides.length;
-        showSlide(index);
-    });
-    });
-</script>
-
-
 <!-- Current Parties (OPEN) -->
 <div class="party-card content-card">
     <div class="card-header" onclick="toggleCard(this)">

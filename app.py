@@ -431,6 +431,7 @@ def create_party():
     # Fetch connections/potential people to invite
     try:
         connections = db_queries.get_party_invite_options(conn, session['pid'])
+        mutual_parties = db_queries.get_upcoming_mutual_parties(conn, session['pid'])
 
         if request.method == "POST":
             party_name = request.form.get("party_name")
@@ -461,7 +462,8 @@ def create_party():
     
     return render_template("create_party.html", 
                            page_title='Party Creation Page', 
-                           connections=connections)
+                           connections=connections,
+                           mutual_parties=mutual_parties)
 
 @app.route("/party/<int:cpid>")
 def view_party(cpid):
@@ -559,7 +561,6 @@ def my_parties():
 
     conn = dbi.connect()
     all_parties = db_queries.get_parties_for_user(conn, session['pid'])
-    mutual_parties = db_queries.get_upcoming_mutual_parties(conn, session['pid'])
     conn.close()
 
     current = [p for p in all_parties if p['status'] == 'in_progress']
@@ -610,8 +611,7 @@ def my_parties():
         page_title='My Parties Page',
         current_parties=current,
         upcoming_parties=upcoming,
-        completed_parties=completed,
-        mutual_parties=mutual_parties
+        completed_parties=completed
     )
 
 @app.route('/party/<int:cpid>/refresh')
