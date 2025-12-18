@@ -120,6 +120,7 @@ def follow(conn, pid1, pid2):
     insert into `connection` (p1, p2)
     values (%s, %s)
     ''', [pid1, pid2])
+    conn.commit()
     curs.close()
 
 def unfollow(conn, pid1, pid2):
@@ -129,6 +130,7 @@ def unfollow(conn, pid1, pid2):
     delete from `connection` 
     where p1 = %s and p2 = %s
     ''', [pid1, pid2])
+    conn.commit()
     curs.close()
 
 def edit_profile(conn, pid, name, username):

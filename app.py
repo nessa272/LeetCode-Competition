@@ -111,7 +111,6 @@ def profile(pid):
         flash('Unfollowing %s' % (friend_name['username']))
         try:
             db_queries.unfollow(conn, pid, pid2)
-            conn.commit()
             return redirect(url_for('profile', pid=pid))
         except Exception:
             conn.rollback()
@@ -132,7 +131,6 @@ def profile(pid):
 
         try:
             db_queries.unfollow(conn, session.get('pid'), pid)
-            conn.commit()
             return redirect(url_for('profile', pid=pid))
         except Exception:
             conn.rollback()
@@ -150,7 +148,6 @@ def profile(pid):
 
         try:
             db_queries.follow(conn, session.get('pid'), pid)
-            conn.commit()
             return redirect(url_for('profile', pid=pid))
         except Exception:
             conn.rollback()
