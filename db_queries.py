@@ -466,9 +466,9 @@ def get_profile_pic(conn, pid):
                 where pid=%s""", [pid])
     return curs.fetchone()
 
-def get_upcoming_mutual_parties(conn, pid, limit=5):
+def get_upcoming_mutual_parties(conn, pid, limit=20):
     """
-    Return upcoming parties where your friends are part of but u arent, max 5 parties
+    Return upcoming/current parties where your friends are part of but u arent, max 5 parties
     """
     curs = dbi.dict_cursor(conn)
 
@@ -477,7 +477,7 @@ def get_upcoming_mutual_parties(conn, pid, limit=5):
     FROM code_party cp
     JOIN party_membership pm ON pm.cpid = cp.cpid
     JOIN connection c ON c.p2 = pm.pid
-    WHERE cp.party_start > CURDATE()          -- upcoming
+    WHERE cp.party_end > CURDATE()          -- upcoming
       AND c.p1 = %s                           -- you
       AND pm.pid != %s                         -- exclude yourself
       AND cp.cpid NOT IN (
@@ -486,10 +486,6 @@ def get_upcoming_mutual_parties(conn, pid, limit=5):
     ORDER BY cp.party_start ASC
     LIMIT %s
     """, [pid, pid, pid, limit])
-
-    result = curs.fetchall()
-    curs.close()
-    return result
 
     result = curs.fetchall()
     curs.close()

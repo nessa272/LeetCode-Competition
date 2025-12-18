@@ -10,7 +10,7 @@
   <button class="slide-btn prev-slide">&#10094;</button>
   
   <div class="slides-container">
-    {% for party in mutual_parties[:5] %}
+    {% for party in mutual_parties %}
     <div class="slide">
       <div class="slide-name">{{ party.name }}</div>
       <a href="{{ url_for('view_party', cpid=party.cpid) }}" class="btn btn-sm">View Party</a>
