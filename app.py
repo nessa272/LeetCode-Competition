@@ -118,7 +118,7 @@ def profile(pid):
             conn.close()
         #return render_template('profile.html', profile=profile, followers=followers,follows=follows, loggedin= (str(pid) == str(session['pid'])))
     
-    #unfollow looking from a diff page
+    #unfollow looking from a different users' page
     elif action == "Unfollow_out":
         #double check session
         if 'pid' not in session:
