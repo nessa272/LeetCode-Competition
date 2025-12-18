@@ -129,18 +129,26 @@ def edit_profile(pid):
                                follows=follows, 
                                loggedin= (str(pid) == str(session['pid'])))
     elif request.method =="POST":
-        #get form info
-        name = request.form.get('name')
-        username = request.form.get('username')
-        conn = dbi.connect()
-        try:
-            db_queries.edit_profile(conn, pid, name, username)
-            conn.commit()
-        except Exception:
-            conn.rollback()
-        finally:
-            conn.close()
-        return redirect(url_for('profile', pid=pid))
+        action = request.form.get('action')
+        #print(action)
+        if action == "update":
+            #print("update")
+            #get form info
+            name = request.form.get('name')
+            username = request.form.get('username')
+            conn = dbi.connect()
+            try:
+                db_queries.edit_profile(conn, pid, name, username)
+                conn.commit()
+            except Exception:
+                conn.rollback()
+            finally:
+                conn.close()
+            return redirect(url_for('profile', pid=pid))
+        
+        #cancel button
+        else:
+            return redirect(url_for('profile', pid=pid))
 
 @app.route('/refresh-stats', methods=['POST'])
 def refresh_my_stats():
