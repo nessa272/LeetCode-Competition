@@ -104,7 +104,7 @@ a:not(.btn):hover {
 
 .btn {
   display: inline-block;
-  padding: 0.6rem 1.1rem;
+  padding: 0.4rem 0.6rem;
   border-radius: 6px;
   font-weight: bold;
   text-decoration: none;
@@ -115,6 +115,7 @@ a:not(.btn):hover {
   background-color: var(--color-button);
   color: var(--color-light);
   font-size: 1em;
+  margin: 0.2em;
 }
 
 .btn:hover {
