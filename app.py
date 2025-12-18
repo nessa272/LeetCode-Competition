@@ -156,8 +156,6 @@ def profile(pid):
     
     conn.close()
                
-# TO DO: TEMPORARY SOLUTION
-# Will be incorporated into POST action in profile (not separate url)
 @app.route('/profile/edit/<pid>', methods = ['GET', 'POST'])
 def edit_profile(pid):
     '''
