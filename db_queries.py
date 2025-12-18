@@ -352,6 +352,21 @@ def get_leaderboard(conn, limit=10):
     """, [limit])
     return curs.fetchall()
 
+def get_problems_solved_today(conn, pid: int) -> int:
+    curs = dbi.dict_cursor(conn)
+    curs.execute(
+        """
+        SELECT COUNT(*) AS problems_today
+        FROM submission
+        WHERE pid = %s
+          AND DATE(submission_date) = CURRENT_DATE
+        """,
+        (pid,)
+    )
+    row = curs.fetchone()
+    return row["problems_today"] if row else 0
+
+
 def get_profile_pic(conn, pid):
     curs = dbi.dict_cursor(conn)
     curs.execute("""

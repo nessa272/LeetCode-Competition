@@ -6,7 +6,7 @@
     <div class="welcome-text">
         <h2>Welcome, {{ username }}!</h2>
         <p>
-            You’ve solved
+            You've solved
             <strong>{{ problems_today }}</strong>
             LeetCode problem{{ '' if problems_today == 1 else 's' }}
             today.
@@ -20,10 +20,12 @@
             Go solve problems
         </a>
 
-        <!-- FAKE DUMMY LINK BTW WILL BE FIXED -->
-        <form method="POST" action="{{ url_for('index') }}">
+        <form method="POST" action="{{ url_for('refresh_my_stats', next=url_for('index')) }}"
+            onsubmit="this.querySelector('button').disabled = true;
+                        this.querySelector('button').innerText = 'Refreshing…';
+                        document.body.style.cursor='wait';">
             <button type="submit" class="btn">
-                Refresh stats
+                Refresh Leetcode Stats
             </button>
         </form>
     </div>
