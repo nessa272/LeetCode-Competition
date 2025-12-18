@@ -3,45 +3,59 @@
 {% block main_content %}
 <h1>My Code Parties</h1>
 
-<h2>Current Parties</h2>
-{% if current_parties %}
-    <ul>
-    {% for party in current_parties %}
-        <li>
-            <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
-            — Ends: {{ party.party_end }}
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No current parties.</p>
-{% endif %}
+<div class="dashboard-grid">
+  <div class="left-col">
 
-<h2>Upcoming Parties</h2>
-{% if upcoming_parties %}
-    <ul>
-    {% for party in upcoming_parties %}
-        <li>
-            <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
-            — Starts: {{ party.party_start }}
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No upcoming parties.</p>
-{% endif %}
+    <fieldset class="party-fieldset">
+      <legend>Current Parties</legend>
+      {% if current_parties %}
+        <ul>
+          {% for party in current_parties %}
+            <li>
+              <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
+              — Ends: {{ party.party_end }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No current parties.</p>
+      {% endif %}
+    </fieldset>
 
-<h2>Completed Parties</h2>
-{% if completed_parties %}
-    <ul>
-    {% for party in completed_parties %}
-        <li>
-            <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
-            — Ended: {{ party.party_end }}
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No completed parties.</p>
-{% endif %}
+    <fieldset class="party-fieldset">
+      <legend>Upcoming Parties</legend>
+      {% if upcoming_parties %}
+        <ul>
+          {% for party in upcoming_parties %}
+            <li>
+              <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
+              — Starts: {{ party.party_start }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No upcoming parties.</p>
+      {% endif %}
+    </fieldset>
+
+  </div>
+
+  <div class="right-col">
+    <fieldset class="party-fieldset">
+      <legend>Completed Parties</legend>
+      {% if completed_parties %}
+        <ul>
+          {% for party in completed_parties %}
+            <li>
+              <a href="{{ url_for('view_party', cpid=party.cpid) }}">{{ party.name }}</a>
+              — Ended: {{ party.party_end }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No completed parties.</p>
+      {% endif %}
+    </fieldset>
+  </div>
+</div>
 {% endblock %}

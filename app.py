@@ -333,7 +333,7 @@ def view_party(cpid):
     conn = dbi.connect()
     party = db_queries.get_party_info(conn, cpid)
     members = db_queries.get_party_members(conn, cpid)
-    connections = db_queries.get_party_invite_options(conn, session['pid'], cpid)
+    connections = db_queries.get_party_invite_options(conn, session['pid'], cpid, limit=10)
     conn.close()
 
     return render_template(

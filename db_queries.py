@@ -167,7 +167,7 @@ def get_login_info(conn, username):
 
 # Group queries
 
-def get_party_invite_options(conn, pid, cpid=None):
+def get_party_invite_options(conn, pid, cpid=None, limit=50):
     """
     Returns all friends/followers/following of pid.
     If cpid is provided, skip users who are already in the party.
@@ -191,8 +191,9 @@ def get_party_invite_options(conn, pid, cpid=None):
             LEFT JOIN party_membership pm
             ON pm.pid = p.pid
             AND pm.cpid = %s
-            WHERE pm.cpid IS NULL;
-        ''', [pid, pid, cpid])
+            WHERE pm.cpid IS NULL
+            LIMIT %s;
+        ''', [pid, pid, cpid, limit])
 
     # This case is: fetching friend list(potential invitees) for a NEW PARTY IN CREATION
     else:
@@ -201,7 +202,8 @@ def get_party_invite_options(conn, pid, cpid=None):
             FROM person p
             JOIN connection c
               ON (c.p1=%s AND c.p2=p.pid) OR (c.p2=%s AND c.p1=p.pid)
-        ''', [pid, pid])
+            LIMIT %s
+        ''', [pid, pid, limit])
     
     return curs.fetchall()
  
