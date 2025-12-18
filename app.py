@@ -680,7 +680,6 @@ def find_friends():
                 friend_name = db_queries.get_profile(conn, pid2)
 
                 flash('Following %s' % (friend_name['username']))
-                flash('Following %s' % (friend_name['username']))
 
                 #make connection 
                 try:

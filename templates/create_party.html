@@ -67,18 +67,12 @@
 
         {% if connections %}
             {% for user in connections %}
-                {% if user.in_party %}
-                    <label style="color:gray;">
-                        {{ user.lc_username }} (Already in this party)
-                    </label><br>
-                {% else %}
-                    {# create a unique id for each checkbox #}
-                    <input type="checkbox" 
-                           id="invite_{{ user.pid }}" 
-                           name="invitees" 
-                           value="{{ user.pid }}">
-                    <label for="invite_{{ user.pid }}">{{ user.lc_username }}</label><br>
-                {% endif %}
+                {# create a unique id for each checkbox #}
+                <input type="checkbox" 
+                        id="invite_{{ user.pid }}" 
+                        name="invitees" 
+                        value="{{ user.pid }}">
+                <label for="invite_{{ user.pid }}">{{ user.name }}</label><br>
             {% endfor %}
         {% else %}
             <p>You have no connections to invite.</p>
