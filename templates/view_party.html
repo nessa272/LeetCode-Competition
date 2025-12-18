@@ -19,18 +19,30 @@
         <ul>
           {% for member in members %}
             <li>
-              {{ member.name }} ({{ member.username }})
+              <div class="user-wrapper" tabindex="0">
+                <div class="user-cell">
+                  <img src="{{ member.pfp_url or '/static/default_pfp.jpg' }}" 
+                      class="party-pfp" alt="pfp">
+                  <span>{{ member.name }} ({{ member.username }})</span>
+                </div>
+
+                <div class="user-popover">
+                  <a href="{{ url_for('profile', pid=member.pid) }}">View LeetParty Profile</a>
+                  <a href="https://leetcode.com/u/{{ member.lc_username }}/" target="_blank" rel="noopener">View LeetCode Profile</a>
+                </div>
+              </div>
+
               {% if member.pid != session['pid'] %}
-                <form style="display:inline" method="POST" action="{{ url_for('remove_member', cpid=party.cpid) }}">
-                  <input type="hidden" name="pid" value="{{ member.pid }}">
-                  <button type="submit">Remove</button>
-                </form>
+                <button class="remove-member-btn btn btn-sm" data-pid="{{ member.pid }}">
+                  Remove
+                </button>
               {% else %}
-                (You)
+                <span>(You)</span>
               {% endif %}
             </li>
           {% endfor %}
         </ul>
+
 
         <a class="btn" href="{{ url_for('refresh_party', cpid=party.cpid) }}">
           Refresh Full Party Stats
@@ -45,18 +57,71 @@
         <hr>
 
         <h3>Invite Connections</h3>
-        {% if connections %}
-          {% for user in connections %}
-            <form method="POST" action="{{ url_for('add_member', cpid=party.cpid) }}">
-              <input type="hidden" name="pid" value="{{ user.pid }}">
-              <label>{{ user.lc_username }}</label>
-              <button type="submit">Add</button>
-            </form>
-          {% endfor %}
-        {% else %}
-          <p>No connections available to invite.</p>
-        {% endif %}
+  {% if connections %}
+  <ul>
+    {% for user in connections %}
+      <li>
+        <!-- User wrapper for popover -->
+        <div class="user-wrapper" tabindex="0">
+          <div class="user-cell">
+            <img src="{{ user.pfp_url or '/static/default_pfp.jpg' }}" 
+                class="party-pfp" alt="pfp">
+            <span>{{ user.lc_username }}</span>
+          </div>
+
+          <div class="user-popover">
+            <a href="{{ url_for('profile', pid=user.pid) }}">View LeetParty Profile</a>
+            <a href="https://leetcode.com/u/{{ user.lc_username }}/" target="_blank" rel="noopener">View LeetCode Profile</a>
+          </div>
+        </div>
+
+        <button class="add-member-btn btn btn-sm" data-pid="{{ user.pid }}">
+          Add
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No connections available to invite.</p>
+  {% endif %}
+
       </div>
+      
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+      <script>
+        // Pass URLs from Flask into JS
+        const url_add_member = "{{ url_for('add_member', cpid=party.cpid) }}";
+        const url_remove_member = "{{ url_for('remove_member', cpid=party.cpid) }}";
+        const url_refresh_party = "{{ url_for('refresh_party', cpid=party.cpid) }}";
+        const url_login = "{{ url_for('login') }}";
+
+        // Add member
+        $(".add-member-btn").click(function() {
+            const pid = $(this).data("pid");
+            $.post(url_add_member, {pid: pid})
+            .done(function(resp) {
+                location.reload();
+            })
+            .fail(function(xhr) {
+                if (xhr.status === 401) window.location.href = url_login;
+                else alert("Failed to add member");
+            });
+        });
+
+        // Remove member
+        $(".remove-member-btn").click(function() {
+            const pid = $(this).data("pid");
+            const btn = $(this);
+            $.post(url_remove_member, {pid: pid})
+            .done(function(resp) {
+                btn.closest("li").remove();
+            })
+            .fail(function(xhr) {
+                if (xhr.status === 401) window.location.href = url_login;
+                else alert("Failed to remove member");
+            });
+        });
+      </script>
 
       <!-- RIGHT COLUMN: graphs -->
       <div class="right-col">

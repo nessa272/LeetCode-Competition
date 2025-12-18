@@ -123,6 +123,14 @@ body {
     color: var(--color-text);
 }
 
+.btn-sm {
+    padding: 0.25rem 0.5rem;  
+    font-size: 0.8em;  
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+
 /* Derived variations */
 .btn-primary {
     border-color: var(--color-alert);
@@ -557,4 +565,48 @@ fieldset {
     background-color: var(--color-light);
     border-bottom: 1px solid var(--color-border);
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+/* -------------------------
+   Party Member / Connection Styles
+--------------------------- */
+/* Compact party member list */
+ul.party-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+ul.party-list li {
+    display: flex;
+    align-items: center;  /* vertically center items */
+    justify-content: space-between;
+    gap: 6px;             /* horizontal spacing */
+    padding: 2px 0;        /* smaller vertical spacing */
+}
+
+.user-wrapper {
+    display: inline-flex;
+    align-items: center;   /* align image + text vertically */
+    position: relative;
+    gap: 4px;
+    outline: none;
+}
+
+/* Compact user-cell inside wrapper */
+.party-user-cell {
+    display: inline-flex;
+    align-items: center;   /* ensures pfp is vertically centered with text */
+    gap: 4px;
+}
+
+/* Profile picture */
+.party-pfp {
+    width: 24px !important;      /* fixed size */
+    height: 24px !important;
+    flex-shrink: 0;              /* don’t stretch/shrink */
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    margin-bottom: 0 !important;
 }

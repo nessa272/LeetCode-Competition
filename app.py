@@ -226,7 +226,7 @@ def refresh_my_stats():
 def refresh_profile(pid: int, lc_username: str):
     """
     NOTE: this route alolows you to refresh anyone's profile with its unique link, 
-    currently deprecated use for preferred refresh_my_stats. 
+    currently DEPRECATED use for preferred refresh_my_stats. This would more be for admin.
     Fetch a user's recent accepted submissions from LeetCode and insert
     new (pid, lc_problem) rows into 'submission'.
 
@@ -390,11 +390,7 @@ def create_party():
 
 @app.route("/party/<int:cpid>")
 def view_party(cpid):
-    """
-    Loads page to view existing code party
-    
-    :param cpid: the code party id
-    """
+    """Loads page to view existing code party"""
     if 'pid' not in session:
         return redirect(url_for('login'))
 
@@ -429,45 +425,45 @@ def party_charts(cpid):
 
     return jsonify(data)
 
-# TO DO: Change to POST action in view_party
+#uses JSON
 @app.route("/party/<int:cpid>/remove_member", methods=["POST"])
 def remove_member(cpid):
-    '''Loads page to remove a member from a code party'''
+    '''Remove a member from a code party'''
     if 'pid' not in session:
-        return redirect(url_for('login'))
+        return jsonify(error="not logged in"), 401
 
-    remove_pid = request.form.get("pid")
+    remove_pid = request.form["pid"]
+
     conn = dbi.connect()
     try:
         db_queries.remove_user_from_party(conn, remove_pid, cpid)
         conn.commit()
-        flash("Member removed!")
+        return jsonify(pid=remove_pid)
     except Exception as e:
         conn.rollback()
-        flash(f"Error: {e}")
+        return jsonify(error=str(e)), 400
     finally:
         conn.close()
 
-    return redirect(url_for("view_party", cpid=cpid))
-
 @app.route("/party/<int:cpid>/add_member", methods=["POST"])
 def add_member(cpid):
+    '''Add a person to a code party'''
     if 'pid' not in session:
-        return redirect(url_for('login'))
+        return jsonify(error="not logged in"), 401
 
-    new_pid = request.form.get("pid")
+    new_pid = request.form["pid"]
+
     conn = dbi.connect()
     try:
         db_queries.assign_user_to_party(conn, new_pid, cpid)
         conn.commit()
-        flash("Member added!")
+        return jsonify(pid=new_pid)
     except Exception as e:
         conn.rollback()
-        flash(f"Error adding member: {e}")
+        return jsonify(error=str(e)), 400
     finally:
         conn.close()
 
-    return redirect(url_for("view_party", cpid=cpid))
 
 @app.route("/my_parties")
 def my_parties():
