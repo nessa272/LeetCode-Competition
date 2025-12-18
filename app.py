@@ -107,7 +107,7 @@ def profile(pid):
     if action == "Unfollow":
         pid2 = request.form.get('unfollow_friend')
         friend_name = db_queries.get_profile(conn, pid2)
-        print(pid2)
+        # print(pid2)
         flash('Unfollowing %s' % (friend_name['username']))
         try:
             db_queries.unfollow(conn, pid, pid2)
@@ -217,7 +217,7 @@ def refresh_my_stats():
         #refresh their submissions
         num_submissions = refresh_user_submissions(conn, session['pid'], lc_username)
         conn.commit()
-        print(f"{num_submissions} submissions added to database for username {lc_username}")
+        # print(f"{num_submissions} submissions added to database for username {lc_username}")
     except Exception as e:
         conn.rollback()
     finally:
@@ -253,7 +253,7 @@ def refresh_profile(pid: int, lc_username: str):
     conn = dbi.connect()
     try:
         num_submissions = refresh_user_submissions(conn, pid, lc_username)
-        print(f"{num_submissions} submissions added to database for username {lc_username}")
+        # print(f"{num_submissions} submissions added to database for username {lc_username}")
         conn.commit()
         return redirect(url_for('profile', pid=pid))
     except Exception:
@@ -266,9 +266,7 @@ def upload_profile_pic(pid):
     """
     Handle uploaded profile pic.
     """
-    # TODO: handle user session login for extra backup?
     try:
-        # TODO: handle file size
         file = request.files['pic']
 
         if file.filename == '': # in case the user submits w/o selecting a file 
@@ -276,7 +274,7 @@ def upload_profile_pic(pid):
             return redirect(url_for('edit_profile', pid = pid))
 
         if file and allowed_file(file.filename): # if uploaded and file type approved
-            print('forming filename')
+            # print('forming filename')
             # form secure filename
             user_filename = file.filename
             ext = user_filename.split('.')[-1]
@@ -585,7 +583,7 @@ def my_parties():
 
     #add ucer's rank for each party
     for p in all_parties:
-        print(p['name'], p.get('rank'), p.get('word_rank'))
+        # print(p['name'], p.get('rank'), p.get('word_rank'))
         if p.get('rank') is not None:
             p['word_rank'] = nth(p['rank'])
         else:
@@ -600,7 +598,7 @@ def my_parties():
 
     #add ucer's rank for each party
     for p in all_parties:
-        print(p['name'], p.get('rank'), p.get('word_rank'))
+        # print(p['name'], p.get('rank'), p.get('word_rank'))
         if p.get('rank') is not None:
             p['word_rank'] = nth(p['rank'])
         else:
