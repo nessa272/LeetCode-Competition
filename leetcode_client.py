@@ -1,6 +1,7 @@
 # Written by Jessica Dai, Sophie Lin, Nessa Tong, Ashley Yang (Olin)
 import requests
 from datetime import datetime, timezone, timedelta, date
+from zoneinfo import ZoneInfo
 from typing import Any, Dict, List, Optional
 import cs304dbi as dbi
 
@@ -296,6 +297,7 @@ def refresh_user_submissions(
 
     
     cursor = dbi.dict_cursor(conn)
+    EST = ZoneInfo("America/New_York")
 
     submissions = fetch_recent_ac_submissions(username, limit=limit)
 
@@ -312,7 +314,7 @@ def refresh_user_submissions(
             continue
 
         submission_date = datetime.fromtimestamp(
-            timestamp, tz=timezone.utc
+            timestamp, tz=EST
         ).date()
 
         meta = get_problem_meta(cursor, title_slug)
