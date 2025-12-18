@@ -23,7 +23,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 # set uploads folder path for profile pics
 UPLOAD_FOLDER = '/students/leetcode/uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER # team uploads directory
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 @app.route('/')
 def index():
@@ -167,15 +167,20 @@ def upload_profile_pic(pid):
     """
     # TODO: handle user session login for extra backup?
     try:
+        # TODO: handle file size
         file = request.files['pic']
+        print('got file!')
         if file.filename == '': # in case the user submits w/o selecting a file 
             flash('No selected file')
             return redirect(url_for('profile', pid = pid))
         if file and allowed_file(file.filename): # if uploaded and file type approved
+            print('forming filename')
             filename = secure_filename(file.filename) # get secure filename
             pathname = os.path.join(app.config['UPLOAD_FOLDER'],filename)
             # save file to directory by formed path
+            print("abt to save!!")
             file.save(pathname)
+            print("saved!!")
             os.chmod(pathname, 0o444) # readable by owner, group and others
             # upload filename to database
             db_queries.upload_profile_pic()
