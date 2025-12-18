@@ -2,11 +2,37 @@
 
 {% block main_content %}
 <h1>Main</h1>
-<p>Welcome {{ username }}!</p>
+<div class="content-card welcome-card">
+    <div class="welcome-text">
+        <h2>Welcome, {{ username }}!</h2>
+        <p>
+            You’ve solved
+            <strong>{{ problems_today }}</strong>
+            LeetCode problem{{ '' if problems_today == 1 else 's' }}
+            today.
+        </p>
+    </div>
 
+    <div class="welcome-actions">
+        <a href="https://leetcode.com/problemset/all/"
+           target="_blank"
+           class="btn btn-primary">
+            Go solve problems
+        </a>
+
+        <!-- FAKE DUMMY LINK BTW WILL BE FIXED -->
+        <form method="POST" action="{{ url_for('index') }}">
+            <button type="submit" class="btn">
+                Refresh stats
+            </button>
+        </form>
+    </div>
+</div>
+
+<br>
 <h2 class="leaderboard-title">🏆 Top LeetCoders 🏆</h2>
 
-<div class="leaderboard-card">
+<div class="content-card leaderboard-card">
     <table class="leaderboard-table">
         <thead>
             <tr>
