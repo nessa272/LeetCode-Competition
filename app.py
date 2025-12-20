@@ -435,6 +435,7 @@ def create_party():
     # Fetch connections/potential people to invite
     try:
         connections = db_queries.get_party_invite_options(conn, session['pid'])
+        mutual_parties = db_queries.get_upcoming_mutual_parties(conn, session['pid'])
 
         if request.method == "POST":
             party_name = request.form.get("party_name")
@@ -465,7 +466,8 @@ def create_party():
     
     return render_template("create_party.html", 
                            page_title='Party Creation Page', 
-                           connections=connections)
+                           connections=connections,
+                            mutual_parties=mutual_parties)
 
 @app.route("/party/<int:cpid>")
 def view_party(cpid):
