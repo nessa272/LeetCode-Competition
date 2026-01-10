@@ -3,7 +3,7 @@ LeetParty is a full-stack website that tracks users’ LeetCode activity and dis
 
 ## Tech Stack
 - **Flask** – Python web framework for routing, templates, and backend logic
-- **NoSQL** – Database for storing users, parties, and stats
+- **MySQL** – Database for storing users, parties, and stats
 - **GraphQL** – API query language for fetching LeetCode data
 - **Python** – Core programming language for backend logic
 - **HTML / CSS / JavaScript** – Frontend structure, styling, and interactivity
