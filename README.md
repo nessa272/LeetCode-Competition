@@ -1,5 +1,5 @@
 # LeetParty
-LeetParty is a website that tracks users’ LeetCode activity and displays progress through visual dashboards. The app manages a database of users, their groups, and submissions, allowing friends to collaborate and compete in a slightly gamified environment. By encouraging regular problem-solving, LeetParty helps users stay motivated and improve their performance, making it especially useful for tech recruiting preparation.
+LeetParty is a full-stack website that tracks users’ LeetCode activity and displays progress through visual dashboards. The app manages a database of users, their groups, and submissions, allowing friends to collaborate and compete in a slightly gamified environment. By encouraging regular problem-solving, LeetParty helps users stay motivated and improve their performance, making it especially useful for tech recruiting preparation.
 
 ## Tech Stack
 - **Flask** – Python web framework for routing, templates, and backend logic
